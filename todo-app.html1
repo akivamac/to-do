@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Peaceful Tasks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2f7 0%, #fce4ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            padding: 40px;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-screen h1 {
+            color: #5e8fb5;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .login-input {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .login-error {
+            color: #e57373;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* Logout Button */
+        .logout-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Sync Status */
+        .sync-status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .sync-status.syncing {
+            color: #ffa726;
+        }
+
+        .sync-status.synced {
+            color: #66bb6a;
+        }
+
+        /* Update Banner */
+        .update-banner {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            color: #333;
+            padding: 15px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .update-banner.show {
+            display: block;
+        }
+
+        .update-banner button {
+            background: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            margin-left: 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Onboarding Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h2 {
+            color: #5e8fb5;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .modal p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .modal button {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .modal button:hover {
+            transform: scale(1.05);
+        }
+
+        .suggestion-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .suggestion-box p {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .suggestion-buttons button {
+            flex: 1;
+            padding: 10px 20px;
+        }
+
+        .suggestion-buttons .no-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+        }
+
+        /* Task Suggestion Modal */
+        .task-suggestion-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .task-suggestion-modal.active {
+            display: flex;
+        }
+
+        .task-suggestion-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-suggestion-content h3 {
+            color: #5e8fb5;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .task-suggestion-content p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .original-task {
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: #c62828;
+            font-style: italic;
+        }
+
+        .suggested-task {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #2e7d32;
+            font-weight: 500;
+            font-size: 18px;
+        }
+
+        .task-suggestion-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-suggestion-buttons button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .task-suggestion-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .accept-btn {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .decline-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+            color: white;
+        }
+
+        /* Edit Task Modal */
+        .edit-task-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+        }
+
+        .edit-task-modal.active {
+            display: flex;
+        }
+
+        .edit-task-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .edit-task-content h3 {
+            color: #5e8fb5;
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .edit-field {
+            margin-bottom: 20px;
+        }
+
+        .edit-field label {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .edit-field input, .edit-field select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+
+        .edit-field input:focus, .edit-field select:focus {
+            outline: none;
+            border-color: #5e8fb5;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .edit-buttons button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 500;
+        }
+
+        .edit-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .save-edit-btn {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .cancel-edit-btn {
+            background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+            color: #333;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            background: linear-gradient(135deg, #5e8fb5 0%, #7ba7c7 100%);
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 3px solid white;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .greeting {
+            font-size: 24px;
+            color: #5e8fb5;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Days Page */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .day-card {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffe6f0 100%);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            border-color: #5e8fb5;
+        }
+
+        .day-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .day-name {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .task-count {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Today Page */
+        .add-task {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .add-task input {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .add-task button {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .add-task button:hover {
+            transform: scale(1.05);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background: white;
+            border: 2px solid #f0f0f0;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s;
+            flex-wrap: wrap;
+        }
+
+        .task-item:hover {
+            border-color: #5e8fb5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
+
+        .drag-handle {
+            font-size: 20px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #66bb6a;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+            min-width: 150px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .task-text:hover {
+            background: #f0f0f0;
+        }
+
+        .task-time {
+            font-size: 14px;
+            color: #888;
+            font-style: italic;
+            min-width: 80px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .task-time:hover {
+            background: #f0f0f0;
+        }
+
+        .assigned-to {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .delete-btn {
+            background: #e57373;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #ef5350;
+        }
+
+        /* Hugs Page */
+        .hugs-container {
+            text-align: center;
+        }
+
+        .total-hugs {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .total-hugs h2 {
+            font-size: 24px;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .total-hugs .number {
+            font-size: 60px;
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .hug-groups {
+            display: grid;
+            gap: 15px;
+        }
+
+        .hug-group {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffe6f0 100%);
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .hug-group-info {
+            text-align: left;
+        }
+
+        .hug-group-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .hug-group-count {
+            font-size: 24px;
+            color: #5e8fb5;
+            font-weight: bold;
+        }
+
+        .hug-group-expires {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 18px;
+        }
+
+        /* Day Edit Modal - STICKY HEADER */
+        .day-edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .day-edit-modal.active {
+            display: flex;
+        }
+
+        .day-edit-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .day-edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 30px 20px 30px;
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .day-edit-header h2 {
+            color: #5e8fb5;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .day-edit-body {
+            padding: 20px 30px 30px 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .nav-item {
+                padding: 15px 10px;
+                font-size: 16px;
+            }
+
+            .greeting {
+                font-size: 20px;
+            }
+
+            .days-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+
+            .day-card {
+                padding: 15px;
+            }
+
+            .modal-content, .edit-task-content {
+                padding: 30px 20px;
+            }
+
+            .task-item {
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .task-text {
+                min-width: 100px;
+            }
+
+            .add-task {
+                flex-direction: column;
+            }
+
+            .add-task input {
+                width: 100%;
+            }
+
+            .add-task button {
+                width: 100%;
+            }
+
+            .day-edit-header {
+                padding: 20px 20px 15px 20px;
+            }
+
+            .day-edit-body {
+                padding: 15px 20px 20px 20px;
+            }
+
+            .logout-container {
+                position: static;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .sync-status {
+                position: static;
+                display: inline-block;
+                margin: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .greeting {
+                font-size: 18px;
+            }
+
+            .total-hugs .number {
+                font-size: 48px;
+            }
+
+            .hug-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Update Banner -->
+    <div id="updateBanner" class="update-banner">
+        🎉 New update available! We've made some improvements.
+        <button onclick="dismissUpdate()">Got it!</button>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="container">
+        <div class="login-screen">
+            <h1>🌸 Welcome to My Peaceful Tasks</h1>
+            <div id="passcodeStep">
+                <p>Please enter your passcode to continue</p>
+                <input type="password" id="passcodeInput" class="login-input" placeholder="Enter passcode" />
+                <button class="login-btn" onclick="checkPasscode()">Continue</button>
+                <div id="passcodeError" class="login-error"></div>
+            </div>
+            <div id="createAccountStep" class="hidden">
+                <p>Create your account</p>
+                <input type="text" id="usernameInput" class="login-input" placeholder="Choose a username" />
+                <input type="password" id="passwordInput" class="login-input" placeholder="Choose a password" />
+                <input type="password" id="confirmPasswordInput" class="login-input" placeholder="Confirm password" />
+                <button class="login-btn" onclick="createAccount()">Create Account</button>
+                <div id="createError" class="login-error"></div>
+            </div>
+            <div id="loginStep" class="hidden">
+                <p>Welcome back!</p>
+                <input type="text" id="loginUsername" class="login-input" placeholder="Username" />
+                <input type="password" id="loginPassword" class="login-input" placeholder="Password" />
+                <button class="login-btn" onclick="login()">Login</button>
+                <div id="loginError" class="login-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div id="onboardingModal" class="modal hidden">
+        <div class="modal-content">
+            <div id="step1" class="onboarding-step">
+                <h2>Welcome! 🌸</h2>
+                <p>You can easily reorder your tasks by pressing and moving the Ⓜ️ icon on each task.</p>
+                <p>When a name suggestion appears, just click "Yes" or "No" to accept or decline it.</p>
+                <p>You'll earn hugs for completing tasks - every 5 tasks completed earns you 1 hug! 🤗</p>
+                <button onclick="nextOnboardingStep()">Got it!</button>
+            </div>
+            <div id="step2" class="onboarding-step hidden">
+                <h2>What should we call you?</h2>
+                <p>This can be any name you like - doesn't have to be your real name!</p>
+                <input type="text" id="nameInput" placeholder="Enter your name..." />
+                <div id="nameSuggestion" class="suggestion-box hidden">
+                    <p>How about we call you <strong id="suggestedName"></strong>?</p>
+                    <div class="suggestion-buttons">
+                        <button onclick="acceptSuggestedName()">Yes</button>
+                        <button class="no-btn" onclick="rejectSuggestedName()">No</button>
+                    </div>
+                </div>
+                <button id="startBtn" onclick="startApp()">Start</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Suggestion Modal -->
+    <div id="taskSuggestionModal" class="task-suggestion-modal">
+        <div class="task-suggestion-content">
+            <h3>💐 Let's make this more uplifting!</h3>
+            <p>How about rephrasing this task in a more positive way?</p>
+            <div class="original-task" id="originalTaskText"></div>
+            <div class="suggested-task" id="suggestedTaskText"></div>
+            <div class="task-suggestion-buttons">
+                <button class="accept-btn" onclick="acceptTaskSuggestion()">Yes, I like it!</button>
+                <button class="decline-btn" onclick="declineTaskSuggestion()">No, keep original</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="edit-task-modal">
+        <div class="edit-task-content">
+            <h3>✏️ Edit Task</h3>
+            <div class="edit-field">
+                <label>Task Name</label>
+                <input type="text" id="editTaskName" placeholder="Enter task name..." />
+            </div>
+            <div class="edit-field">
+                <label>Time (optional)</label>
+                <input type="time" id="editTaskTimeInput" />
+            </div>
+            <div class="edit-field">
+                <label>Assign to</label>
+                <select id="editTaskAssign">
+                    <option value="">No one (just me)</option>
+                </select>
+            </div>
+            <div class="edit-buttons">
+                <button class="cancel-edit-btn" onclick="cancelEditTask()">Cancel</button>
+                <button class="save-edit-btn" onclick="saveEditTask()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day Edit Modal -->
+    <div id="dayEditModal" class="day-edit-modal">
+        <div class="day-edit-content">
+            <div class="day-edit-header">
+                <h2 id="editDayTitle"></h2>
+                <button class="close-btn" onclick="closeDayEdit()">×</button>
+            </div>
+            <div class="day-edit-body">
+                <div class="add-task">
+                    <input type="text" id="editDayTaskInput" placeholder="Add a task..." />
+                    <input type="time" id="editDayTaskTime" placeholder="Time (optional)" />
+                    <button onclick="addTaskToEditDay()">Add</button>
+                </div>
+                <ul id="editDayTaskList" class="task-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="mainApp" class="container hidden">
+        <div class="sync-status" id="syncStatus">● Synced</div>
+        <div class="logout-container">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        <div class="nav">
+            <div class="nav-item active" onclick="switchPage('days')">Days</div>
+            <div class="nav-item" onclick="switchPage('today')">Today</div>
+            <div class="nav-item" onclick="switchPage('hugs')">Hugs</div>
+        </div>
+
+        <div class="content">
+            <!-- Days Page -->
+            <div id="daysPage" class="page active">
+                <div class="greeting" id="daysGreeting"></div>
+                <div class="days-grid" id="daysGrid"></div>
+            </div>
+
+            <!-- Today Page -->
+            <div id="todayPage" class="page">
+                <div class="greeting" id="todayGreeting"></div>
+                <div class="add-task">
+                    <input type="text" id="taskInput" placeholder="What needs to be done today?" />
+                    <input type="time" id="taskTime" placeholder="Time (optional)" />
+                    <button onclick="addTask()">Add Task</button>
+                </div>
+                <ul id="taskList" class="task-list"></ul>
+            </div>
+
+            <!-- Hugs Page -->
+            <div id="hugsPage" class="page">
+                <div class="greeting" id="hugsGreeting"></div>
+                <div class="hugs-container">
+                    <div class="total-hugs">
+                        <h2>Total Hugs Earned</h2>
+                        <div class="number" id="totalHugs">0</div>
+                    </div>
+                    <div class="hug-groups" id="hugGroups"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App version for update detection
+        const APP_VERSION = '3.0';
+        const CORRECT_PASSCODE = 'family2025';
+        const SYNC_INTERVAL = 5000; // Sync every 5 seconds
+
+        // Data storage
+        let currentUser = null;
+        let userName = '';
+        let tasks = {};
+        let hugGroups = [];
+        let completedTasksCount = 0;
+        let currentEditDay = null;
+        let pendingTask = null;
+        let pendingTaskCallback = null;
+        let editingTaskIndex = null;
+        let editingTaskIsEditDay = false;
+        let familyMembers = []; // List of all family members who have accounts
+        let syncInterval = null;
+
+        const nameSuggestions = ['Sunshine', 'Star', 'Rose', 'Joy', 'Grace', 'Hope', 'Luna', 'Willow', 'Daisy', 'Pearl'];
+
+        // Negative words detection
+        const negativeWords = [
+            'stop', 'quit', 'avoid', 'dont', "don't",
+            'stress', 'stressed', 'stressing', 'worried', 'anxious', 'panic', 'worry',
+            'hate', 'dread', 'terrible', 'awful', 'horrible',
+            'fight', 'battle', 'struggle', 'combat',
+            'fix', 'repair', 'broken', 'problem', 'issue', 'deal with',
+            'fail', 'failure', 'mess', 'disaster',
+            'force', 'must', 'have to', 'need to', 'got to', 'gotta'
+        ];
+
+        function detectNegativeTask(taskText) {
+            const lowerText = taskText.toLowerCase();
+            for (let word of negativeWords) {
+                if (lowerText.includes(word)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function generatePositiveAlternative(taskText) {
+            let suggestion = taskText;
+            const lower = taskText.toLowerCase();
+            
+            if (lower.includes('stop ')) {
+                suggestion = taskText.replace(/stop /gi, 'Start moving away from ');
+            } else if (lower.includes('quit ')) {
+                suggestion = taskText.replace(/quit /gi, 'Begin reducing ');
+            } else if (lower.includes('avoid ')) {
+                suggestion = taskText.replace(/avoid /gi, 'Choose better options than ');
+            } else if (lower.includes("don't ") || lower.includes('dont ')) {
+                suggestion = taskText.replace(/don't /gi, 'Remember to ');
+                suggestion = suggestion.replace(/dont /gi, 'Remember to ');
+            } else if (lower.includes('stress')) {
+                suggestion = taskText.replace(/stress about /gi, 'Plan calmly for ');
+                suggestion = suggestion.replace(/stress/gi, 'focus on');
+            } else if (lower.includes('worry')) {
+                suggestion = taskText.replace(/worry about /gi, 'Prepare peacefully for ');
+                suggestion = suggestion.replace(/worry/gi, 'prepare for');
+            } else if (lower.includes('anxious')) {
+                suggestion = taskText.replace(/anxious about /gi, 'Get ready for ');
+                suggestion = suggestion.replace(/anxious/gi, 'mindful about');
+            } else if (lower.includes('panic')) {
+                suggestion = taskText.replace(/panic /gi, 'Breathe and handle ');
+            } else if (lower.includes('hate ')) {
+                suggestion = taskText.replace(/hate /gi, 'Complete ');
+            } else if (lower.includes('dread ')) {
+                suggestion = taskText.replace(/dread /gi, 'Get through ');
+            } else if (lower.includes('terrible ')) {
+                suggestion = taskText.replace(/terrible /gi, 'challenging ');
+            } else if (lower.includes('awful ')) {
+                suggestion = taskText.replace(/awful /gi, 'important ');
+            } else if (lower.includes('horrible ')) {
+                suggestion = taskText.replace(/horrible /gi, 'necessary ');
+            } else if (lower.includes('fight ')) {
+                suggestion = taskText.replace(/fight /gi, 'Work on ');
+            } else if (lower.includes('battle ')) {
+                suggestion = taskText.replace(/battle /gi, 'Manage ');
+            } else if (lower.includes('struggle with ')) {
+                suggestion = taskText.replace(/struggle with /gi, 'Make progress on ');
+            } else if (lower.includes('struggle ')) {
+                suggestion = taskText.replace(/struggle /gi, 'work on ');
+            } else if (lower.includes('combat ')) {
+                suggestion = taskText.replace(/combat /gi, 'Address ');
+            } else if (lower.includes('fix ')) {
+                suggestion = taskText.replace(/fix /gi, 'Improve ');
+            } else if (lower.includes('repair ')) {
+                suggestion = taskText.replace(/repair /gi, 'Restore ');
+            } else if (lower.includes('broken ')) {
+                suggestion = taskText.replace(/broken /gi, 'Update ');
+            } else if (lower.includes('problem')) {
+                suggestion = taskText.replace(/problem/gi, 'opportunity');
+            } else if (lower.includes('deal with ')) {
+                suggestion = taskText.replace(/deal with /gi, 'Take care of ');
+            } else if (lower.includes('issue')) {
+                suggestion = taskText.replace(/issue/gi, 'task');
+            } else if (lower.includes('fail')) {
+                suggestion = taskText.replace(/fail/gi, 'succeed at');
+            } else if (lower.includes('mess')) {
+                suggestion = taskText.replace(/mess/gi, 'situation');
+            } else if (lower.includes('disaster')) {
+                suggestion = taskText.replace(/disaster/gi, 'challenge');
+            } else if (lower.includes('force myself to ') || lower.includes('force me to ')) {
+                suggestion = taskText.replace(/force myself to /gi, 'Choose to ');
+                suggestion = suggestion.replace(/force me to /gi, 'Choose to ');
+            } else if (lower.includes('must ')) {
+                suggestion = taskText.replace(/must /gi, 'Will ');
+            } else if (lower.includes('have to ')) {
+                suggestion = taskText.replace(/have to /gi, 'Get to ');
+            } else if (lower.includes('need to ')) {
+                suggestion = taskText.replace(/need to /gi, 'Choose to ');
+            } else if (lower.includes('got to ') || lower.includes('gotta ')) {
+                suggestion = taskText.replace(/got to /gi, 'Will ');
+                suggestion = suggestion.replace(/gotta /gi, 'Will ');
+            }
+            
+            return suggestion.trim();
+        }
+
+        function showTaskSuggestion(originalTask, callback) {
+            const isNegative = detectNegativeTask(originalTask);
+            
+            if (isNegative) {
+                pendingTask = originalTask;
+                pendingTaskCallback = callback;
+                
+                const suggestion = generatePositiveAlternative(originalTask);
+                document.getElementById('originalTaskText').textContent = originalTask;
+                document.getElementById('suggestedTaskText').textContent = suggestion;
+                document.getElementById('taskSuggestionModal').classList.add('active');
+                return true;
+            }
+            
+            return false;
+        }
+
+        function acceptTaskSuggestion() {
+            const suggestedText = document.getElementById('suggestedTaskText').textContent;
+            document.getElementById('taskSuggestionModal').classList.remove('active');
+            
+            if (pendingTaskCallback) {
+                pendingTaskCallback(suggestedText);
+            }
+            
+            pendingTask = null;
+            pendingTaskCallback = null;
+        }
+
+        function declineTaskSuggestion() {
+            document.getElementById('taskSuggestionModal').classList.remove('active');
+            
+            if (pendingTaskCallback) {
+                pendingTaskCallback(pendingTask);
+            }
+            
+            pendingTask = null;
+            pendingTaskCallback = null;
+        }
+
+        // Edit Task Modal Functions
+        function openEditTaskModal(index, isEditDay) {
+            editingTaskIndex = index;
+            editingTaskIsEditDay = isEditDay;
+            
+            const dateStr = isEditDay ? currentEditDay : formatDate(new Date());
+            const task = tasks[dateStr][index];
+            
+            document.getElementById('editTaskName').value = task.text;
+            document.getElementById('editTaskTimeInput').value = task.time || '';
+            
+            // Populate assign dropdown
+            const assignSelect = document.getElementById('editTaskAssign');
+            assignSelect.innerHTML = '<option value="">No one (just me)</option>';
+            familyMembers.forEach(member => {
+                if (member !== currentUser) {
+                    const option = document.createElement('option');
+                    option.value = member;
+                    option.textContent = member;
+                    if (task.assignedTo === member) {
+                        option.selected = true;
+                    }
+                    assignSelect.appendChild(option);
+                }
+            });
+            
+            document.getElementById('editTaskModal').classList.add('active');
+        }
+
+        function cancelEditTask() {
+            document.getElementById('editTaskModal').classList.remove('active');
+            editingTaskIndex = null;
+            editingTaskIsEditDay = false;
+        }
+
+        function saveEditTask() {
+            const newName = document.getElementById('editTaskName').value.trim();
+            const newTime = document.getElementById('editTaskTimeInput').value;
+            const newAssign = document.getElementById('editTaskAssign').value;
+            
+            if (!newName) {
+                alert('Task name cannot be empty!');
+                return;
+            }
+            
+            const dateStr = editingTaskIsEditDay ? currentEditDay : formatDate(new Date());
+            const task = tasks[dateStr][editingTaskIndex];
+            
+            task.text = newName;
+            task.time = newTime;
+            task.assignedTo = newAssign;
+            
+            saveUserData();
+            syncData();
+            
+            if (editingTaskIsEditDay) {
+                renderEditDayTasks();
+            } else {
+                renderTodayTasks();
+            }
+            
+            cancelEditTask();
+        }
+
+        // Cloud Sync Functions
+        function syncData() {
+            // Show syncing status
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.textContent = '● Syncing...';
+            syncStatus.className = 'sync-status syncing';
+            
+            // Save to localStorage (simulating cloud sync)
+            saveUserData();
+            
+            // Update sync status
+            setTimeout(() => {
+                syncStatus.textContent = '● Synced';
+                syncStatus.className = 'sync-status synced';
+            }, 500);
+        }
+
+        function startAutoSync() {
+            syncInterval = setInterval(() => {
+                syncData();
+            }, SYNC_INTERVAL);
+        }
+
+        function stopAutoSync() {
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                syncInterval = null;
+            }
+        }
+
+        // Login System
+        function checkPasscode() {
+            const passcode = document.getElementById('passcodeInput').value.trim();
+            
+            if (passcode === CORRECT_PASSCODE) {
+                document.getElementById('passcodeError').textContent = '';
+                
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                
+                if (Object.keys(accounts).length === 0) {
+                    document.getElementById('passcodeStep').classList.add('hidden');
+                    document.getElementById('createAccountStep').classList.remove('hidden');
+                } else {
+                    document.getElementById('passcodeStep').classList.add('hidden');
+                    document.getElementById('loginStep').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('passcodeError').textContent = 'Incorrect passcode. Please try again.';
+            }
+        }
+
+        function createAccount() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+            
+            if (!username || !password) {
+                document.getElementById('createError').textContent = 'Please fill in all fields.';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                document.getElementById('createError').textContent = 'Passwords do not match.';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            
+            if (accounts[username]) {
+                document.getElementById('createError').textContent = 'Username already exists.';
+                return;
+            }
+            
+            accounts[username] = {
+                password: password,
+                data: {
+                    userName: '',
+                    tasks: {},
+                    hugGroups: [],
+                    completedTasksCount: 0
+                }
+            };
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            currentUser = username;
+            updateFamilyMembers();
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('onboardingModal').classList.remove('hidden');
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            
+            if (!accounts[username]) {
+                document.getElementById('loginError').textContent = 'Account not found.';
+                return;
+            }
+            
+            if (accounts[username].password !== password) {
+                document.getElementById('loginError').textContent = 'Incorrect password.';
+                return;
+            }
+            
+            currentUser = username;
+            updateFamilyMembers();
+            loadUserData();
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('onboardingModal').classList.remove('hidden');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                stopAutoSync();
+                saveUserData();
+                currentUser = null;
+                userName = '';
+                tasks = {};
+                hugGroups = [];
+                completedTasksCount = 0;
+                
+                document.getElementById('mainApp').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                
+                document.getElementById('passcodeStep').classList.remove('hidden');
+                document.getElementById('createAccountStep').classList.add('hidden');
+                document.getElementById('loginStep').classList.add('hidden');
+                document.getElementById('passcodeInput').value = '';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+            }
+        }
+
+        function updateFamilyMembers() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            familyMembers = Object.keys(accounts);
+        }
+
+        function loadUserData() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            if (accounts[currentUser]) {
+                const data = accounts[currentUser].data;
+                userName = data.userName || '';
+                tasks = data.tasks || {};
+                hugGroups = data.hugGroups || [];
+                completedTasksCount = data.completedTasksCount || 0;
+            }
+        }
+
+        function saveUserData() {
+            if (!currentUser) return;
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            if (accounts[currentUser]) {
+                accounts[currentUser].data = {
+                    userName,
+                    tasks,
+                    hugGroups,
+                    completedTasksCount
+                };
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            }
+        }
+
+        // Update notification
+        function checkForUpdates() {
+            const lastVersion = localStorage.getItem('appVersion');
+            if (lastVersion && lastVersion !== APP_VERSION) {
+                document.getElementById('updateBanner').classList.add('show');
+            }
+            localStorage.setItem('appVersion', APP_VERSION);
+        }
+
+        function dismissUpdate() {
+            document.getElementById('updateBanner').classList.remove('show');
+        }
+
+        // Onboarding
+        function nextOnboardingStep() {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            suggestName();
+        }
+
+        function suggestName() {
+            const suggestion = nameSuggestions[Math.floor(Math.random() * nameSuggestions.length)];
+            document.getElementById('suggestedName').textContent = suggestion;
+            document.getElementById('nameSuggestion').classList.remove('hidden');
+        }
+
+        function acceptSuggestedName() {
+            userName = document.getElementById('suggestedName').textContent;
+            document.getElementById('nameInput').value = userName;
+            document.getElementById('nameSuggestion').classList.add('hidden');
+        }
+
+        function rejectSuggestedName() {
+            suggestName();
+        }
+
+        function startApp() {
+            const input = document.getElementById('nameInput').value.trim();
+            if (input) {
+                userName = input;
+                saveUserData();
+                document.getElementById('onboardingModal').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                updateGreetings();
+                renderDays();
+                renderTodayTasks();
+                renderHugs();
+                startAutoSync();
+            } else {
+                alert('Please enter a name!');
+            }
+        }
+
+        // Navigation
+        function switchPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(page + 'Page').classList.add('active');
+            event.target.classList.add('active');
+
+            if (page === 'days') renderDays();
+            if (page === 'today') renderTodayTasks();
+            if (page === 'hugs') renderHugs();
+        }
+
+        // Greetings
+        function updateGreetings() {
+            const greetings = [
+                `Hello, ${userName}! ✨`,
+                `Welcome back, ${userName}! 🌸`,
+                `Hi ${userName}! 💫`,
+                `Good to see you, ${userName}! 🌺`
+            ];
+            const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+            
+            document.getElementById('daysGreeting').textContent = greeting;
+            document.getElementById('todayGreeting').textContent = greeting;
+            document.getElementById('hugsGreeting').textContent = greeting;
+        }
+
+        // Days Page
+        function renderDays() {
+            const grid = document.getElementById('daysGrid');
+            grid.innerHTML = '';
+            
+            const today = new Date();
+            for (let i = 1; i < 91; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const dateStr = formatDate(date);
+                
+                const dayTasks = tasks[dateStr] || [];
+                const taskCount = dayTasks.length;
+                const completedCount = dayTasks.filter(t => t.completed).length;
+                
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                card.onclick = () => openDayEdit(dateStr);
+                
+                const dayName = i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                card.innerHTML = `
+                    <div class="day-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    <div class="day-name">${dayName}</div>
+                    <div class="task-count">${taskCount} task${taskCount !== 1 ? 's' : ''} (${completedCount} done)</div>
+                `;
+                
+                grid.appendChild(card);
+            }
+        }
+
+        // Day Edit Modal
+        function openDayEdit(dateStr) {
+            currentEditDay = dateStr;
+            const date = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const targetDate = new Date(dateStr);
+            targetDate.setHours(0, 0, 0, 0);
+            const daysDiff = Math.floor((targetDate - today) / (1000 * 60 * 60 * 24));
+            
+            let title;
+            if (daysDiff === 1) title = 'Tomorrow';
+            else title = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            
+            document.getElementById('editDayTitle').textContent = title;
+            document.getElementById('editDayTaskInput').value = '';
+            document.getElementById('editDayTaskTime').value = '';
+            renderEditDayTasks();
+            document.getElementById('dayEditModal').classList.add('active');
+        }
+
+        function closeDayEdit() {
+            document.getElementById('dayEditModal').classList.remove('active');
+            currentEditDay = null;
+            renderDays();
+        }
+
+        function renderEditDayTasks() {
+            const list = document.getElementById('editDayTaskList');
+            list.innerHTML = '';
+            
+            const dayTasks = tasks[currentEditDay] || [];
+            
+            dayTasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = 'task-item' + (task.completed ? ' completed' : '');
+                li.draggable = true;
+                li.dataset.index = index;
+                
+                const timeDisplay = formatTime(task.time);
+                const assignDisplay = task.assignedTo ? `<span class="assigned-to">${task.assignedTo}</span>` : '';
+                
+                li.innerHTML = `
+                    <span class="drag-handle" draggable="false">Ⓜ️</span>
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})" />
+                    <span class="task-text" onclick="openEditTaskModal(${index}, true)">${task.text} ${assignDisplay}</span>
+                    <span class="task-time" onclick="openEditTaskModal(${index}, true)">${timeDisplay}</span>
+                    <button class="delete-btn" onclick="deleteEditDayTask(${index})">Delete</button>
+                `;
+                
+                li.addEventListener('dragstart', handleDragStart);
+                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('drop', handleDrop);
+                li.addEventListener('dragend', handleDragEnd);
+                
+                list.appendChild(li);
+            });
+        }
+
+        function addTaskToEditDay() {
+            const input = document.getElementById('editDayTaskInput');
+            const timeInput = document.getElementById('editDayTaskTime');
+            const text = input.value.trim();
+            const time = timeInput.value;
+            
+            if (text) {
+                const hasSuggestion = showTaskSuggestion(text, (finalText) => {
+                    if (!tasks[currentEditDay]) tasks[currentEditDay] = [];
+                    tasks[currentEditDay].push({
+                        text: finalText,
+                        time: time,
+                        completed: false,
+                        assignedTo: '',
+                        id: Date.now()
+                    });
+                    renderEditDayTasks();
+                    saveUserData();
+                    syncData();
+                });
+                
+                if (!hasSuggestion) {
+                    if (!tasks[currentEditDay]) tasks[currentEditDay] = [];
+                    tasks[currentEditDay].push({
+                        text: text,
+                        time: time,
+                        completed: false,
+                        assignedTo: '',
+                        id: Date.now()
+                    });
+                    renderEditDayTasks();
+                    saveUserData();
+                    syncData();
+                }
+                
+                input.value = '';
+                timeInput.value = '';
+            }
+        }
+
+        function toggleEditDayTask(index) {
+            const task = tasks[currentEditDay][index];
+            const wasCompleted = task.completed;
+            task.completed = !task.completed;
+            
+            if (!wasCompleted && task.completed) {
+                completedTasksCount++;
+                checkHugReward();
+            } else if (wasCompleted && !task.completed) {
+                completedTasksCount--;
+            }
+            
+            renderEditDayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        function deleteEditDayTask(index) {
+            if (tasks[currentEditDay][index].completed) {
+                completedTasksCount--;
+            }
+            tasks[currentEditDay].splice(index, 1);
+            renderEditDayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        // Today Page
+        function renderTodayTasks() {
+            const today = formatDate(new Date());
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            
+            const todayTasks = tasks[today] || [];
+            
+            if (todayTasks.length === 0) {
+                list.innerHTML = '<div class="empty-state">No tasks for today. Enjoy your day! 🌸</div>';
+                return;
+            }
+            
+            todayTasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = 'task-item' + (task.completed ? ' completed' : '');
+                li.draggable = true;
+                li.dataset.index = index;
+                
+                const timeDisplay = formatTime(task.time);
+                const assignDisplay = task.assignedTo ? `<span class="assigned-to">${task.assignedTo}</span>` : '';
+                
+                li.innerHTML = `
+                    <span class="drag-handle" draggable="false">Ⓜ️</span>
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})" />
+                    <span class="task-text" onclick="openEditTaskModal(${index}, false)">${task.text} ${assignDisplay}</span>
+                    <span class="task-time" onclick="openEditTaskModal(${index}, false)">${timeDisplay}</span>
+                    <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                `;
+                
+                li.addEventListener('dragstart', handleDragStart);
+                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('drop', handleDrop);
+                li.addEventListener('dragend', handleDragEnd);
+                
+                list.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const timeInput = document.getElementById('taskTime');
+            const text = input.value.trim();
+            const time = timeInput.value;
+            
+            if (text) {
+                const hasSuggestion = showTaskSuggestion(text, (finalText) => {
+                    const today = formatDate(new Date());
+                    if (!tasks[today]) tasks[today] = [];
+                    tasks[today].push({
+                        text: finalText,
+                        time: time,
+                        completed: false,
+                        assignedTo: '',
+                        id: Date.now()
+                    });
+                    renderTodayTasks();
+                    saveUserData();
+                    syncData();
+                });
+                
+                if (!hasSuggestion) {
+                    const today = formatDate(new Date());
+                    if (!tasks[today]) tasks[today] = [];
+                    tasks[today].push({
+                        text: text,
+                        time: time,
+                        completed: false,
+                        assignedTo: '',
+                        id: Date.now()
+                    });
+                    renderTodayTasks();
+                    saveUserData();
+                    syncData();
+                }
+                
+                input.value = '';
+                timeInput.value = '';
+            }
+        }
+
+        function toggleTask(index) {
+            const today = formatDate(new Date());
+            const task = tasks[today][index];
+            const wasCompleted = task.completed;
+            task.completed = !task.completed;
+            
+            if (!wasCompleted && task.completed) {
+                completedTasksCount++;
+                checkHugReward();
+            } else if (wasCompleted && !task.completed) {
+                completedTasksCount--;
+            }
+            
+            renderTodayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        function deleteTask(index) {
+            const today = formatDate(new Date());
+            if (tasks[today][index].completed) {
+                completedTasksCount--;
+            }
+            tasks[today].splice(index, 1);
+            renderTodayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        // Drag and Drop
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            const afterElement = getDragAfterElement(this.parentElement, e.clientY);
+            if (afterElement == null) {
+                this.parentElement.appendChild(draggedElement);
+            } else {
+                this.parentElement.insertBefore(draggedElement, afterElement);
+            }
+            
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            const list = this.parentElement;
+            const items = Array.from(list.children);
+            const newOrder = items.map(item => parseInt(item.dataset.index));
+            
+            const dateStr = currentEditDay || formatDate(new Date());
+            const reorderedTasks = newOrder.map(i => tasks[dateStr][i]);
+            tasks[dateStr] = reorderedTasks;
+            
+            saveUserData();
+            syncData();
+            
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            
+            if (currentEditDay) {
+                renderEditDayTasks();
+            } else {
+                renderTodayTasks();
+            }
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Hugs System
+        function checkHugReward() {
+            if (completedTasksCount % 5 === 0 && completedTasksCount > 0) {
+                const now = new Date();
+                const expiresAt = new Date(now);
+                expiresAt.setDate(expiresAt.getDate() + 7);
+                
+                const weekStart = getWeekStart(now);
+                let existingGroup = hugGroups.find(g => formatDate(new Date(g.date)) === formatDate(weekStart));
+                
+                if (existingGroup) {
+                    existingGroup.count++;
+                } else {
+                    hugGroups.push({
+                        date: weekStart.toISOString(),
+                        count: 1,
+                        expiresAt: expiresAt.toISOString()
+                    });
+                }
+                
+                saveUserData();
+                syncData();
+                alert(`🤗 Congratulations ${userName}! You've earned a hug! Keep up the great work!`);
+            }
+        }
+
+        function renderHugs() {
+            const now = new Date();
+            hugGroups = hugGroups.filter(g => new Date(g.expiresAt) > now);
+            
+            const total = hugGroups.reduce((sum, g) => sum + g.count, 0);
+            document.getElementById('totalHugs').textContent = total;
+            
+            const container = document.getElementById('hugGroups');
+            container.innerHTML = '';
+            
+            if (hugGroups.length === 0) {
+                container.innerHTML = '<div class="empty-state">Complete tasks to earn hugs! 🤗</div>';
+                return;
+            }
+            
+            hugGroups.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            hugGroups.forEach(group => {
+                const date = new Date(group.date);
+                const expiresAt = new Date(group.expiresAt);
+                const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+                
+                const div = document.createElement('div');
+                div.className = 'hug-group';
+                div.innerHTML = `
+                    <div class="hug-group-info">
+                        <div class="hug-group-date">Week of ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
+                        <div class="hug-group-count">${group.count} hug${group.count !== 1 ? 's' : ''} 🤗</div>
+                    </div>
+                    <div class="hug-group-expires">${daysLeft} day${daysLeft !== 1 ? 's' : ''} left</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            saveUserData();
+        }
+
+        // Utilities
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        function formatTime(militaryTime) {
+            if (!militaryTime) return 'No time';
+            
+            const [hours, minutes] = militaryTime.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        // Enter key support
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('passcodeInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkPasscode();
+            });
+            
+            document.getElementById('confirmPasswordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') createAccount();
+            });
+            
+            document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') login();
+            });
+            
+            document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+            
+            document.getElementById('editDayTaskInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTaskToEditDay();
+            });
+            
+            document.getElementById('nameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startApp();
+            });
+            
+            checkForUpdates();
+        });
+    </script>
+</body>
+</html>
