@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5e8fb5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Peaceful Tasks">
+    <link rel="manifest" href="manifest.json">
     <title>My Peaceful Tasks</title>
     <style>
         * {
@@ -15,16 +20,89 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e0f2f7 0%, #fce4ec 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 0;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sticky Header */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+
+        .header-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+        }
+
+        .sync-status-header {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #66bb6a;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            background: linear-gradient(135deg, #5e8fb5 0%, #7ba7c7 100%);
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 16px 10px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            background: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 3px solid white;
         }
 
         /* Hug Toast */
@@ -117,70 +195,14 @@
             padding: 10px 20px;
         }
 
+        .decline-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+        }
+
         .login-error {
             color: #e57373;
             margin-top: 15px;
             font-size: 14px;
-        }
-
-        /* Settings Button */
-        .settings-container {
-            position: absolute;
-            top: 10px;
-            right: 60px;
-            z-index: 100;
-        }
-
-        .settings-btn {
-            background: linear-gradient(135deg, #9575cd 0%, #7e57c2 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .settings-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* Logout Button */
-        .logout-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-        }
-
-        .logout-btn {
-            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .logout-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* Sync Status */
-        .sync-status {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 100;
-            background: white;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #66bb6a;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         /* Update Banner */
@@ -324,6 +346,8 @@
             max-width: 500px;
             width: 100%;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .task-suggestion-content h3, .edit-task-content h3, .settings-content h3 {
@@ -381,11 +405,6 @@
             color: white;
         }
 
-        .decline-btn, .cancel-edit-btn {
-            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
-            color: white;
-        }
-
         .cancel-edit-btn {
             background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
             color: #333;
@@ -421,6 +440,8 @@
         /* Admin Dashboard Styles */
         .admin-dashboard {
             padding: 30px;
+            overflow-y: auto;
+            flex: 1;
         }
 
         .admin-header {
@@ -491,6 +512,25 @@
             color: #e65100;
         }
 
+        .user-credentials {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+        }
+
+        .credential-row {
+            margin: 5px 0;
+        }
+
+        .credential-label {
+            font-weight: 600;
+            color: #333;
+        }
+
         .pay-hug-btn {
             background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
             color: white;
@@ -502,36 +542,11 @@
             margin-top: 10px;
         }
 
-        /* Navigation */
-        .nav {
-            display: flex;
-            background: linear-gradient(135deg, #5e8fb5 0%, #7ba7c7 100%);
-        }
-
-        .nav-item {
-            flex: 1;
-            padding: 18px 10px;
-            text-align: center;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-item.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-bottom: 3px solid white;
-        }
-
         /* Content Area */
         .content {
             padding: 20px;
-            min-height: 400px;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .page {
@@ -725,7 +740,7 @@
             background: #ef5350;
         }
 
-        /* Hugs Page */
+        /* Points Page (Hugs) */
         .hugs-container {
             text-align: center;
         }
@@ -784,6 +799,25 @@
         .hug-group-expires {
             font-size: 12px;
             color: #888;
+        }
+
+        /* Settings Page */
+        .settings-page {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .settings-section {
+            background: white;
+            border: 2px solid #f0f0f0;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section h3 {
+            color: #5e8fb5;
+            margin-bottom: 15px;
         }
 
         .hidden {
@@ -865,21 +899,13 @@
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            body {
-                padding: 5px;
-            }
-
-            .container {
-                border-radius: 15px;
-            }
-
             .content {
                 padding: 15px;
             }
 
             .nav-item {
-                padding: 15px 8px;
-                font-size: 14px;
+                padding: 14px 8px;
+                font-size: 13px;
             }
 
             .greeting {
@@ -933,20 +959,6 @@
                 padding: 15px;
             }
 
-            .logout-container, .settings-container {
-                position: static;
-                display: inline-block;
-                margin: 5px;
-            }
-
-            .sync-status {
-                position: static;
-                display: block;
-                margin: 10px auto;
-                text-align: center;
-                width: fit-content;
-            }
-
             .hug-toast {
                 top: 10px;
                 right: 10px;
@@ -960,6 +972,11 @@
 
             .admin-stats {
                 grid-template-columns: 1fr;
+            }
+
+            .header-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
             }
         }
 
@@ -983,7 +1000,7 @@
     <!-- Hug Toast -->
     <div id="hugToast" class="hug-toast">
         <div class="hug-toast-content">
-            🤗 You earned a hug!
+            🤗 You earned a point!
         </div>
     </div>
 
@@ -997,7 +1014,8 @@
     <div id="passcodeGate" class="container">
         <div class="login-screen">
             <h1>🌸 Welcome to My Peaceful Tasks</h1>
-            <p>Please enter the family passcode</p>
+            <p>Hi Temima! 🧡 Claude loves you too!</p>
+            <p style="margin-top: 20px;">Please enter the family passcode</p>
             <input type="password" id="passcodeInput" class="login-input" placeholder="Enter passcode" autocomplete="current-password" name="passcode" />
             <button class="login-btn" onclick="checkPasscode()">Continue</button>
             <button class="login-btn admin-btn" onclick="showAdminLogin()">Admin Access</button>
@@ -1019,23 +1037,29 @@
 
     <!-- Admin Dashboard -->
     <div id="adminDashboard" class="container hidden">
-        <div class="logout-container">
-            <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+        <div class="app-header">
+            <div class="header-buttons">
+                <button class="header-btn logout-btn" onclick="logoutAdmin()">Logout</button>
+            </div>
         </div>
         <div class="admin-dashboard">
             <div class="admin-header">
                 <h1>🎯 Hug Control Dashboard</h1>
-                <p>Track and manage family hugs</p>
+                <p>Track and manage family points</p>
             </div>
             
             <div class="admin-stats">
                 <div class="stat-card">
                     <div class="stat-value" id="adminTotalHugs">0</div>
-                    <div class="stat-label">Total Hugs Owed</div>
+                    <div class="stat-label">Total Points Owed</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="adminTotalPaid">0</div>
-                    <div class="stat-label">Hugs Given</div>
+                    <div class="stat-label">Points Given</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="adminTotalUsers">0</div>
+                    <div class="stat-label">Total Accounts</div>
                 </div>
             </div>
 
@@ -1074,7 +1098,7 @@
                 <h2>Welcome! 🌸</h2>
                 <p>You can easily reorder your tasks by pressing and moving the Ⓜ️ icon on each task.</p>
                 <p>When a name suggestion appears, just click "Yes" or "No" to accept or decline it.</p>
-                <p>You'll earn hugs for completing tasks - every 5 tasks completed earns you 1 hug! 🤗</p>
+                <p>You'll earn points for completing tasks - every 5 tasks completed earns you 1 point! 🤗</p>
                 <button onclick="nextOnboardingStep()">Got it!</button>
             </div>
             <div id="step2" class="onboarding-step hidden">
@@ -1132,30 +1156,6 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="settings-modal">
-        <div class="settings-content">
-            <h3>⚙️ Settings</h3>
-            <div class="edit-field">
-                <label>Display Name</label>
-                <input type="text" id="settingsName" placeholder="Your display name" />
-            </div>
-            <div class="edit-field">
-                <label>New Password (leave blank to keep current)</label>
-                <input type="password" id="settingsPassword" placeholder="New password" autocomplete="new-password" />
-            </div>
-            <div class="edit-field">
-                <label>Confirm New Password</label>
-                <input type="password" id="settingsConfirmPassword" placeholder="Confirm new password" autocomplete="new-password" />
-            </div>
-            <div class="edit-buttons">
-                <button class="cancel-edit-btn" onclick="closeSettings()">Cancel</button>
-                <button class="save-edit-btn" onclick="saveSettings()">Save Changes</button>
-            </div>
-            <div id="settingsError" class="login-error"></div>
-        </div>
-    </div>
-
     <!-- Day Edit Modal -->
     <div id="dayEditModal" class="day-edit-modal">
         <div class="day-edit-content">
@@ -1176,17 +1176,17 @@
 
     <!-- Main App Container -->
     <div id="mainApp" class="container hidden">
-        <div class="sync-status" id="syncStatus">● Synced</div>
-        <div class="settings-container">
-            <button class="settings-btn" onclick="openSettings()">Settings</button>
-        </div>
-        <div class="logout-container">
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-        <div class="nav">
-            <div class="nav-item active" onclick="switchPage('days')">Days</div>
-            <div class="nav-item" onclick="switchPage('today')">Today</div>
-            <div class="nav-item" onclick="switchPage('hugs')">Hugs</div>
+        <div class="app-header">
+            <div class="header-buttons">
+                <span class="sync-status-header" id="syncStatus">● Synced</span>
+                <button class="header-btn logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <div class="nav">
+                <button class="nav-item active" onclick="switchPage('days')">Days</button>
+                <button class="nav-item" onclick="switchPage('today')">Today</button>
+                <button class="nav-item" onclick="switchPage('points')">Points</button>
+                <button class="nav-item" onclick="switchPage('settings')">Settings</button>
+            </div>
         </div>
 
         <div class="content">
@@ -1207,15 +1207,39 @@
                 <ul id="taskList" class="task-list"></ul>
             </div>
 
-            <!-- Hugs Page -->
-            <div id="hugsPage" class="page">
-                <div class="greeting" id="hugsGreeting"></div>
+            <!-- Points Page -->
+            <div id="pointsPage" class="page">
+                <div class="greeting" id="pointsGreeting"></div>
                 <div class="hugs-container">
                     <div class="total-hugs">
-                        <h2>Total Hugs Earned</h2>
+                        <h2>Total Points Earned</h2>
                         <div class="number" id="totalHugs">0</div>
                     </div>
                     <div class="hug-groups" id="hugGroups"></div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="page">
+                <div class="greeting" id="settingsGreeting"></div>
+                <div class="settings-page">
+                    <div class="settings-section">
+                        <h3>Profile Settings</h3>
+                        <div class="edit-field">
+                            <label>Display Name</label>
+                            <input type="text" id="settingsName" placeholder="Your display name" />
+                        </div>
+                        <div class="edit-field">
+                            <label>New Password (leave blank to keep current)</label>
+                            <input type="password" id="settingsPassword" placeholder="New password" autocomplete="new-password" />
+                        </div>
+                        <div class="edit-field">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="settingsConfirmPassword" placeholder="Confirm new password" autocomplete="new-password" />
+                        </div>
+                        <button class="login-btn" onclick="saveSettings()">Save Changes</button>
+                        <div id="settingsError" class="login-error"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1223,11 +1247,11 @@
 
     <script>
         // App version
-        const APP_VERSION = '5.0';
+        const APP_VERSION = '6.0';
         const FAMILY_PASSCODE = 'monkfam';
         const ADMIN_PASSWORD = 'KaCe*E7!VsbCcABY3Pw8apBj';
         const SYNC_INTERVAL = 3000;
-        const ANTI_CHEAT_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const ANTI_CHEAT_TIME = 5 * 60 * 1000; // 5 minutes
 
         // Data storage
         let currentUser = null;
@@ -1392,7 +1416,8 @@
             let totalPaidHugs = 0;
             
             const userListHtml = Object.keys(accounts).map(username => {
-                const data = accounts[username].data;
+                const account = accounts[username];
+                const data = account.data;
                 const hugGroups = data.hugGroups || [];
                 const spentHugs = data.spentHugs || 0;
                 
@@ -1409,16 +1434,21 @@
                     <div class="user-card">
                         <div class="user-header">
                             <div class="user-name">${data.userName || username}</div>
-                            <div class="hug-debt">${available} hugs</div>
+                            <div class="hug-debt">${available} points</div>
+                        </div>
+                        <div class="user-credentials">
+                            <div class="credential-row"><span class="credential-label">Username:</span> ${username}</div>
+                            <div class="credential-row"><span class="credential-label">Password:</span> ${account.password}</div>
                         </div>
                         <p style="color: #666; font-size: 14px;">Earned: ${totalEarned} | Given: ${spentHugs}</p>
-                        ${available > 0 ? `<button class="pay-hug-btn" onclick="payUserHug('${username}')">Mark 1 Hug as Given</button>` : ''}
+                        ${available > 0 ? `<button class="pay-hug-btn" onclick="payUserHug('${username}')">Mark 1 Point as Given</button>` : ''}
                     </div>
                 `;
             }).join('');
             
             document.getElementById('adminTotalHugs').textContent = totalHugsOwed;
             document.getElementById('adminTotalPaid').textContent = totalPaidHugs;
+            document.getElementById('adminTotalUsers').textContent = Object.keys(accounts).length;
             document.getElementById('adminUserList').innerHTML = userListHtml;
         }
 
@@ -1493,18 +1523,6 @@
         }
 
         // Settings Functions
-        function openSettings() {
-            document.getElementById('settingsName').value = userName;
-            document.getElementById('settingsPassword').value = '';
-            document.getElementById('settingsConfirmPassword').value = '';
-            document.getElementById('settingsError').textContent = '';
-            document.getElementById('settingsModal').classList.add('active');
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('active');
-        }
-
         function saveSettings() {
             const newName = document.getElementById('settingsName').value.trim();
             const newPassword = document.getElementById('settingsPassword').value;
@@ -1533,7 +1551,8 @@
             saveUserData();
             syncData();
             updateGreetings();
-            closeSettings();
+            document.getElementById('settingsError').textContent = '';
+            alert('Settings saved successfully!');
         }
 
         // Cloud Sync Functions
@@ -1785,7 +1804,12 @@
 
             if (page === 'days') renderDays();
             if (page === 'today') renderTodayTasks();
-            if (page === 'hugs') renderHugs();
+            if (page === 'points') renderHugs();
+            if (page === 'settings') {
+                document.getElementById('settingsName').value = userName;
+                document.getElementById('settingsPassword').value = '';
+                document.getElementById('settingsConfirmPassword').value = '';
+            }
         }
 
         // Greetings
@@ -1800,7 +1824,8 @@
             
             document.getElementById('daysGreeting').textContent = greeting;
             document.getElementById('todayGreeting').textContent = greeting;
-            document.getElementById('hugsGreeting').textContent = greeting;
+            document.getElementById('pointsGreeting').textContent = greeting;
+            document.getElementById('settingsGreeting').textContent = greeting;
         }
 
         // Days Page
@@ -2199,7 +2224,7 @@
             container.innerHTML = '';
             
             if (hugGroups.length === 0) {
-                container.innerHTML = '<div class="empty-state">Complete tasks to earn hugs! 🤗</div>';
+                container.innerHTML = '<div class="empty-state">Complete tasks to earn points! 🤗</div>';
                 return;
             }
             
@@ -2215,7 +2240,7 @@
                 div.innerHTML = `
                     <div class="hug-group-info">
                         <div class="hug-group-date">Week of ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
-                        <div class="hug-group-count">${group.count} hug${group.count !== 1 ? 's' : ''} 🤗</div>
+                        <div class="hug-group-count">${group.count} point${group.count !== 1 ? 's' : ''} 🤗</div>
                     </div>
                     <div class="hug-group-expires">${daysLeft} day${daysLeft !== 1 ? 's' : ''} left</div>
                 `;
@@ -2249,6 +2274,13 @@
             const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
             
             return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {
+                // Service worker registration failed, app still works without offline support
+            });
         }
 
         // Enter key support
