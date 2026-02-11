@@ -1,0 +1,2556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5e8fb5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Peaceful Tasks">
+    <link rel="manifest" href="manifest.json">
+    <title>My Peaceful Tasks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2f7 0%, #fce4ec 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Install Button */
+        .install-banner {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .install-banner.show {
+            display: block;
+        }
+
+        .install-banner button {
+            background: white;
+            color: #66bb6a;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .install-banner button:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s;
+        }
+
+        /* Sticky Header */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+
+        .header-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+        }
+
+        .sync-status-header {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #66bb6a;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            background: linear-gradient(135deg, #5e8fb5 0%, #7ba7c7 100%);
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 16px 10px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            background: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 3px solid white;
+        }
+
+        /* Hug Toast */
+        .hug-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+            max-width: 300px;
+        }
+
+        .hug-toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .hug-toast-content {
+            color: #e65100;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            padding: 40px 20px;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-screen h1 {
+            color: #5e8fb5;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .login-input {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .signup-btn {
+            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, #9575cd 0%, #7e57c2 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #90a4ae 0%, #78909c 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .decline-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+        }
+
+        .login-error {
+            color: #e57373;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* Copyable Text */
+        .copyable-credential {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px auto;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .copyable-credential span {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            user-select: all;
+            flex: 1;
+            text-align: left;
+        }
+
+        .copy-btn {
+            background: #5e8fb5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #4a7a9e;
+        }
+
+        .copy-btn.copied {
+            background: #66bb6a;
+        }
+
+        /* Update Banner */
+        .update-banner {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            color: #333;
+            padding: 15px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .update-banner.show {
+            display: block;
+        }
+
+        .update-banner button {
+            background: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            margin-left: 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Modal Base */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #e57373;
+        }
+
+        .modal h2 {
+            color: #5e8fb5;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Admin Dashboard */
+        .admin-dashboard {
+            padding: 30px 20px;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .admin-card h3 {
+            color: #5e8fb5;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .account-item {
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .account-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .account-info strong {
+            display: block;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .account-info small {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .account-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .account-actions button:hover {
+            transform: scale(1.05);
+        }
+
+        .delete-btn {
+            background: #e57373;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #64b5f6;
+            color: white;
+        }
+
+        .adjust-btn {
+            background: #ffb74d;
+            color: white;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Today Tab */
+        .date-display {
+            text-align: center;
+            font-size: 22px;
+            color: #5e8fb5;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .add-task {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .add-task-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .add-task input[type="text"] {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .add-task input[type="time"] {
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            min-width: 120px;
+        }
+
+        .add-task-btn {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 500;
+        }
+
+        .add-task-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+            cursor: move;
+        }
+
+        .task-item:hover {
+            border-color: #5e8fb5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
+
+        .drag-handle {
+            font-size: 18px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-time {
+            color: #666;
+            font-size: 14px;
+            padding: 4px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .task-assigned {
+            color: #5e8fb5;
+            font-size: 13px;
+            padding: 4px 10px;
+            background: #e3f2fd;
+            border-radius: 15px;
+            white-space: nowrap;
+        }
+
+        .task-delete {
+            background: #ffcdd2;
+            color: #d32f2f;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .task-delete:hover {
+            background: #ef9a9a;
+            transform: scale(1.05);
+        }
+
+        /* Days Grid */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .day-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .day-card:hover {
+            border-color: #5e8fb5;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-date {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .day-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #5e8fb5;
+            margin-bottom: 10px;
+        }
+
+        .task-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Edit Day Modal */
+        .edit-day-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .edit-day-header h2 {
+            color: #5e8fb5;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .edit-day-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 16px;
+        }
+
+        /* Hugs Tab */
+        .hug-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            color: #e65100;
+        }
+
+        .hug-count {
+            font-size: 64px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .hug-label {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .hug-group {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hug-group-info {
+            flex: 1;
+        }
+
+        .hug-group-date {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .hug-group-count {
+            font-size: 18px;
+            color: #ffb300;
+            font-weight: 500;
+        }
+
+        .hug-group-expires {
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+        }
+
+        @media (max-width: 600px) {
+            .add-task-inputs {
+                flex-direction: column;
+            }
+
+            .task-content {
+                flex-wrap: wrap;
+            }
+
+            .days-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .account-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .account-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Install Banner -->
+    <div id="installBanner" class="install-banner">
+        <p>📱 Install Peaceful Tasks as an app for quick access!</p>
+        <button onclick="installApp()">Install App</button>
+        <button onclick="dismissInstall()" style="background: transparent; color: white; border: 2px solid white;">Maybe Later</button>
+    </div>
+
+    <!-- Hug Toast -->
+    <div id="hugToast" class="hug-toast">
+        <div class="hug-toast-content">
+            🎉 You earned a point! 🤗
+        </div>
+    </div>
+
+    <!-- Update Banner -->
+    <div id="updateBanner" class="update-banner">
+        🎉 A new version is available!
+        <button onclick="updateApp()">Update Now</button>
+        <button onclick="dismissUpdate()">Got it!</button>
+    </div>
+
+    <!-- Initial Choice Screen -->
+    <div id="initialChoice" class="container">
+        <div class="login-screen">
+            <h1>🌸 Welcome to My Peaceful Tasks</h1>
+            <p style="margin-bottom: 30px; font-size: 18px; color: #666;">Welcome! Let's get you started</p>
+            <button class="login-btn" onclick="showSignIn()" style="background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);">
+                <div style="font-size: 18px; margin-bottom: 5px;">🔓 Sign In</div>
+                <div style="font-size: 12px; opacity: 0.8;">I already have an account</div>
+            </button>
+            <button class="login-btn" onclick="showCreateAccount()">
+                <div style="font-size: 18px; margin-bottom: 5px;">✨ Create Account</div>
+                <div style="font-size: 12px; opacity: 0.8;">I'm new here</div>
+            </button>
+            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 20px;">
+                <div style="font-size: 16px;">📲 Install as App</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Passcode Gate -->
+    <div id="passcodeGate" class="container hidden">
+        <div class="login-screen">
+            <h1>🔑 Choose Your Password</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Create a password you'll use to sign in</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #999;">Save this password - you'll need it every time you sign in!</p>
+            <input type="password" id="passcodeInput" class="login-input" placeholder="Enter password" autocomplete="current-password" name="passcode" />
+            <button class="login-btn" onclick="checkPasscode()">Continue</button>
+            <button class="login-btn back-btn" onclick="backToInitialChoice()">Back</button>
+            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 10px; font-size: 14px; padding: 10px 20px;">📲 Install App</button>
+            <div id="passcodeError" class="login-error"></div>
+        </div>
+    </div>
+
+
+    </div>
+
+    <!-- Account Type Selection -->
+    <div id="accountTypeSelection" class="container hidden">
+        <div class="login-screen">
+            <h1>👤 New Account Setup</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">What type of account do you want to create?</p>
+            <p style="margin-bottom: 30px; font-size: 14px; color: #999;">Personal = just for you | Group/Family = share tasks with others</p>
+            <button class="login-btn" onclick="selectAccountType('personal')">
+                <div style="font-size: 18px; margin-bottom: 5px;">Personal Account</div>
+                <div style="font-size: 12px; opacity: 0.8;">For individual use only</div>
+            </button>
+            <button class="login-btn" onclick="selectAccountType('group')">
+                <div style="font-size: 18px; margin-bottom: 5px;">Group/Family Account</div>
+                <div style="font-size: 12px; opacity: 0.8;">Share tasks with family or team</div>
+            </button>
+            <button class="login-btn back-btn" onclick="backToPasscodeGate()">Back</button>
+            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 10px; font-size: 14px; padding: 10px 20px;">📲 Install App</button>
+        </div>
+    </div>
+
+    <!-- Create Personal Account -->
+    <div id="createPersonalAccount" class="container hidden">
+        <div class="login-screen">
+            <h1>👤 Create Personal Account</h1>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">Set up your personal task management account</p>
+            <input type="text" id="personalUsername" class="login-input" placeholder="Choose a username (e.g., john_doe)" />
+            <input type="password" id="personalPassword" class="login-input" placeholder="Choose a password" />
+            <input type="password" id="personalConfirmPassword" class="login-input" placeholder="Confirm password" />
+            <button class="login-btn" onclick="createPersonalAccount()">Create My Account</button>
+            <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
+            <div id="personalAccountError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Login to Personal Account -->
+    <div id="loginPersonalAccount" class="container hidden">
+        <div class="login-screen">
+            <h1>🔓 Sign In</h1>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">Enter your username and password to access your account</p>
+            <input type="text" id="loginUsername" class="login-input" placeholder="Username" />
+            <input type="password" id="loginPassword" class="login-input" placeholder="Password" />
+            <button class="login-btn" onclick="loginPersonalAccount()">Sign In</button>
+            <button class="login-btn back-btn" onclick="backToInitialChoice()">Back</button>
+            <div id="loginAccountError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Group Setup -->
+    <div id="groupSetup" class="container hidden">
+        <div class="login-screen">
+            <h1>👥 Group/Family Setup</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Are you creating a new group or joining an existing one?</p>
+            <p style="margin-bottom: 30px; font-size: 14px; color: #999;">The admin manages the group and can invite others</p>
+            <button class="login-btn" onclick="setupGroupAdmin()">
+                <div style="font-size: 18px; margin-bottom: 5px;">I'm Creating a New Group</div>
+                <div style="font-size: 12px; opacity: 0.8;">I'll be the admin and invite others</div>
+            </button>
+            <button class="login-btn" onclick="showGroupJoin()">
+                <div style="font-size: 18px; margin-bottom: 5px;">I'm Joining an Existing Group</div>
+                <div style="font-size: 12px; opacity: 0.8;">Someone invited me to their group</div>
+            </button>
+            <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
+        </div>
+    </div>
+
+    <!-- Create Group Admin -->
+    <div id="createGroupAdmin" class="container hidden">
+        <div class="login-screen">
+            <h1>👑 Create Group Admin Account</h1>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">This will be your group's main account</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #999;">You'll get a group password to share with members</p>
+            <input type="text" id="groupAdminUsername" class="login-input" placeholder="Group username (e.g., smith_family)" />
+            <input type="password" id="groupAdminPassword" class="login-input" placeholder="Your admin password" />
+            <input type="password" id="groupAdminConfirm" class="login-input" placeholder="Confirm password" />
+            <button class="login-btn" onclick="createGroupAdmin()">Create Group</button>
+            <button class="login-btn back-btn" onclick="backToGroupSetup()">Back</button>
+            <div id="groupAdminError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Group Join -->
+    <div id="groupJoin" class="container hidden">
+        <div class="login-screen">
+            <h1>🤝 Join a Group</h1>
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">📋 You'll need from your admin:</p>
+                <ul style="text-align: left; color: #1976d2; font-size: 14px; padding-left: 20px;">
+                    <li>GROUP username (shared by everyone)</li>
+                    <li>GROUP password (shared by everyone)</li>
+                    <li>YOUR personal username (if they created one for you)</li>
+                </ul>
+            </div>
+            <input type="text" id="groupJoinUsername" class="login-input" placeholder="GROUP username (everyone uses this)" />
+            <input type="password" id="groupJoinPassword" class="login-input" placeholder="GROUP password (everyone uses this)" />
+            <input type="text" id="yourNameInGroup" class="login-input" placeholder="YOUR username (your admin gave you this)" />
+            <button class="login-btn" onclick="joinGroup()">Join Group</button>
+            <button class="login-btn back-btn" onclick="backToGroupSetup()">Back</button>
+            <div id="groupJoinError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Show Group Credentials (after creation) -->
+    <div id="showGroupCredentials" class="container hidden">
+        <div class="login-screen">
+            <h1>✅ Group Created Successfully!</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Share these with people who want to join your group:</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #ff9800; font-weight: 600;">⚠️ Save these somewhere safe!</p>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <strong style="display: block; margin-bottom: 5px; color: #666;">Group Username:</strong>
+                <div class="copyable-credential">
+                    <span id="createdGroupUsername">username</span>
+                    <button class="copy-btn" onclick="copyCredential('createdGroupUsername', this)">Copy</button>
+                </div>
+            </div>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <strong style="display: block; margin-bottom: 5px; color: #666;">Group Password:</strong>
+                <div class="copyable-credential">
+                    <span id="createdGroupPassword">password</span>
+                    <button class="copy-btn" onclick="copyCredential('createdGroupPassword', this)">Copy</button>
+                </div>
+            </div>
+            
+            <p style="margin-bottom: 20px; font-size: 13px; color: #999;">Members can use these to join, or you can create accounts for them in Settings → Invite User</p>
+            <button class="login-btn" onclick="finishGroupCreation()">Continue to My Tasks</button>
+        </div>
+    </div>
+
+
+    </div>
+
+    <!-- Welcome Screen / Name Entry -->
+    <div id="welcomeScreen" class="login-screen hidden">
+        <h1>Welcome!</h1>
+        <p>What should we call you?</p>
+        <input type="text" id="nameInput" class="login-input" placeholder="Enter your name" />
+        <button class="login-btn" onclick="startApp()">Continue</button>
+        <div class="login-error" id="nameError"></div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="container hidden">
+        <div class="app-header">
+            <div class="header-buttons">
+                <span class="sync-status-header" id="syncStatus">Synced ✓</span>
+                <button class="header-btn logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <div class="nav">
+                <button class="nav-item active" onclick="showTab('today')">Today</button>
+                <button class="nav-item" onclick="showTab('days')">Days</button>
+                <button class="nav-item" onclick="showTab('hugs')">Points</button>
+                <button class="nav-item" onclick="showTab('settings')">Settings</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Today Tab -->
+            <div id="todayTab">
+                <div class="date-display" id="dateDisplay"></div>
+                
+                <div class="add-task">
+                    <div class="add-task-inputs">
+                        <input type="text" id="taskInput" placeholder="Add a new task..." />
+                        <input type="time" id="taskTime" />
+                    </div>
+                    <button class="add-task-btn" onclick="addTask()">Add Task</button>
+                </div>
+
+                <div class="task-list" id="taskList"></div>
+            </div>
+
+            <!-- Days Tab -->
+            <div id="daysTab" class="hidden">
+                <div class="days-grid" id="daysGrid"></div>
+            </div>
+
+            <!-- Hugs Tab -->
+            <div id="hugsTab" class="hidden">
+                <div class="hug-header">
+                    <div class="hug-count" id="totalHugs">0</div>
+                    <div class="hug-label">Available Points</div>
+                </div>
+                
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 8px;">
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 8px;">💡 How Points Work</div>
+                    <ul style="color: #e65100; font-size: 14px; padding-left: 20px; margin: 0;">
+                        <li>Complete 5 tasks → Earn 1 point</li>
+                        <li>Points expire after 7 days</li>
+                        <li>Use points however you want (rewards, treats, etc.)</li>
+                    </ul>
+                </div>
+                
+                <div id="hugGroups"></div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="hidden">
+                <div class="admin-card">
+                    <h3>📱 Install App</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Install Peaceful Tasks on your device for quick access</p>
+                    <button class="login-btn" onclick="installAppFromButton()" id="settingsInstallBtn">
+                        <div style="font-size: 16px;">📲 Install as App</div>
+                    </button>
+                    <p id="settingsInstallMessage" style="margin-top: 10px; color: #999; font-size: 14px; display: none;">App is already installed or not available on this device</p>
+                </div>
+
+                <div class="admin-card">
+                    <h3>👤 Your Profile</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name</label>
+                        <input type="text" id="settingsDisplayName" class="login-input" style="margin: 0;" placeholder="Your display name" />
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Username</label>
+                        <input type="text" id="settingsUsername" class="login-input" style="margin: 0;" readonly disabled />
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Change Password</label>
+                        <input type="password" id="settingsNewPassword" class="login-input" style="margin: 0;" placeholder="New password (optional)" />
+                    </div>
+                    <button class="login-btn" onclick="saveSettings()">Save Changes</button>
+                    <div id="settingsSaveMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Settings saved!</div>
+                </div>
+
+                <!-- Group Admin Section -->
+                <div id="groupAdminSection" class="hidden">
+                    <div class="admin-card">
+                        <h3>👥 Group Management</h3>
+                        <p style="margin-bottom: 20px; color: #666;">You are the admin of this group</p>
+                        
+                        <button class="login-btn" onclick="showInviteUserModal()">+ Invite User</button>
+                        
+                        <div id="groupMembersList" style="margin-top: 20px;"></div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>🔐 System Admin Dashboard</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">View and manage all accounts in the system</p>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Admin Password</label>
+                            <input type="password" id="adminDashboardPassword" class="login-input" style="margin: 0;" placeholder="Enter admin password (default: hug2025)" />
+                        </div>
+                        <button class="login-btn" onclick="accessAdminDashboard()">Access Dashboard</button>
+                        <div id="adminDashboardError" style="margin-top: 10px; color: #e57373; display: none;"></div>
+                        
+                        <div id="adminDashboardContent" style="margin-top: 20px; display: none;">
+                            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                <h4 style="color: #5e8fb5; margin-bottom: 15px;">All System Accounts</h4>
+                                <div id="allAccountsList"></div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Change Admin Password</label>
+                                <input type="password" id="newAdminPassword" class="login-input" style="margin: 0;" placeholder="New admin password" />
+                            </div>
+                            <button class="login-btn" onclick="changeAdminPassword()" style="margin-top: 10px;">Update Admin Password</button>
+                            <div id="adminPasswordMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Admin password updated!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Day Modal -->
+    <div id="editDayModal" class="modal hidden" onclick="closeEditDayIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeEditDay()">×</button>
+            <div class="edit-day-header">
+                <h2 id="editDayTitle"></h2>
+                <p id="editDaySubtitle"></p>
+            </div>
+            
+            <div class="add-task">
+                <div class="add-task-inputs">
+                    <input type="text" id="editDayTaskInput" placeholder="Add a task..." />
+                    <input type="time" id="editDayTaskTime" />
+                </div>
+                <button class="add-task-btn" onclick="addTaskToEditDay()">Add Task</button>
+            </div>
+
+            <div class="task-list" id="editDayTaskList"></div>
+        </div>
+    </div>
+
+    <!-- Invite User Modal -->
+    <div id="inviteUserModal" class="modal hidden" onclick="closeInviteUserIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeInviteUser()">×</button>
+            <h2>Invite New User</h2>
+            <p style="color: #666; margin-bottom: 20px;">Create a new account for someone to join your group</p>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Username</label>
+                <input type="text" id="inviteUsername" class="login-input" style="margin: 0;" placeholder="Choose a username" />
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Password</label>
+                <input type="password" id="invitePassword" class="login-input" style="margin: 0;" placeholder="Choose a password" />
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name (optional)</label>
+                <input type="text" id="inviteDisplayName" class="login-input" style="margin: 0;" placeholder="Their display name" />
+            </div>
+            
+            <button class="login-btn" onclick="createInvitedUser()">Create User</button>
+            <div id="inviteError" class="login-error"></div>
+        </div>
+    </div>
+
+    <script>
+        // PWA Install
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Don't show if already dismissed
+            if (!localStorage.getItem('installDismissed')) {
+                installBanner.classList.add('show');
+            }
+        });
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('App installed');
+            }
+            
+            deferredPrompt = null;
+            installBanner.classList.remove('show');
+        }
+
+        function dismissInstall() {
+            localStorage.setItem('installDismissed', 'true');
+            installBanner.classList.remove('show');
+        }
+
+        function installAppFromButton() {
+            if (!deferredPrompt) {
+                // Check if already installed
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    alert('✓ App is already installed! You can find it on your home screen or app menu.');
+                } else {
+                    alert('❌ Installation is not available on this device or browser.\n\nTry using:\n• Chrome on Android\n• Safari on iOS\n• Edge on Windows');
+                }
+                return;
+            }
+            
+            // Call the existing installApp function
+            installApp();
+        }
+
+        // Global Variables
+        let currentUser = null;
+        let currentScreen = 'initialChoice';
+        let tasks = {};
+        let hugGroups = [];
+        let completedTasksCount = 0;
+        let currentView = 'today';
+        let currentEditDay = null;
+        let isAdminMode = false;
+        const ADMIN_PASSWORD = 'hug2025';
+        const ANTI_CHEAT_TIME = 1000;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInitialState();
+            setupEnterKeyListeners();
+            checkForUpdates();
+        });
+
+        function loadInitialState() {
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('currentUser');
+            const savedAccountType = localStorage.getItem('currentAccountType');
+            
+            if (savedUser) {
+                currentUser = savedUser;
+                loadUserData();
+                showScreen('mainApp');
+            } else {
+                showScreen('initialChoice');
+            }
+        }
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            // Hide all screens
+            const screens = [
+                'initialChoice', 'passcodeGate', 'accountTypeSelection',
+                'createPersonalAccount', 'loginPersonalAccount', 'groupSetup',
+                'createGroupAdmin', 'groupJoin', 'showGroupCredentials',
+                'welcomeScreen', 'mainApp'
+            ];
+            
+            screens.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.classList.add('hidden');
+            });
+            
+            // Show requested screen
+            const element = document.getElementById(screenId);
+            if (element) {
+                element.classList.remove('hidden');
+                currentScreen = screenId;
+            }
+            
+            // Update UI if showing main app
+            if (screenId === 'mainApp') {
+                updateDateDisplay();
+                renderTodayTasks();
+                renderHugs();
+                showTab('today');
+            }
+        }
+
+        // Navigation functions
+        function showPasscodeGate() {
+            showScreen('passcodeGate');
+            document.getElementById('passcodeInput').focus();
+        }
+
+        function showSignIn() {
+            // Go directly to login page
+            showScreen('loginPersonalAccount');
+            document.getElementById('loginUsername').focus();
+        }
+
+        function showCreateAccount() {
+            // Go to password creation
+            showScreen('passcodeGate');
+            document.getElementById('passcodeInput').focus();
+        }
+
+        function backToInitialChoice() {
+            showScreen('initialChoice');
+            // Clear any error messages
+            document.getElementById('passcodeError').textContent = '';
+            document.getElementById('adminError').textContent = '';
+        }
+
+        function backToPasscodeGate() {
+            showScreen('passcodeGate');
+            document.getElementById('loginAccountError').textContent = '';
+        }
+
+        function backToAccountTypeSelection() {
+            showScreen('accountTypeSelection');
+            document.getElementById('personalAccountError').textContent = '';
+        }
+
+        function backToGroupSetup() {
+            showScreen('groupSetup');
+            document.getElementById('groupAdminError').textContent = '';
+        }
+
+        // Passcode Check
+        function checkPasscode() {
+            const passcode = document.getElementById('passcodeInput').value.trim();
+            const errorDiv = document.getElementById('passcodeError');
+            
+            if (!passcode) {
+                errorDiv.textContent = 'Please enter a password';
+                return;
+            }
+            
+            // Check if this is an existing account
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const matchingAccount = Object.entries(accounts).find(([user, data]) => 
+                data.password === passcode
+            );
+            
+            if (matchingAccount) {
+                // Existing account - check if personal or group
+                const [username, accountData] = matchingAccount;
+                
+                if (accountData.type === 'personal') {
+                    // Personal account - log them in
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('currentAccountType', 'personal');
+                    loadUserData();
+                    showScreen('mainApp');
+                } else if (accountData.type === 'group') {
+                    // Group account - log them in
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('currentAccountType', 'group');
+                    loadUserData();
+                    showScreen('mainApp');
+                }
+            } else {
+                // New password - ask what type of account
+                // Store the password temporarily
+                sessionStorage.setItem('pendingPassword', passcode);
+                showScreen('accountTypeSelection');
+            }
+            
+            errorDiv.textContent = '';
+        }
+
+        // Account Type Selection
+        function selectAccountType(type) {
+            if (type === 'personal') {
+                showScreen('createPersonalAccount');
+                document.getElementById('personalUsername').focus();
+            } else {
+                showScreen('groupSetup');
+            }
+        }
+
+        // Create Personal Account
+        function createPersonalAccount() {
+            const username = document.getElementById('personalUsername').value.trim();
+            const password = document.getElementById('personalPassword').value.trim();
+            const confirmPassword = document.getElementById('personalConfirmPassword').value.trim();
+            const errorDiv = document.getElementById('personalAccountError');
+            
+            if (!username || !password || !confirmPassword) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            
+            if (accounts[username]) {
+                errorDiv.textContent = 'Username already exists';
+                return;
+            }
+            
+            // Create the account
+            accounts[username] = {
+                password: password,
+                type: 'personal',
+                data: {
+                    tasks: {},
+                    hugGroups: [],
+                    completedTasksCount: 0,
+                    spentHugs: 0
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save and log in
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'personal');
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        // Login Personal Account
+        function loginPersonalAccount() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorDiv = document.getElementById('loginAccountError');
+            
+            if (!username || !password) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const account = accounts[username];
+            
+            if (!account || account.password !== password) {
+                errorDiv.textContent = 'Invalid username or password';
+                return;
+            }
+            
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', account.type);
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        // Group Setup
+        function setupGroupAdmin() {
+            showScreen('createGroupAdmin');
+            document.getElementById('groupAdminUsername').focus();
+        }
+
+        function showGroupJoin() {
+            showScreen('groupJoin');
+            document.getElementById('groupJoinUsername').focus();
+        }
+
+        // Create Group Admin
+        function createGroupAdmin() {
+            const username = document.getElementById('groupAdminUsername').value.trim();
+            const password = document.getElementById('groupAdminPassword').value.trim();
+            const confirmPassword = document.getElementById('groupAdminConfirm').value.trim();
+            const errorDiv = document.getElementById('groupAdminError');
+            
+            if (!username || !password || !confirmPassword) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            
+            if (accounts[username]) {
+                errorDiv.textContent = 'Username already exists';
+                return;
+            }
+            
+            // Create the group account
+            accounts[username] = {
+                password: password,
+                type: 'group',
+                isAdmin: true,
+                members: [username],
+                data: {
+                    tasks: {},
+                    hugGroups: [],
+                    completedTasksCount: 0,
+                    spentHugs: 0
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            // Show credentials
+            document.getElementById('createdGroupUsername').textContent = username;
+            document.getElementById('createdGroupPassword').textContent = password;
+            showScreen('showGroupCredentials');
+        }
+
+        function finishGroupCreation() {
+            const username = document.getElementById('createdGroupUsername').textContent;
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'group');
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        // Join Group
+        function joinGroup() {
+            const groupUsername = document.getElementById('groupJoinUsername').value.trim();
+            const groupPassword = document.getElementById('groupJoinPassword').value.trim();
+            const yourName = document.getElementById('yourNameInGroup').value.trim();
+            const errorDiv = document.getElementById('groupJoinError');
+            
+            if (!groupUsername || !groupPassword || !yourName) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const groupAccount = accounts[groupUsername];
+            
+            if (!groupAccount || groupAccount.password !== groupPassword) {
+                errorDiv.textContent = 'Invalid group username or password';
+                return;
+            }
+            
+            if (groupAccount.type !== 'group') {
+                errorDiv.textContent = 'This is not a group account';
+                return;
+            }
+            
+            // Check if this is a sub-account login
+            if (groupAccount.subAccounts && groupAccount.subAccounts.length > 0) {
+                const subAccount = groupAccount.subAccounts.find(sub => sub.username === yourName);
+                if (subAccount) {
+                    // This is a sub-account - need their personal password
+                    // Store temporarily and show password prompt
+                    sessionStorage.setItem('pendingGroupUsername', groupUsername);
+                    sessionStorage.setItem('pendingSubUsername', yourName);
+                    showSubAccountPasswordPrompt(yourName);
+                    return;
+                }
+            }
+            
+            // Regular group member join
+            if (!groupAccount.members.includes(yourName)) {
+                groupAccount.members.push(yourName);
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            }
+            
+            currentUser = groupUsername;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'group');
+            localStorage.setItem('currentUserDisplayName', yourName);
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        function showSubAccountPasswordPrompt(username) {
+            // Update the join screen to ask for password
+            const errorDiv = document.getElementById('groupJoinError');
+            errorDiv.innerHTML = `
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                    <p style="color: #1976d2; margin-bottom: 10px;">Found account for ${username}!</p>
+                    <input type="password" id="subAccountPassword" class="login-input" placeholder="Enter your password" style="margin-bottom: 10px;" />
+                    <button class="login-btn" onclick="loginSubAccount()">Sign In</button>
+                </div>
+            `;
+            document.getElementById('subAccountPassword').focus();
+        }
+
+        function loginSubAccount() {
+            const groupUsername = sessionStorage.getItem('pendingGroupUsername');
+            const subUsername = sessionStorage.getItem('pendingSubUsername');
+            const password = document.getElementById('subAccountPassword').value.trim();
+            const errorDiv = document.getElementById('groupJoinError');
+            
+            if (!password) {
+                alert('Please enter your password');
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const groupAccount = accounts[groupUsername];
+            const subAccount = groupAccount.subAccounts.find(sub => sub.username === subUsername);
+            
+            if (subAccount.password !== password) {
+                alert('Incorrect password');
+                return;
+            }
+            
+            // Log them in
+            currentUser = groupUsername + '::' + subUsername; // Special format for sub-accounts
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'subaccount');
+            localStorage.setItem('currentUserDisplayName', subAccount.displayName);
+            
+            // Load SHARED group data (not individual)
+            tasks = groupAccount.data.tasks || {};
+            hugGroups = groupAccount.data.hugGroups || [];
+            completedTasksCount = groupAccount.data.completedTasksCount || 0;
+            
+            sessionStorage.removeItem('pendingGroupUsername');
+            sessionStorage.removeItem('pendingSubUsername');
+            
+            showScreen('mainApp');
+        }
+
+        // Copy Credential Function
+        function copyCredential(elementId, button) {
+            const text = document.getElementById(elementId).textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Admin Password Check
+
+
+
+
+        function copyAdminCredential(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function deleteAccount(username) {
+            if (!confirm(`Are you sure you want to delete ${username}? This cannot be undone.`)) {
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            delete accounts[username];
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            loadAdminDashboard();
+        }
+
+        // Data Management - Group tasks are SHARED among all members
+        function saveUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                
+                // Check if this is a sub-account
+                if (currentUser.includes('::')) {
+                    const [groupUsername, subUsername] = currentUser.split('::');
+                    const groupAccount = accounts[groupUsername];
+                    
+                    if (!groupAccount) {
+                        console.error('Group account not found!');
+                        return;
+                    }
+                    
+                    // Save to GROUP data (shared across all members)
+                    groupAccount.data = {
+                        tasks: tasks,
+                        hugGroups: hugGroups,
+                        completedTasksCount: completedTasksCount,
+                        spentHugs: groupAccount.data?.spentHugs || 0
+                    };
+                    
+                    localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                } else {
+                    // Regular account or group admin
+                    if (!accounts[currentUser]) {
+                        console.error('User account not found!');
+                        return;
+                    }
+                    
+                    accounts[currentUser].data = {
+                        tasks: tasks,
+                        hugGroups: hugGroups,
+                        completedTasksCount: completedTasksCount,
+                        spentHugs: accounts[currentUser].data?.spentHugs || 0
+                    };
+                    
+                    localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                }
+                
+                // Verify save was successful
+                const verification = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                if (currentUser.includes('::')) {
+                    const [groupUsername, subUsername] = currentUser.split('::');
+                    if (!verification[groupUsername]) {
+                        console.error('Data save verification failed!');
+                    }
+                } else {
+                    if (!verification[currentUser]) {
+                        console.error('Data save verification failed!');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('There was an error saving your data. Please try again.');
+            }
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                
+                // Check if this is a sub-account
+                if (currentUser.includes('::')) {
+                    const [groupUsername, subUsername] = currentUser.split('::');
+                    const groupAccount = accounts[groupUsername];
+                    
+                    if (groupAccount && groupAccount.data) {
+                        // Load GROUP data (shared across all members)
+                        tasks = groupAccount.data.tasks || {};
+                        hugGroups = groupAccount.data.hugGroups || [];
+                        completedTasksCount = groupAccount.data.completedTasksCount || 0;
+                        return;
+                    }
+                } else {
+                    // Regular account or group admin
+                    const userData = accounts[currentUser];
+                    if (userData && userData.data) {
+                        tasks = userData.data.tasks || {};
+                        hugGroups = userData.data.hugGroups || [];
+                        completedTasksCount = userData.data.completedTasksCount || 0;
+                        return;
+                    }
+                }
+                
+                // Initialize empty data if not found
+                tasks = {};
+                hugGroups = [];
+                completedTasksCount = 0;
+                saveUserData(); // Save the initialized data
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('There was an error loading your data.');
+            }
+        }
+
+        function syncData() {
+            saveUserData();
+            const syncStatus = document.getElementById('syncStatus');
+            if (syncStatus) {
+                syncStatus.textContent = 'Synced ✓';
+                syncStatus.style.color = '#66bb6a';
+            }
+        }
+
+        // Logout
+        function logout() {
+            saveUserData(); // Make sure to save before logout
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('currentAccountType');
+            localStorage.removeItem('currentUserDisplayName');
+            currentUser = null;
+            tasks = {};
+            hugGroups = [];
+            completedTasksCount = 0;
+            showScreen('initialChoice');
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            currentView = tabName;
+            
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Hide all tabs
+            document.getElementById('todayTab').classList.add('hidden');
+            document.getElementById('daysTab').classList.add('hidden');
+            document.getElementById('hugsTab').classList.add('hidden');
+            document.getElementById('settingsTab').classList.add('hidden');
+            
+            // Show selected tab
+            if (tabName === 'today') {
+                document.getElementById('todayTab').classList.remove('hidden');
+                renderTodayTasks();
+            } else if (tabName === 'days') {
+                document.getElementById('daysTab').classList.remove('hidden');
+                renderDays();
+            } else if (tabName === 'hugs') {
+                document.getElementById('hugsTab').classList.remove('hidden');
+                renderHugs();
+            } else if (tabName === 'settings') {
+                document.getElementById('settingsTab').classList.remove('hidden');
+                loadSettings();
+            }
+        }
+
+        // Update Date Display
+        function updateDateDisplay() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+        // Task Management
+        function renderTodayTasks() {
+            const today = formatDate(new Date());
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            
+            if (!tasks[today] || tasks[today].length === 0) {
+                taskList.innerHTML = '<div class="empty-state">No tasks for today. Add one above! 📝</div>';
+                return;
+            }
+            
+            tasks[today].forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskDiv.draggable = true;
+                taskDiv.dataset.index = index;
+                
+                taskDiv.addEventListener('dragstart', handleDragStart);
+                taskDiv.addEventListener('dragover', handleDragOver);
+                taskDiv.addEventListener('drop', handleDrop);
+                taskDiv.addEventListener('dragend', handleDragEnd);
+                
+                let assignedTag = '';
+                if (task.assignedTo) {
+                    assignedTag = `<span class="task-assigned">@${task.assignedTo}</span>`;
+                }
+                
+                taskDiv.innerHTML = `
+                    <span class="drag-handle">☰</span>
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
+                    <div class="task-content">
+                        <span class="task-text">${task.text}</span>
+                        <span class="task-time">${formatTime(task.time)}</span>
+                        ${assignedTag}
+                    </div>
+                    <button class="task-delete" onclick="deleteTask(${index})">Delete</button>
+                `;
+                
+                taskList.appendChild(taskDiv);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const timeInput = document.getElementById('taskTime');
+            const text = input.value.trim();
+            
+            if (text) {
+                const today = formatDate(new Date());
+                if (!tasks[today]) {
+                    tasks[today] = [];
+                }
+                
+                tasks[today].push({
+                    text: text,
+                    time: timeInput.value || '',
+                    completed: false,
+                    assignedTo: '',
+                    id: Date.now(),
+                    createdBy: currentUser,
+                    createdAt: new Date().toISOString()
+                });
+                
+                renderTodayTasks();
+                saveUserData();
+                syncData();
+                
+                input.value = '';
+                timeInput.value = '';
+            }
+        }
+
+        function toggleTask(index) {
+            const today = formatDate(new Date());
+            const task = tasks[today][index];
+            const wasCompleted = task.completed;
+            task.completed = !task.completed;
+            
+            // Only count points if task hasn't been completed before
+            if (!wasCompleted && task.completed) {
+                // First time completing - check if this task was ever completed before
+                if (!task.hasBeenCompleted) {
+                    task.hasBeenCompleted = true;
+                    completedTasksCount++;
+                    checkHugReward();
+                }
+            }
+            
+            renderTodayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        function deleteTask(index) {
+            const today = formatDate(new Date());
+            const task = tasks[today][index];
+            
+            // Only deduct points if this task was completed and counted
+            if (task.completed && task.hasBeenCompleted) {
+                completedTasksCount--;
+            }
+            
+            tasks[today].splice(index, 1);
+            renderTodayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        // Drag and Drop
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const afterElement = getDragAfterElement(this.parentElement, e.clientY);
+            if (afterElement == null) {
+                this.parentElement.appendChild(draggedElement);
+            } else {
+                this.parentElement.insertBefore(draggedElement, afterElement);
+            }
+            
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            
+            const list = this.parentElement;
+            const items = Array.from(list.children);
+            const newOrder = items.map(item => parseInt(item.dataset.index));
+            
+            const dateStr = currentEditDay || formatDate(new Date());
+            const reorderedTasks = newOrder.map(i => tasks[dateStr][i]);
+            tasks[dateStr] = reorderedTasks;
+            
+            saveUserData();
+            syncData();
+            
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            
+            if (currentEditDay) {
+                renderEditDayTasks();
+            } else {
+                renderTodayTasks();
+            }
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Days Page - Shows next 90 days
+        function renderDays() {
+            const grid = document.getElementById('daysGrid');
+            grid.innerHTML = '';
+            
+            const today = new Date();
+            for (let i = 1; i < 91; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const dateStr = formatDate(date);
+                
+                const dayTasks = tasks[dateStr] || [];
+                const taskCount = dayTasks.length;
+                const completedCount = dayTasks.filter(t => t.completed).length;
+                
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                card.onclick = () => openEditDay(dateStr);
+                
+                const dayName = i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                card.innerHTML = `
+                    <div class="day-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    <div class="day-name">${dayName}</div>
+                    <div class="task-count">${taskCount} task${taskCount !== 1 ? 's' : ''} (${completedCount} done)</div>
+                `;
+                
+                grid.appendChild(card);
+            }
+        }
+
+        // Edit Day Modal
+        function openEditDay(dateStr) {
+            currentEditDay = dateStr;
+            const date = new Date(dateStr);
+            
+            document.getElementById('editDayTitle').textContent = 
+                date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            
+            const today = formatDate(new Date());
+            if (dateStr === today) {
+                document.getElementById('editDaySubtitle').textContent = '(Today)';
+            } else {
+                document.getElementById('editDaySubtitle').textContent = '';
+            }
+            
+            renderEditDayTasks();
+            document.getElementById('editDayModal').classList.remove('hidden');
+        }
+
+        function closeEditDay() {
+            currentEditDay = null;
+            document.getElementById('editDayModal').classList.add('hidden');
+            renderDays();
+            if (currentView === 'today') {
+                renderTodayTasks();
+            }
+        }
+
+        function closeEditDayIfOutside(event) {
+            if (event.target.id === 'editDayModal') {
+                closeEditDay();
+            }
+        }
+
+        function renderEditDayTasks() {
+            const taskList = document.getElementById('editDayTaskList');
+            taskList.innerHTML = '';
+            
+            const dayTasks = tasks[currentEditDay] || [];
+            
+            if (dayTasks.length === 0) {
+                taskList.innerHTML = '<div class="empty-state">No tasks for this day</div>';
+                return;
+            }
+            
+            dayTasks.forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskDiv.draggable = true;
+                taskDiv.dataset.index = index;
+                
+                taskDiv.addEventListener('dragstart', handleDragStart);
+                taskDiv.addEventListener('dragover', handleDragOver);
+                taskDiv.addEventListener('drop', handleDrop);
+                taskDiv.addEventListener('dragend', handleDragEnd);
+                
+                let assignedTag = '';
+                if (task.assignedTo) {
+                    assignedTag = `<span class="task-assigned">@${task.assignedTo}</span>`;
+                }
+                
+                taskDiv.innerHTML = `
+                    <span class="drag-handle">☰</span>
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
+                    <div class="task-content">
+                        <span class="task-text">${task.text}</span>
+                        <span class="task-time">${formatTime(task.time)}</span>
+                        ${assignedTag}
+                    </div>
+                    <button class="task-delete" onclick="deleteEditDayTask(${index})">Delete</button>
+                `;
+                
+                taskList.appendChild(taskDiv);
+            });
+        }
+
+        function addTaskToEditDay() {
+            const input = document.getElementById('editDayTaskInput');
+            const timeInput = document.getElementById('editDayTaskTime');
+            const text = input.value.trim();
+            
+            if (text) {
+                if (!tasks[currentEditDay]) {
+                    tasks[currentEditDay] = [];
+                }
+                
+                tasks[currentEditDay].push({
+                    text: text,
+                    time: timeInput.value || '',
+                    completed: false,
+                    assignedTo: '',
+                    id: Date.now(),
+                    createdBy: currentUser,
+                    createdAt: new Date().toISOString()
+                });
+                
+                renderEditDayTasks();
+                saveUserData();
+                syncData();
+                
+                input.value = '';
+                timeInput.value = '';
+            }
+        }
+
+        function toggleEditDayTask(index) {
+            const task = tasks[currentEditDay][index];
+            const wasCompleted = task.completed;
+            task.completed = !task.completed;
+            
+            // Only count points if task hasn't been completed before
+            if (!wasCompleted && task.completed) {
+                if (!task.hasBeenCompleted) {
+                    task.hasBeenCompleted = true;
+                    completedTasksCount++;
+                    checkHugReward();
+                }
+            }
+            
+            renderEditDayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        function deleteEditDayTask(index) {
+            const task = tasks[currentEditDay][index];
+            
+            // Only deduct points if this task was completed and counted
+            if (task.completed && task.hasBeenCompleted) {
+                completedTasksCount--;
+            }
+            
+            tasks[currentEditDay].splice(index, 1);
+            renderEditDayTasks();
+            saveUserData();
+            syncData();
+        }
+
+        // Hugs System
+        function checkHugReward() {
+            if (completedTasksCount % 5 === 0 && completedTasksCount > 0) {
+                const now = new Date();
+                const expiresAt = new Date(now);
+                expiresAt.setDate(expiresAt.getDate() + 7);
+                
+                const weekStart = getWeekStart(now);
+                let existingGroup = hugGroups.find(g => formatDate(new Date(g.date)) === formatDate(weekStart));
+                
+                if (existingGroup) {
+                    existingGroup.count++;
+                } else {
+                    hugGroups.push({
+                        date: weekStart.toISOString(),
+                        count: 1,
+                        expiresAt: expiresAt.toISOString()
+                    });
+                }
+                
+                saveUserData();
+                syncData();
+                showHugToast();
+            }
+        }
+
+        function showHugToast() {
+            const toast = document.getElementById('hugToast');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function renderHugs() {
+            const now = new Date();
+            hugGroups = hugGroups.filter(g => new Date(g.expiresAt) > now);
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const spentHugs = accounts[currentUser]?.data?.spentHugs || 0;
+            
+            const totalEarned = hugGroups.reduce((sum, g) => sum + g.count, 0);
+            const totalAvailable = totalEarned - spentHugs;
+            document.getElementById('totalHugs').textContent = totalAvailable;
+            
+            const container = document.getElementById('hugGroups');
+            container.innerHTML = '';
+            
+            if (hugGroups.length === 0) {
+                container.innerHTML = '<div class="empty-state">Complete tasks to earn points! 🎉</div>';
+                return;
+            }
+            
+            hugGroups.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            hugGroups.forEach(group => {
+                const date = new Date(group.date);
+                const expiresAt = new Date(group.expiresAt);
+                const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+                
+                const div = document.createElement('div');
+                div.className = 'hug-group';
+                div.innerHTML = `
+                    <div class="hug-group-info">
+                        <div class="hug-group-date">Week of ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
+                        <div class="hug-group-count">${group.count} point${group.count !== 1 ? 's' : ''} 🎉</div>
+                    </div>
+                    <div class="hug-group-expires">${daysLeft} day${daysLeft !== 1 ? 's' : ''} left</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            saveUserData();
+        }
+
+        // Settings
+        function loadSettings() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            
+            if (!currentAccount) return;
+            
+            // Load basic settings
+            document.getElementById('settingsUsername').value = currentUser;
+            document.getElementById('settingsDisplayName').value = currentAccount.displayName || '';
+            document.getElementById('settingsNewPassword').value = '';
+            
+            // Check if install button should be shown
+            const settingsInstallBtn = document.getElementById('settingsInstallBtn');
+            const settingsInstallMsg = document.getElementById('settingsInstallMessage');
+            
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                // Already installed
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'none';
+                if (settingsInstallMsg) {
+                    settingsInstallMsg.textContent = '✓ App is already installed on this device';
+                    settingsInstallMsg.style.display = 'block';
+                    settingsInstallMsg.style.color = '#66bb6a';
+                }
+            } else if (!deferredPrompt) {
+                // Not available
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'none';
+                if (settingsInstallMsg) {
+                    settingsInstallMsg.textContent = 'Installation not available on this browser';
+                    settingsInstallMsg.style.display = 'block';
+                }
+            } else {
+                // Available
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'block';
+                if (settingsInstallMsg) settingsInstallMsg.style.display = 'none';
+            }
+            
+            // Show/hide group admin section
+            const groupAdminSection = document.getElementById('groupAdminSection');
+            if (currentAccount.type === 'group' && currentAccount.isAdmin) {
+                groupAdminSection.classList.remove('hidden');
+                loadGroupMembers();
+            } else {
+                groupAdminSection.classList.add('hidden');
+            }
+        }
+
+        function saveSettings() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const displayName = document.getElementById('settingsDisplayName').value.trim();
+            const newPassword = document.getElementById('settingsNewPassword').value.trim();
+            
+            if (displayName) {
+                accounts[currentUser].displayName = displayName;
+            }
+            
+            if (newPassword) {
+                accounts[currentUser].password = newPassword;
+            }
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            // Show success message
+            const message = document.getElementById('settingsSaveMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+            
+            // Clear password field
+            document.getElementById('settingsNewPassword').value = '';
+        }
+
+        function changeAdminPassword() {
+            const newPassword = document.getElementById('newAdminPassword').value.trim();
+            
+            if (!newPassword) {
+                alert('Please enter a new admin password');
+                return;
+            }
+            
+            localStorage.setItem('adminPassword', newPassword);
+            
+            // Show success message
+            const message = document.getElementById('adminPasswordMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+            
+            // Clear field
+            document.getElementById('newAdminPassword').value = '';
+        }
+
+        function accessAdminDashboard() {
+            const password = document.getElementById('adminDashboardPassword').value.trim();
+            const errorDiv = document.getElementById('adminDashboardError');
+            const storedAdminPassword = localStorage.getItem('adminPassword') || 'hug2025';
+            
+            if (!password) {
+                errorDiv.textContent = 'Please enter the admin password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== storedAdminPassword) {
+                errorDiv.textContent = 'Incorrect admin password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Password correct - show dashboard
+            errorDiv.style.display = 'none';
+            document.getElementById('adminDashboardContent').style.display = 'block';
+            loadAllAccounts();
+        }
+
+        function loadAllAccounts() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accountsList = document.getElementById('allAccountsList');
+            
+            if (Object.keys(accounts).length === 0) {
+                accountsList.innerHTML = '<p style="color: #999; padding: 10px;">No accounts found</p>';
+                return;
+            }
+            
+            accountsList.innerHTML = '';
+            
+            Object.entries(accounts).forEach(([username, data]) => {
+                const accountDiv = document.createElement('div');
+                accountDiv.className = 'account-item';
+                accountDiv.style.marginBottom = '15px';
+                
+                const totalHugs = (data.data?.hugGroups || []).reduce((sum, g) => sum + g.count, 0);
+                const spentHugs = data.data?.spentHugs || 0;
+                const availableHugs = totalHugs - spentHugs;
+                
+                const members = data.type === 'group' && data.members ? 
+                    `<br><small>Members: ${data.members.join(', ')}</small>` : '';
+                
+                const subAccountsInfo = data.subAccounts && data.subAccounts.length > 0 ?
+                    `<br><small>Invited users: ${data.subAccounts.map(s => s.username).join(', ')}</small>` : '';
+                
+                accountDiv.innerHTML = `
+                    <div class="account-info">
+                        <strong>${username}</strong>
+                        <small>${data.type === 'group' ? '👥 Group' : '👤 Personal'} Account | ${availableHugs} points${members}${subAccountsInfo}</small>
+                        
+                        <div class="copyable-credential" style="margin-top: 10px;">
+                            <span>${username}</span>
+                            <button class="copy-btn" onclick="copyAdminCredential('${username}', this)">Copy</button>
+                        </div>
+                        
+                        <div class="copyable-credential">
+                            <span>${data.password}</span>
+                            <button class="copy-btn" onclick="copyAdminCredential('${data.password}', this)">Copy</button>
+                        </div>
+                    </div>
+                    <div class="account-actions">
+                        <button class="delete-btn" onclick="deleteAccountFromDashboard('${username}')">Delete</button>
+                    </div>
+                `;
+                
+                accountsList.appendChild(accountDiv);
+            });
+        }
+
+        function copyAdminCredential(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function deleteAccountFromDashboard(username) {
+            if (!confirm(`Are you sure you want to delete ${username}? This cannot be undone.`)) {
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            delete accounts[username];
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            loadAllAccounts();
+        }
+
+        function loadGroupMembers() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            const membersList = document.getElementById('groupMembersList');
+            
+            if (!currentAccount || !currentAccount.subAccounts) {
+                membersList.innerHTML = '<p style="color: #999;">No members yet. Use the Invite User button to add members.</p>';
+                return;
+            }
+            
+            membersList.innerHTML = '<h4 style="margin-bottom: 15px; color: #5e8fb5;">Group Members</h4>';
+            
+            currentAccount.subAccounts.forEach((subAccount, index) => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'account-item';
+                memberDiv.innerHTML = `
+                    <div class="account-info">
+                        <strong>${subAccount.displayName || subAccount.username}</strong>
+                        <small>Username: ${subAccount.username}</small>
+                    </div>
+                    <div class="account-actions">
+                        <button class="delete-btn" onclick="removeGroupMember(${index})">Remove</button>
+                    </div>
+                `;
+                membersList.appendChild(memberDiv);
+            });
+        }
+
+        function showInviteUserModal() {
+            document.getElementById('inviteUserModal').classList.remove('hidden');
+            document.getElementById('inviteUsername').value = '';
+            document.getElementById('invitePassword').value = '';
+            document.getElementById('inviteDisplayName').value = '';
+            document.getElementById('inviteError').textContent = '';
+        }
+
+        function closeInviteUser() {
+            document.getElementById('inviteUserModal').classList.add('hidden');
+        }
+
+        function closeInviteUserIfOutside(event) {
+            if (event.target.id === 'inviteUserModal') {
+                closeInviteUser();
+            }
+        }
+
+        function createInvitedUser() {
+            const username = document.getElementById('inviteUsername').value.trim();
+            const password = document.getElementById('invitePassword').value.trim();
+            const displayName = document.getElementById('inviteDisplayName').value.trim();
+            const errorDiv = document.getElementById('inviteError');
+            
+            if (!username || !password) {
+                errorDiv.textContent = 'Please fill in username and password';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            
+            // Initialize subAccounts if it doesn't exist
+            if (!currentAccount.subAccounts) {
+                currentAccount.subAccounts = [];
+            }
+            
+            // Check if username already exists
+            const usernameExists = currentAccount.subAccounts.some(sub => sub.username === username);
+            if (usernameExists) {
+                errorDiv.textContent = 'Username already exists in this group';
+                return;
+            }
+            
+            // Create new sub-account (no separate data - they share the group tasks)
+            currentAccount.subAccounts.push({
+                username: username,
+                password: password,
+                displayName: displayName || username,
+                createdAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            closeInviteUser();
+            loadGroupMembers();
+        }
+
+        function removeGroupMember(index) {
+            if (!confirm('Are you sure you want to remove this member?')) {
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            
+            currentAccount.subAccounts.splice(index, 1);
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            loadGroupMembers();
+        }
+
+        // Utilities
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        function formatTime(militaryTime) {
+            if (!militaryTime) return 'No time';
+            
+            const [hours, minutes] = militaryTime.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {
+                console.log('Service worker registration failed');
+            });
+        }
+
+        // Updates
+        function checkForUpdates() {
+            // Placeholder for update checking
+        }
+
+        function updateApp() {
+            document.getElementById('updateBanner').classList.remove('show');
+            location.reload();
+        }
+
+        function dismissUpdate() {
+            document.getElementById('updateBanner').classList.remove('show');
+        }
+
+        // Enter Key Support
+        function setupEnterKeyListeners() {
+            const enterHandlers = {
+                'passcodeInput': checkPasscode,
+                'loginPassword': loginPersonalAccount,
+                'personalConfirmPassword': createPersonalAccount,
+                'groupAdminConfirm': createGroupAdmin,
+                'yourNameInGroup': joinGroup,
+                'taskInput': addTask,
+                'editDayTaskInput': addTaskToEditDay
+            };
+            
+            Object.entries(enterHandlers).forEach(([id, handler]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') handler();
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
