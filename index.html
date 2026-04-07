@@ -3009,8 +3009,7 @@
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
                 alarm.ringing = false;
-                const now = new Date();
-                alarm.dismissedAt = now.getHours() * 60 + now.getMinutes();
+                alarm.dismissed = true;
                 saveAlarms();
                 renderAlarms();
             }
@@ -3024,8 +3023,14 @@
             alarms.forEach(alarm => {
                 const alarmMinute = parseInt(alarm.time.split(':')[0]) * 60 + parseInt(alarm.time.split(':')[1]);
 
-                // Check if alarm should ring (but not if already dismissed this minute)
-                if (alarm.active && alarm.time === currentTime && !alarm.ringing && alarm.dismissedAt !== currentMinute) {
+                // Clear dismissed flag once the alarm time has passed
+                if (alarm.dismissed && alarm.time !== currentTime) {
+                    alarm.dismissed = false;
+                    saveAlarms();
+                }
+
+                // Check if alarm should ring (but not if already dismissed)
+                if (alarm.active && alarm.time === currentTime && !alarm.ringing && !alarm.dismissed) {
                     alarm.ringing = true;
                     alarm.lastRang = currentMinute;
                     saveAlarms();
