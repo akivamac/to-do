@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Peaceful Tasks">
     <link rel="manifest" href="manifest.json">
+    <!-- Claude Code setup complete: ESLint, Prettier, and PWA validation configured -->
     <title>My Peaceful Tasks</title>
     <style>
         * {
@@ -115,12 +116,12 @@
 
         .nav-item {
             flex: 1;
-            padding: 16px 10px;
+            padding: 14px 6px;
             text-align: center;
             color: white;
             cursor: pointer;
             transition: background 0.3s;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 500;
             border: none;
             background: none;
@@ -1069,6 +1070,7 @@
             <div class="nav">
                 <button class="nav-item active" onclick="showTab('today')">Today</button>
                 <button class="nav-item" onclick="showTab('days')">Days</button>
+                <button class="nav-item" onclick="showTab('projects')">Projects</button>
                 <button class="nav-item" onclick="showTab('hugs')">Points</button>
                 <button class="nav-item" onclick="showTab('alarms')">Alarms</button>
                 <button class="nav-item" onclick="showTab('settings')">Settings</button>
@@ -1087,6 +1089,9 @@
                         <select id="taskAssign" class="login-input" style="margin: 0; padding: 14px;">
                             <option value="">Assign to...</option>
                         </select>
+                        <select id="taskProject" class="login-input" style="margin: 0; padding: 14px;">
+                            <option value="">No Project</option>
+                        </select>
                     </div>
                     <button class="add-task-btn" onclick="addTask()">Add Task</button>
                 </div>
@@ -1097,6 +1102,27 @@
             <!-- Days Tab -->
             <div id="daysTab" class="hidden">
                 <div class="days-grid" id="daysGrid"></div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projectsTab" class="hidden">
+                <div class="admin-card">
+                    <h3>📁 Projects</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="newProjectName" class="login-input" style="margin: 0; flex: 1;" placeholder="New project name..." />
+                        <button class="login-btn" onclick="addProject()" style="margin: 0; padding: 14px 24px;">Add</button>
+                    </div>
+                    <div id="projectsList"></div>
+                </div>
+                <div id="projectTasksView" class="hidden">
+                    <div class="admin-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="closeProjectTasks()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
+                            <h3 id="projectTasksTitle" style="margin: 0; color: #5e8fb5;"></h3>
+                        </div>
+                        <div id="projectTasksList"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Hugs Tab -->
@@ -1392,6 +1418,7 @@
         let tasks = {};
         let hugGroups = [];
         let completedTasksCount = 0;
+        let projects = [];
         let currentView = 'today';
         let currentEditDay = null;
         let isAdminMode = false;
@@ -1447,6 +1474,7 @@
             // Update UI if showing main app
             if (screenId === 'mainApp') {
                 updateDateDisplay();
+                populateProjectDropdown();
                 renderTodayTasks();
                 renderHugs();
                 showTab('today');
@@ -1866,7 +1894,8 @@
                         tasks: tasks,
                         hugGroups: hugGroups,
                         completedTasksCount: completedTasksCount,
-                        spentHugs: groupAccount.data?.spentHugs || 0
+                        spentHugs: groupAccount.data?.spentHugs || 0,
+                        projects: projects
                     };
                     
                     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
@@ -1881,7 +1910,8 @@
                         tasks: tasks,
                         hugGroups: hugGroups,
                         completedTasksCount: completedTasksCount,
-                        spentHugs: accounts[currentUser].data?.spentHugs || 0
+                        spentHugs: accounts[currentUser].data?.spentHugs || 0,
+                        projects: projects
                     };
                     
                     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
@@ -1921,6 +1951,7 @@
                         tasks = groupAccount.data.tasks || {};
                         hugGroups = groupAccount.data.hugGroups || [];
                         completedTasksCount = groupAccount.data.completedTasksCount || 0;
+                        projects = groupAccount.data.projects || [];
                         return;
                     }
                 } else {
@@ -1930,14 +1961,16 @@
                         tasks = userData.data.tasks || {};
                         hugGroups = userData.data.hugGroups || [];
                         completedTasksCount = userData.data.completedTasksCount || 0;
+                        projects = userData.data.projects || [];
                         return;
                     }
                 }
-                
+
                 // Initialize empty data if not found
                 tasks = {};
                 hugGroups = [];
                 completedTasksCount = 0;
+                projects = [];
                 saveUserData(); // Save the initialized data
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -1964,26 +1997,30 @@
             tasks = {};
             hugGroups = [];
             completedTasksCount = 0;
+            projects = [];
             showScreen('initialChoice');
         }
 
         // Tab Management
         function showTab(tabName) {
             currentView = tabName;
-            
+
             // Update nav
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
+                if (item.getAttribute('onclick') === `showTab('${tabName}')`) {
+                    item.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
             
             // Hide all tabs
             document.getElementById('todayTab').classList.add('hidden');
             document.getElementById('daysTab').classList.add('hidden');
+            document.getElementById('projectsTab').classList.add('hidden');
             document.getElementById('hugsTab').classList.add('hidden');
             document.getElementById('alarmsTab').classList.add('hidden');
             document.getElementById('settingsTab').classList.add('hidden');
-            
+
             // Show selected tab
             if (tabName === 'today') {
                 document.getElementById('todayTab').classList.remove('hidden');
@@ -1991,6 +2028,9 @@
             } else if (tabName === 'days') {
                 document.getElementById('daysTab').classList.remove('hidden');
                 renderDays();
+            } else if (tabName === 'projects') {
+                document.getElementById('projectsTab').classList.remove('hidden');
+                renderProjects();
             } else if (tabName === 'hugs') {
                 document.getElementById('hugsTab').classList.remove('hidden');
                 renderHugs();
@@ -2084,31 +2124,34 @@
             const input = document.getElementById('taskInput');
             const timeInput = document.getElementById('taskTime');
             const assignInput = document.getElementById('taskAssign');
+            const projectInput = document.getElementById('taskProject');
             const text = input.value.trim();
-            
+
             if (text) {
                 const today = formatDate(new Date());
                 if (!tasks[today]) {
                     tasks[today] = [];
                 }
-                
+
                 tasks[today].push({
                     text: text,
                     time: timeInput.value || '',
                     completed: false,
                     assignedTo: assignInput.value || '',
+                    project: projectInput ? projectInput.value || '' : '',
                     id: Date.now(),
                     createdBy: currentUser,
                     createdAt: new Date().toISOString()
                 });
-                
+
                 renderTodayTasks();
                 saveUserData();
                 syncData();
-                
+
                 input.value = '';
                 timeInput.value = '';
                 assignInput.value = '';
+                if (projectInput) projectInput.value = '';
             }
         }
 
@@ -2288,6 +2331,130 @@
                     return closest;
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Projects
+        function populateProjectDropdown() {
+            const sel = document.getElementById('taskProject');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">No Project</option>';
+            projects.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                if (String(p.id) === String(current)) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+
+        function renderProjects() {
+            const list = document.getElementById('projectsList');
+            if (!list) return;
+            document.getElementById('projectTasksView').classList.add('hidden');
+            if (projects.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No projects yet. Create one above!</p>';
+                return;
+            }
+            list.innerHTML = '';
+            projects.forEach(p => {
+                // Count tasks across all dates
+                let total = 0, done = 0;
+                Object.values(tasks).forEach(dayTasks => {
+                    dayTasks.forEach(t => {
+                        if (String(t.project) === String(p.id)) {
+                            total++;
+                            if (t.completed) done++;
+                        }
+                    });
+                });
+                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.cssText = 'background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 12px;';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 16px; font-weight: 600; color: #333; cursor: pointer; flex: 1;" onclick="showProjectTasks('${p.id}')">${p.name}</span>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="renameProject('${p.id}')" style="background: #64b5f6; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px;">Rename</button>
+                            <button onclick="deleteProject('${p.id}')" style="background: #e57373; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px;">Delete</button>
+                        </div>
+                    </div>
+                    <div style="background: #eee; border-radius: 8px; height: 12px; margin-top: 10px; overflow: hidden;">
+                        <div style="background: #66bb6a; height: 100%; width: ${pct}%; border-radius: 8px; transition: width 0.3s;"></div>
+                    </div>
+                    <span style="font-size: 12px; color: #888;">${done}/${total} tasks (${pct}%)</span>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function addProject() {
+            const input = document.getElementById('newProjectName');
+            const name = input.value.trim();
+            if (!name) return;
+            projects.push({ id: Date.now(), name: name });
+            input.value = '';
+            saveUserData();
+            syncData();
+            renderProjects();
+            populateProjectDropdown();
+        }
+
+        function deleteProject(id) {
+            showCustomConfirm('Delete this project?', 'Tasks assigned to it will keep their data but lose the project link.', () => {
+                projects = projects.filter(p => String(p.id) !== String(id));
+                saveUserData();
+                syncData();
+                renderProjects();
+                populateProjectDropdown();
+            });
+        }
+
+        function renameProject(id) {
+            const p = projects.find(p => String(p.id) === String(id));
+            if (!p) return;
+            showCustomPrompt('Rename Project', 'Enter new name:', p.name, (newName) => {
+                if (newName && newName.trim()) {
+                    p.name = newName.trim();
+                    saveUserData();
+                    syncData();
+                    renderProjects();
+                    populateProjectDropdown();
+                }
+            });
+        }
+
+        function showProjectTasks(id) {
+            const p = projects.find(p => String(p.id) === String(id));
+            if (!p) return;
+            document.getElementById('projectTasksTitle').textContent = '📁 ' + p.name;
+            const taskList = document.getElementById('projectTasksList');
+            const allTasks = [];
+            Object.entries(tasks).forEach(([date, dayTasks]) => {
+                dayTasks.forEach(t => {
+                    if (String(t.project) === String(id)) {
+                        allTasks.push({ ...t, date });
+                    }
+                });
+            });
+            if (allTasks.length === 0) {
+                taskList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No tasks in this project yet.</p>';
+            } else {
+                taskList.innerHTML = allTasks.map(t => `
+                    <div style="padding: 12px; border: 2px solid ${t.completed ? '#c8e6c9' : '#e0e0e0'}; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 18px;">${t.completed ? '✅' : '⬜'}</span>
+                        <span style="flex: 1; color: ${t.completed ? '#999' : '#333'}; ${t.completed ? 'text-decoration: line-through;' : ''}">${t.text}</span>
+                        <span style="font-size: 12px; color: #888;">${t.date}</span>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('projectTasksView').classList.remove('hidden');
+        }
+
+        function closeProjectTasks() {
+            document.getElementById('projectTasksView').classList.add('hidden');
         }
 
         // Days Page - Shows next 90 days
@@ -2883,6 +3050,56 @@
             if (modal) modal.remove();
         }
 
+        function showCustomConfirm(title, message, onConfirm) {
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'customConfirmModal';
+            modalDiv.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('customConfirmModal').remove()"></div>
+                <div class="custom-alert">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="login-btn decline-btn" onclick="document.getElementById('customConfirmModal').remove()" style="margin: 0;">Cancel</button>
+                        <button class="login-btn" id="customConfirmOkBtn" style="margin: 0;">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalDiv);
+            document.getElementById('customConfirmOkBtn').onclick = () => {
+                modalDiv.remove();
+                onConfirm();
+            };
+        }
+
+        function showCustomPrompt(title, message, defaultValue, onSubmit) {
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'customPromptModal';
+            modalDiv.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('customPromptModal').remove()"></div>
+                <div class="custom-alert">
+                    <h3>${title}</h3>
+                    <p style="margin-bottom: 12px;">${message}</p>
+                    <input id="customPromptInput" class="login-input" style="margin-bottom: 16px;" value="${defaultValue || ''}" />
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="login-btn decline-btn" onclick="document.getElementById('customPromptModal').remove()" style="margin: 0;">Cancel</button>
+                        <button class="login-btn" id="customPromptOkBtn" style="margin: 0;">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalDiv);
+            const input = document.getElementById('customPromptInput');
+            input.focus();
+            input.select();
+            document.getElementById('customPromptOkBtn').onclick = () => {
+                const val = input.value;
+                modalDiv.remove();
+                onSubmit(val);
+            };
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('customPromptOkBtn').click();
+            });
+        }
+
         // Alarms & Timers
         let alarms = [];
         let timerInterval = null;
@@ -3005,11 +3222,19 @@
         }
 
         function dismissAlarm(id) {
+            id = parseInt(id);
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
                 alarm.ringing = false;
+                alarm.active = false;
+                if (alarm.recurring) {
+                    alarm.reactivateAfterDismiss = true;
+                }
                 saveAlarms();
                 renderAlarms();
+                closeCustomAlert();
+            } else {
+                console.error('Alarm not found:', id);
             }
         }
 
@@ -3017,12 +3242,18 @@
             const now = new Date();
             const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             const currentMinute = now.getHours() * 60 + now.getMinutes();
-            
+
             alarms.forEach(alarm => {
                 const alarmMinute = parseInt(alarm.time.split(':')[0]) * 60 + parseInt(alarm.time.split(':')[1]);
-                
-                // Check if alarm should ring
-                if (alarm.active && alarm.time === currentTime && !alarm.ringing) {
+
+                // Clear dismissed flag once the alarm time has passed
+                if (alarm.dismissed && alarm.time !== currentTime) {
+                    alarm.dismissed = false;
+                    saveAlarms();
+                }
+
+                // Check if alarm should ring (but not if already dismissed)
+                if (alarm.active && alarm.time === currentTime && !alarm.ringing && !alarm.dismissed) {
                     alarm.ringing = true;
                     alarm.lastRang = currentMinute;
                     saveAlarms();
@@ -3035,6 +3266,14 @@
                 if (alarm.ringing && alarm.recurring && currentMinute !== alarmMinute) {
                     alarm.ringing = false;
                     saveAlarms();
+                }
+
+                // Reactivate recurring alarms after the dismiss minute passes
+                if (alarm.reactivateAfterDismiss && !alarm.active && currentMinute !== alarmMinute) {
+                    alarm.active = true;
+                    delete alarm.reactivateAfterDismiss;
+                    saveAlarms();
+                    renderAlarms();
                 }
             });
         }
@@ -3121,7 +3360,7 @@
             // Show custom alert popup
             showCustomAlert(
                 `<div style="font-size: 18px; margin-bottom: 10px;">${alarm.label}</div>
-                <button class="login-btn" onclick="dismissAlarm(${alarm.id}); closeCustomAlert();" style="margin: 10px auto 0;">Dismiss Alarm</button>`, 
+                <button class="login-btn" onclick="dismissAlarm(${alarm.id});" style="margin: 10px auto 0;">Dismiss Alarm</button>`,
                 '⏰ Alarm Ringing!'
             );
         }
@@ -3140,8 +3379,9 @@
             
             alarms.forEach(alarm => {
                 const div = document.createElement('div');
-                div.className = `alarm-item ${alarm.active ? 'active' : ''} ${alarm.ringing ? 'ringing' : ''}`;
-                
+                const visuallyActive = alarm.active || alarm.reactivateAfterDismiss;
+                div.className = `alarm-item ${visuallyActive ? 'active' : ''} ${alarm.ringing ? 'ringing' : ''}`;
+
                 div.innerHTML = `
                     <div class="alarm-info">
                         <div class="alarm-time">${alarm.time}</div>
@@ -3150,7 +3390,7 @@
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         ${alarm.ringing ? '<button class="login-btn" onclick="dismissAlarm(' + alarm.id + ')" style="padding: 8px 16px; margin: 0; font-size: 14px;">Dismiss</button>' : ''}
                         <button class="edit-btn" onclick="editAlarm(${alarm.id})" style="padding: 8px 16px; font-size: 14px;">Edit</button>
-                        <div class="alarm-toggle ${alarm.active ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})"></div>
+                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})"></div>
                         <button class="delete-btn" onclick="deleteAlarm(${alarm.id})">Delete</button>
                     </div>
                 `;
