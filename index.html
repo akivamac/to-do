@@ -3006,12 +3006,16 @@
         }
 
         function dismissAlarm(id) {
+            id = parseInt(id);  // Ensure it's a number
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
                 alarm.ringing = false;
                 alarm.dismissed = true;
                 saveAlarms();
                 renderAlarms();
+                closeCustomAlert();  // Make sure popup closes
+            } else {
+                console.error('Alarm not found:', id);
             }
         }
 
@@ -3129,7 +3133,7 @@
             // Show custom alert popup
             showCustomAlert(
                 `<div style="font-size: 18px; margin-bottom: 10px;">${alarm.label}</div>
-                <button class="login-btn" onclick="dismissAlarm(${alarm.id}); closeCustomAlert();" style="margin: 10px auto 0;">Dismiss Alarm</button>`, 
+                <button class="login-btn" onclick="dismissAlarm(${alarm.id});" style="margin: 10px auto 0;">Dismiss Alarm</button>`,
                 '⏰ Alarm Ringing!'
             );
         }
