@@ -116,12 +116,12 @@
 
         .nav-item {
             flex: 1;
-            padding: 16px 10px;
+            padding: 14px 6px;
             text-align: center;
             color: white;
             cursor: pointer;
             transition: background 0.3s;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 500;
             border: none;
             background: none;
@@ -2004,12 +2004,14 @@
         // Tab Management
         function showTab(tabName) {
             currentView = tabName;
-            
+
             // Update nav
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
+                if (item.getAttribute('onclick') === `showTab('${tabName}')`) {
+                    item.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
             
             // Hide all tabs
             document.getElementById('todayTab').classList.add('hidden');
