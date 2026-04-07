@@ -1120,6 +1120,10 @@
                             <button onclick="closeProjectTasks()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
                             <h3 id="projectTasksTitle" style="margin: 0; color: #5e8fb5;"></h3>
                         </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="projectTaskInput" class="login-input" style="margin: 0; flex: 1;" placeholder="Add a task to this project..." />
+                            <button class="login-btn" onclick="addTaskToProject()" style="margin: 0; padding: 14px 20px;">Add</button>
+                        </div>
                         <div id="projectTasksList"></div>
                     </div>
                 </div>
@@ -1421,6 +1425,7 @@
         let projects = [];
         let currentView = 'today';
         let currentEditDay = null;
+        let currentProjectId = null;
         let isAdminMode = false;
         const ADMIN_PASSWORD = 'hug2025';
         const ANTI_CHEAT_TIME = 1000;
@@ -2426,7 +2431,30 @@
             });
         }
 
+        function addTaskToProject() {
+            const input = document.getElementById('projectTaskInput');
+            const text = input.value.trim();
+            if (!text || !currentProjectId) return;
+            const today = formatDate(new Date());
+            if (!tasks[today]) tasks[today] = [];
+            tasks[today].push({
+                text: text,
+                time: '',
+                completed: false,
+                assignedTo: '',
+                project: currentProjectId,
+                id: Date.now(),
+                createdBy: currentUser,
+                createdAt: new Date().toISOString()
+            });
+            input.value = '';
+            saveUserData();
+            syncData();
+            showProjectTasks(currentProjectId);
+        }
+
         function showProjectTasks(id) {
+            currentProjectId = id;
             const p = projects.find(p => String(p.id) === String(id));
             if (!p) return;
             document.getElementById('projectTasksTitle').textContent = '📁 ' + p.name;
@@ -3577,7 +3605,9 @@
                 'groupAdminConfirm': createGroupAdmin,
                 'yourNameInGroup': joinGroup,
                 'taskInput': addTask,
-                'editDayTaskInput': addTaskToEditDay
+                'editDayTaskInput': addTaskToEditDay,
+                'projectTaskInput': addTaskToProject,
+                'newProjectName': addProject
             };
             
             Object.entries(enterHandlers).forEach(([id, handler]) => {
