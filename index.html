@@ -112,11 +112,18 @@
         .nav {
             display: flex;
             background: linear-gradient(135deg, #5e8fb5 0%, #7ba7c7 100%);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .nav::-webkit-scrollbar {
+            display: none;
         }
 
         .nav-item {
-            flex: 1;
-            padding: 14px 6px;
+            flex: 0 0 auto;
+            padding: 14px 16px;
             text-align: center;
             color: white;
             cursor: pointer;
@@ -125,6 +132,7 @@
             font-weight: 500;
             border: none;
             background: none;
+            white-space: nowrap;
         }
 
         .nav-item:hover {
