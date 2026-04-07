@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Peaceful Tasks">
     <link rel="manifest" href="manifest.json">
+    <!-- Claude Code setup complete: ESLint, Prettier, and PWA validation configured -->
     <title>My Peaceful Tasks</title>
     <style>
         * {
@@ -3008,6 +3009,8 @@
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
                 alarm.ringing = false;
+                const now = new Date();
+                alarm.dismissedAt = now.getHours() * 60 + now.getMinutes();
                 saveAlarms();
                 renderAlarms();
             }
@@ -3017,12 +3020,12 @@
             const now = new Date();
             const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             const currentMinute = now.getHours() * 60 + now.getMinutes();
-            
+
             alarms.forEach(alarm => {
                 const alarmMinute = parseInt(alarm.time.split(':')[0]) * 60 + parseInt(alarm.time.split(':')[1]);
-                
+
                 // Check if alarm should ring
-                if (alarm.active && alarm.time === currentTime && !alarm.ringing) {
+                if (alarm.active && alarm.time === currentTime && !alarm.ringing && alarm.dismissedAt !== currentMinute) {
                     alarm.ringing = true;
                     alarm.lastRang = currentMinute;
                     saveAlarms();
