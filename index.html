@@ -1071,6 +1071,7 @@
                 <button class="nav-item active" onclick="showTab('today')">Today</button>
                 <button class="nav-item" onclick="showTab('days')">Days</button>
                 <button class="nav-item" onclick="showTab('projects')">Projects</button>
+                <button class="nav-item" onclick="showTab('notes')">Notes</button>
                 <button class="nav-item" onclick="showTab('hugs')">Points</button>
                 <button class="nav-item" onclick="showTab('alarms')">Alarms</button>
                 <button class="nav-item" onclick="showTab('settings')">Settings</button>
@@ -1125,6 +1126,33 @@
                             <button class="login-btn" onclick="addTaskToProject()" style="margin: 0; padding: 14px 20px;">Add</button>
                         </div>
                         <div id="projectTasksList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="notesTab" class="hidden">
+                <div id="notesListView">
+                    <div class="admin-card">
+                        <h3>📝 Notes</h3>
+                        <button class="login-btn" onclick="createNote()" style="margin-bottom: 20px; padding: 12px 24px;">+ New Note</button>
+                        <div id="notesList"></div>
+                    </div>
+                </div>
+                <div id="noteEditorView" class="hidden">
+                    <div class="admin-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="closeNoteEditor()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
+                            <input type="text" id="noteTitleInput" class="login-input" style="margin: 0; flex: 1; font-weight: bold;" placeholder="Note title..." oninput="saveCurrentNote()" />
+                            <button onclick="deleteCurrentNote()" style="background: #ffebee; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #e53935;">Delete</button>
+                        </div>
+                        <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                            <button onclick="noteFormat('bold')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-weight: bold; font-size: 13px;">B</button>
+                            <button onclick="noteFormat('italic')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-style: italic; font-size: 13px;">I</button>
+                            <button onclick="noteFormat('insertUnorderedList')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px;">• List</button>
+                        </div>
+                        <div id="noteEditor" contenteditable="true" oninput="saveCurrentNote()"
+                            style="min-height: 300px; border: 1px solid #ddd; border-radius: 10px; padding: 16px; font-size: 15px; line-height: 1.6; outline: none; background: #fafafa;"></div>
                     </div>
                 </div>
             </div>
@@ -1423,6 +1451,8 @@
         let hugGroups = [];
         let completedTasksCount = 0;
         let projects = [];
+        let notes = [];
+        let currentNoteId = null;
         let currentView = 'today';
         let currentEditDay = null;
         let currentProjectId = null;
@@ -1900,7 +1930,8 @@
                         hugGroups: hugGroups,
                         completedTasksCount: completedTasksCount,
                         spentHugs: groupAccount.data?.spentHugs || 0,
-                        projects: projects
+                        projects: projects,
+                        notes: notes
                     };
                     
                     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
@@ -1916,7 +1947,8 @@
                         hugGroups: hugGroups,
                         completedTasksCount: completedTasksCount,
                         spentHugs: accounts[currentUser].data?.spentHugs || 0,
-                        projects: projects
+                        projects: projects,
+                        notes: notes
                     };
                     
                     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
@@ -1957,6 +1989,7 @@
                         hugGroups = groupAccount.data.hugGroups || [];
                         completedTasksCount = groupAccount.data.completedTasksCount || 0;
                         projects = groupAccount.data.projects || [];
+                        notes = groupAccount.data.notes || [];
                         return;
                     }
                 } else {
@@ -1967,6 +2000,7 @@
                         hugGroups = userData.data.hugGroups || [];
                         completedTasksCount = userData.data.completedTasksCount || 0;
                         projects = userData.data.projects || [];
+                        notes = userData.data.notes || [];
                         return;
                     }
                 }
@@ -1976,6 +2010,7 @@
                 hugGroups = [];
                 completedTasksCount = 0;
                 projects = [];
+                notes = [];
                 saveUserData(); // Save the initialized data
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -2003,6 +2038,8 @@
             hugGroups = [];
             completedTasksCount = 0;
             projects = [];
+            notes = [];
+            currentNoteId = null;
             showScreen('initialChoice');
         }
 
@@ -2022,6 +2059,7 @@
             document.getElementById('todayTab').classList.add('hidden');
             document.getElementById('daysTab').classList.add('hidden');
             document.getElementById('projectsTab').classList.add('hidden');
+            document.getElementById('notesTab').classList.add('hidden');
             document.getElementById('hugsTab').classList.add('hidden');
             document.getElementById('alarmsTab').classList.add('hidden');
             document.getElementById('settingsTab').classList.add('hidden');
@@ -2036,6 +2074,9 @@
             } else if (tabName === 'projects') {
                 document.getElementById('projectsTab').classList.remove('hidden');
                 renderProjects();
+            } else if (tabName === 'notes') {
+                document.getElementById('notesTab').classList.remove('hidden');
+                renderNotes();
             } else if (tabName === 'hugs') {
                 document.getElementById('hugsTab').classList.remove('hidden');
                 renderHugs();
@@ -2083,7 +2124,43 @@
             if (editDayAssign) editDayAssign.innerHTML = options;
         }
 
+        function rolloverTasks() {
+            const today = formatDate(new Date());
+
+            const rolloverKey = 'lastRolloverDate_' + currentUser;
+            if (localStorage.getItem(rolloverKey) === today) return;
+
+            let rolled = false;
+
+            Object.keys(tasks).forEach(dateKey => {
+                if (dateKey < today) {
+                    const unfinished = tasks[dateKey].filter(t => !t.completed);
+                    const finished = tasks[dateKey].filter(t => t.completed);
+
+                    if (unfinished.length > 0) {
+                        if (!tasks[today]) tasks[today] = [];
+                        unfinished.forEach(t => {
+                            t.rolledFrom = t.rolledFrom || dateKey;
+                            tasks[today].push(t);
+                        });
+                        rolled = true;
+                    }
+
+                    // Keep only completed tasks in old dates (for history)
+                    tasks[dateKey] = finished;
+                }
+            });
+
+            localStorage.setItem(rolloverKey, today);
+
+            if (rolled) {
+                saveUserData();
+                syncData();
+            }
+        }
+
         function renderTodayTasks() {
+            rolloverTasks();
             populateAssignDropdowns();
             const today = formatDate(new Date());
             const taskList = document.getElementById('taskList');
@@ -2109,14 +2186,19 @@
                 if (task.assignedTo) {
                     assignedTag = `<span class="task-assigned">@${task.assignedTo}</span>`;
                 }
-                
+
+                let rolloverTag = '';
+                if (task.rolledFrom) {
+                    rolloverTag = `<span style="font-size: 11px; color: #bbb; margin-left: 4px;" title="Rolled over from ${task.rolledFrom}">↩</span>`;
+                }
+
                 taskDiv.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
                     <div class="task-content" onclick="editTask(${index}, false)" style="cursor: pointer;">
-                        <span class="task-text">${task.text}</span>
+                        <span class="task-text" style="${task.rolledFrom ? 'color: #aaa;' : ''}">${task.text}</span>
                         <span class="task-time">${formatTime(task.time)}</span>
-                        ${assignedTag}
+                        ${assignedTag}${rolloverTag}
                     </div>
                     <button class="task-delete" onclick="deleteTask(${index})">Delete</button>
                 `;
@@ -2500,6 +2582,116 @@
             saveUserData();
             syncData();
             showProjectTasks(currentProjectId);
+        }
+
+        // Notes
+        let noteSyncTimer = null;
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // Allowlist-based sanitizer: only permit known-safe tags, no attributes
+        function sanitizeNoteHtml(html) {
+            // No span: without style attr it's a no-op. Scripts in detached DOM don't execute in modern browsers.
+            const ALLOWED_TAGS = new Set(['b','strong','i','em','u','ul','ol','li','p','br','div','h1','h2','h3']);
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            // Loop until no disallowed tags remain (handles nested unknowns that get
+            // promoted into the tree after a previous pass unwrapped their parent)
+            let found = true;
+            while (found) {
+                found = false;
+                temp.querySelectorAll('*').forEach(el => {
+                    if (!ALLOWED_TAGS.has(el.tagName.toLowerCase())) {
+                        el.replaceWith(...Array.from(el.childNodes));
+                        found = true;
+                    } else {
+                        // Strip ALL attributes from allowed tags — notes only need formatting
+                        Array.from(el.attributes).forEach(attr => el.removeAttribute(attr.name));
+                    }
+                });
+            }
+            return temp.innerHTML;
+        }
+
+        function renderNotes() {
+            document.getElementById('notesListView').classList.remove('hidden');
+            document.getElementById('noteEditorView').classList.add('hidden');
+            const list = document.getElementById('notesList');
+            if (notes.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No notes yet. Create one above!</p>';
+                return;
+            }
+            // Sort newest-updated first
+            const sorted = [...notes].sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+            list.innerHTML = sorted.map(n => `
+                <div class="card" style="cursor: pointer; margin-bottom: 12px;" onclick="openNote(${n.id})">
+                    <div style="font-weight: bold; font-size: 15px; color: #5e8fb5;">${escapeHtml(n.title || 'Untitled')}</div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 4px;">Updated ${new Date(n.updatedAt || n.createdAt).toLocaleDateString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function createNote() {
+            const now = new Date().toISOString();
+            const note = { id: Date.now(), title: '', content: '', createdAt: now, updatedAt: now };
+            notes.push(note);
+            saveUserData();
+            syncData();
+            openNote(note.id);
+        }
+
+        function openNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            currentNoteId = id;
+            document.getElementById('notesListView').classList.add('hidden');
+            document.getElementById('noteEditorView').classList.remove('hidden');
+            document.getElementById('noteTitleInput').value = note.title || '';
+            document.getElementById('noteEditor').innerHTML = sanitizeNoteHtml(note.content || '');
+        }
+
+        function closeNoteEditor() {
+            currentNoteId = null;
+            renderNotes();
+        }
+
+        function saveCurrentNote() {
+            if (!currentNoteId) return;
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+            note.title = document.getElementById('noteTitleInput').value;
+            note.content = document.getElementById('noteEditor').innerHTML;
+            note.updatedAt = new Date().toISOString();
+            saveUserData();
+            // Debounce syncData — don't blast the server on every keystroke
+            clearTimeout(noteSyncTimer);
+            noteSyncTimer = setTimeout(() => syncData(), 1500);
+        }
+
+        function deleteCurrentNote() {
+            if (!currentNoteId) return;
+            showCustomConfirm('Delete this note?', 'This cannot be undone.', () => {
+                notes = notes.filter(n => n.id !== currentNoteId);
+                currentNoteId = null;
+                saveUserData();
+                syncData();
+                renderNotes();
+            });
+        }
+
+        function noteFormat(command) {
+            document.getElementById('noteEditor').focus();
+            try {
+                // execCommand is deprecated but has no clean library-free replacement
+                document.execCommand(command, false, null);
+            } catch (e) {
+                console.warn('execCommand failed:', command, e);
+            }
+            saveCurrentNote();
         }
 
         // Days Page - Shows next 90 days
