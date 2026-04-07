@@ -3222,14 +3222,17 @@
         }
 
         function dismissAlarm(id) {
-            id = parseInt(id);  // Ensure it's a number
+            id = parseInt(id);
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
                 alarm.ringing = false;
-                alarm.dismissed = true;
+                alarm.active = false;
+                if (alarm.recurring) {
+                    alarm.reactivateAfterDismiss = true;
+                }
                 saveAlarms();
                 renderAlarms();
-                closeCustomAlert();  // Make sure popup closes
+                closeCustomAlert();
             } else {
                 console.error('Alarm not found:', id);
             }
@@ -3263,6 +3266,14 @@
                 if (alarm.ringing && alarm.recurring && currentMinute !== alarmMinute) {
                     alarm.ringing = false;
                     saveAlarms();
+                }
+
+                // Reactivate recurring alarms after the dismiss minute passes
+                if (alarm.reactivateAfterDismiss && !alarm.active && currentMinute !== alarmMinute) {
+                    alarm.active = true;
+                    delete alarm.reactivateAfterDismiss;
+                    saveAlarms();
+                    renderAlarms();
                 }
             });
         }
@@ -3368,8 +3379,9 @@
             
             alarms.forEach(alarm => {
                 const div = document.createElement('div');
-                div.className = `alarm-item ${alarm.active ? 'active' : ''} ${alarm.ringing ? 'ringing' : ''}`;
-                
+                const visuallyActive = alarm.active || alarm.reactivateAfterDismiss;
+                div.className = `alarm-item ${visuallyActive ? 'active' : ''} ${alarm.ringing ? 'ringing' : ''}`;
+
                 div.innerHTML = `
                     <div class="alarm-info">
                         <div class="alarm-time">${alarm.time}</div>
@@ -3378,7 +3390,7 @@
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         ${alarm.ringing ? '<button class="login-btn" onclick="dismissAlarm(' + alarm.id + ')" style="padding: 8px 16px; margin: 0; font-size: 14px;">Dismiss</button>' : ''}
                         <button class="edit-btn" onclick="editAlarm(${alarm.id})" style="padding: 8px 16px; font-size: 14px;">Edit</button>
-                        <div class="alarm-toggle ${alarm.active ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})"></div>
+                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})"></div>
                         <button class="delete-btn" onclick="deleteAlarm(${alarm.id})">Delete</button>
                     </div>
                 `;
