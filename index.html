@@ -2179,6 +2179,7 @@
             renderTodayTasks();
             saveUserData();
             syncData();
+            if (currentView === 'projects' && currentProjectId) showProjectTasks(currentProjectId);
         }
 
         function deleteTask(index) {
@@ -2472,7 +2473,7 @@
             } else {
                 taskList.innerHTML = allTasks.map(t => `
                     <div style="padding: 12px; border: 2px solid ${t.completed ? '#c8e6c9' : '#e0e0e0'}; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 18px;">${t.completed ? '✅' : '⬜'}</span>
+                        <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="toggleProjectTask(${t.id}, '${t.date}')">
                         <span style="flex: 1; color: ${t.completed ? '#999' : '#333'}; ${t.completed ? 'text-decoration: line-through;' : ''}">${t.text}</span>
                         <span style="font-size: 12px; color: #888;">${t.date}</span>
                     </div>
@@ -2483,6 +2484,22 @@
 
         function closeProjectTasks() {
             document.getElementById('projectTasksView').classList.add('hidden');
+        }
+
+        function toggleProjectTask(taskId, date) {
+            if (!tasks[date]) return;
+            const task = tasks[date].find(t => t.id === taskId);
+            if (!task) return;
+            const wasCompleted = task.completed;
+            task.completed = !task.completed;
+            if (!wasCompleted && task.completed && !task.hasBeenCompleted) {
+                task.hasBeenCompleted = true;
+                completedTasksCount++;
+                checkHugReward();
+            }
+            saveUserData();
+            syncData();
+            showProjectTasks(currentProjectId);
         }
 
         // Days Page - Shows next 90 days
