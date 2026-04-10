@@ -7,7 +7,8 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e0f2f7 0%, #fce4ec 100%);
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
             padding: 0;
         }
 
@@ -15,7 +16,8 @@
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
@@ -405,6 +407,19 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
+        .note-toolbar {
+            position: sticky;
+            top: -20px;
+            margin: 0 -25px 10px -25px;
+            padding: 10px 25px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            z-index: 10;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         .admin-card h3 {
             color: #5e8fb5;
             margin-bottom: 20px;
@@ -480,6 +495,7 @@
         /* Main Content */
         .main-content {
             flex: 1;
+            min-height: 0;
             padding: 20px;
             overflow-y: auto;
         }
