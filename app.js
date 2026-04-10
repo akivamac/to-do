@@ -1,0 +1,1165 @@
+        // PWA Install
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Don't show if already dismissed
+            if (!localStorage.getItem('installDismissed')) {
+                installBanner.classList.add('show');
+            }
+        });
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('App installed');
+            }
+            
+            deferredPrompt = null;
+            installBanner.classList.remove('show');
+        }
+
+        function dismissInstall() {
+            localStorage.setItem('installDismissed', 'true');
+            installBanner.classList.remove('show');
+        }
+
+        function installAppFromButton() {
+            if (!deferredPrompt) {
+                // Check if already installed
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    alert('✓ App is already installed! You can find it on your home screen or app menu.');
+                } else {
+                    alert('❌ Installation is not available on this device or browser.\n\nTry using:\n• Chrome on Android\n• Safari on iOS\n• Edge on Windows');
+                }
+                return;
+            }
+            
+            // Call the existing installApp function
+            installApp();
+        }
+
+        // Global Variables
+        let currentUser = null;
+        let currentScreen = 'initialChoice';
+        let tasks = {};
+        let hugGroups = [];
+        let completedTasksCount = 0;
+        let projects = [];
+        let notes = [];
+        let currentNoteId = null;
+        let currentView = 'today';
+        let currentEditDay = null;
+        let currentProjectId = null;
+        let isAdminMode = false;
+        const ADMIN_PASSWORD = 'hug2025';
+        const ANTI_CHEAT_TIME = 1000;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInitialState();
+            setupEnterKeyListeners();
+            checkForUpdates();
+        });
+
+        function loadInitialState() {
+            // Load alarms
+            loadAlarms();
+            
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('currentUser');
+            const savedAccountType = localStorage.getItem('currentAccountType');
+            
+            if (savedUser) {
+                currentUser = savedUser;
+                loadUserData();
+                showScreen('mainApp');
+            } else {
+                showScreen('initialChoice');
+            }
+        }
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            // Hide all screens
+            const screens = [
+                'initialChoice', 'passcodeGate', 'accountTypeSelection',
+                'createPersonalAccount', 'loginPersonalAccount', 'groupSetup',
+                'createGroupAdmin', 'groupJoin', 'showGroupCredentials',
+                'welcomeScreen', 'mainApp'
+            ];
+            
+            screens.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.classList.add('hidden');
+            });
+            
+            // Show requested screen
+            const element = document.getElementById(screenId);
+            if (element) {
+                element.classList.remove('hidden');
+                currentScreen = screenId;
+            }
+            
+            // Update UI if showing main app
+            if (screenId === 'mainApp') {
+                updateDateDisplay();
+                populateProjectDropdown();
+                renderTodayTasks();
+                renderHugs();
+                showTab('today');
+            }
+        }
+
+        // Navigation functions
+        function showPasscodeGate() {
+            showScreen('passcodeGate');
+            document.getElementById('passcodeInput').focus();
+        }
+
+        function showSignIn() {
+            // Go directly to login page
+            showScreen('loginPersonalAccount');
+            document.getElementById('loginUsername').focus();
+        }
+
+        function showCreateAccount() {
+            // Go to password creation
+            showScreen('passcodeGate');
+            document.getElementById('passcodeInput').focus();
+        }
+
+        function backToInitialChoice() {
+            showScreen('initialChoice');
+            // Clear any error messages
+            document.getElementById('passcodeError').textContent = '';
+            document.getElementById('adminError').textContent = '';
+        }
+
+        function backToPasscodeGate() {
+            showScreen('passcodeGate');
+            document.getElementById('loginAccountError').textContent = '';
+        }
+
+        function backToAccountTypeSelection() {
+            showScreen('accountTypeSelection');
+            document.getElementById('personalAccountError').textContent = '';
+        }
+
+        function backToGroupSetup() {
+            showScreen('groupSetup');
+            document.getElementById('groupAdminError').textContent = '';
+        }
+
+        // Passcode Check
+        function checkPasscode() {
+            const passcode = document.getElementById('passcodeInput').value.trim();
+            const errorDiv = document.getElementById('passcodeError');
+            
+            if (!passcode) {
+                errorDiv.textContent = 'Please enter a password';
+                return;
+            }
+            
+            // Check if this is an existing account
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const matchingAccount = Object.entries(accounts).find(([user, data]) => 
+                data.password === passcode
+            );
+            
+            if (matchingAccount) {
+                // Existing account - check if personal or group
+                const [username, accountData] = matchingAccount;
+                
+                if (accountData.type === 'personal') {
+                    // Personal account - log them in
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('currentAccountType', 'personal');
+                    loadUserData();
+                    showScreen('mainApp');
+                } else if (accountData.type === 'group') {
+                    // Group account - log them in
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('currentAccountType', 'group');
+                    loadUserData();
+                    showScreen('mainApp');
+                }
+            } else {
+                // New password - ask what type of account
+                // Store the password temporarily
+                sessionStorage.setItem('pendingPassword', passcode);
+                showScreen('accountTypeSelection');
+            }
+            
+            errorDiv.textContent = '';
+        }
+
+        // Account Type Selection
+        function selectAccountType(type) {
+            if (type === 'personal') {
+                showScreen('createPersonalAccount');
+                document.getElementById('personalUsername').focus();
+            } else {
+                showScreen('groupSetup');
+            }
+        }
+
+        // Create Personal Account
+        function createPersonalAccount() {
+            const username = document.getElementById('personalUsername').value.trim();
+            const password = document.getElementById('personalPassword').value.trim();
+            const confirmPassword = document.getElementById('personalConfirmPassword').value.trim();
+            const errorDiv = document.getElementById('personalAccountError');
+            
+            if (!username || !password || !confirmPassword) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            
+            if (accounts[username]) {
+                errorDiv.textContent = 'Username already exists';
+                return;
+            }
+            
+            // Create the account
+            accounts[username] = {
+                password: password,
+                type: 'personal',
+                data: {
+                    tasks: {},
+                    hugGroups: [],
+                    completedTasksCount: 0,
+                    spentHugs: 0
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save and log in
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'personal');
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        // Login Personal Account
+        function loginPersonalAccount() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorDiv = document.getElementById('loginAccountError');
+            
+            if (!username || !password) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const account = accounts[username];
+            
+            if (!account || account.password !== password) {
+                errorDiv.textContent = 'Invalid username or password';
+                return;
+            }
+            
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', account.type);
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        // Group Setup
+        function setupGroupAdmin() {
+            showScreen('createGroupAdmin');
+            document.getElementById('groupAdminUsername').focus();
+        }
+
+        function showGroupJoin() {
+            showScreen('groupJoin');
+            document.getElementById('groupJoinUsername').focus();
+        }
+
+        // Create Group Admin
+        function createGroupAdmin() {
+            const username = document.getElementById('groupAdminUsername').value.trim();
+            const password = document.getElementById('groupAdminPassword').value.trim();
+            const confirmPassword = document.getElementById('groupAdminConfirm').value.trim();
+            const errorDiv = document.getElementById('groupAdminError');
+            
+            if (!username || !password || !confirmPassword) {
+                errorDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            
+            if (accounts[username]) {
+                errorDiv.textContent = 'Username already exists';
+                return;
+            }
+            
+            // Create the group account
+            accounts[username] = {
+                password: password,
+                type: 'group',
+                isAdmin: true,
+                members: [username],
+                data: {
+                    tasks: {},
+                    hugGroups: [],
+                    completedTasksCount: 0,
+                    spentHugs: 0
+                },
+                createdAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            // Show credentials
+            document.getElementById('createdGroupUsername').textContent = username;
+            document.getElementById('createdGroupPassword').textContent = password;
+            showScreen('showGroupCredentials');
+        }
+
+        function finishGroupCreation() {
+            const username = document.getElementById('createdGroupUsername').textContent;
+            currentUser = username;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'group');
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        // Join Group
+        function joinGroup() {
+            const groupUsername = document.getElementById('groupJoinUsername').value.trim();
+            const groupPassword = document.getElementById('groupJoinPassword').value.trim();
+            const yourName = document.getElementById('yourNameInGroup').value.trim();
+            const errorDiv = document.getElementById('groupJoinError');
+            
+            if (!groupUsername || !groupPassword) {
+                errorDiv.textContent = 'Please enter group username and password';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const groupAccount = accounts[groupUsername];
+            
+            if (!groupAccount || groupAccount.password !== groupPassword) {
+                errorDiv.textContent = 'Invalid group username or password';
+                return;
+            }
+            
+            if (groupAccount.type !== 'group') {
+                errorDiv.textContent = 'This is not a group account';
+                return;
+            }
+            
+            // Check if this is a sub-account login (invited user)
+            if (yourName && groupAccount.subAccounts && groupAccount.subAccounts.length > 0) {
+                const subAccount = groupAccount.subAccounts.find(sub => sub.username === yourName);
+                if (subAccount) {
+                    // This is an invited user - need their personal password
+                    sessionStorage.setItem('pendingGroupUsername', groupUsername);
+                    sessionStorage.setItem('pendingSubUsername', yourName);
+                    showSubAccountPasswordPrompt(yourName);
+                    return;
+                }
+            }
+            
+            // If no username provided or not a sub-account, just join as regular member
+            if (!yourName) {
+                errorDiv.textContent = 'Please enter your username';
+                return;
+            }
+            
+            // Regular group member join
+            if (!groupAccount.members) {
+                groupAccount.members = [];
+            }
+            if (!groupAccount.members.includes(yourName)) {
+                groupAccount.members.push(yourName);
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            }
+            
+            currentUser = groupUsername;
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'group');
+            localStorage.setItem('currentUserDisplayName', yourName);
+            loadUserData();
+            showScreen('mainApp');
+        }
+
+        function showSubAccountPasswordPrompt(username) {
+            // Update the join screen to ask for password
+            const errorDiv = document.getElementById('groupJoinError');
+            errorDiv.innerHTML = `
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                    <p style="color: #1976d2; margin-bottom: 10px;">Found account for ${username}!</p>
+                    <input type="password" id="subAccountPassword" class="login-input" placeholder="Enter your password" style="margin-bottom: 10px;" />
+                    <button class="login-btn" onclick="loginSubAccount()">Sign In</button>
+                </div>
+            `;
+            document.getElementById('subAccountPassword').focus();
+        }
+
+        function loginSubAccount() {
+            const groupUsername = sessionStorage.getItem('pendingGroupUsername');
+            const subUsername = sessionStorage.getItem('pendingSubUsername');
+            const password = document.getElementById('subAccountPassword').value.trim();
+            const errorDiv = document.getElementById('groupJoinError');
+            
+            if (!password) {
+                alert('Please enter your password');
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const groupAccount = accounts[groupUsername];
+            const subAccount = groupAccount.subAccounts.find(sub => sub.username === subUsername);
+            
+            if (subAccount.password !== password) {
+                alert('Incorrect password');
+                return;
+            }
+            
+            // Log them in
+            currentUser = groupUsername + '::' + subUsername; // Special format for sub-accounts
+            localStorage.setItem('currentUser', currentUser);
+            localStorage.setItem('currentAccountType', 'subaccount');
+            localStorage.setItem('currentUserDisplayName', subAccount.displayName);
+            
+            // Load SHARED group data (not individual)
+            tasks = groupAccount.data.tasks || {};
+            hugGroups = groupAccount.data.hugGroups || [];
+            completedTasksCount = groupAccount.data.completedTasksCount || 0;
+            
+            sessionStorage.removeItem('pendingGroupUsername');
+            sessionStorage.removeItem('pendingSubUsername');
+            
+            showScreen('mainApp');
+        }
+
+        // Copy Credential Function
+        function copyCredential(elementId, button) {
+            const text = document.getElementById(elementId).textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Admin Password Check
+
+
+
+
+        function copyAdminCredential(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function deleteAccount(username) {
+            if (!confirm(`Are you sure you want to delete ${username}? This cannot be undone.`)) {
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            delete accounts[username];
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            loadAdminDashboard();
+        }
+
+        // Data Management - Group tasks are SHARED among all members
+        function saveUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                
+                // Check if this is a sub-account
+                if (currentUser.includes('::')) {
+                    const [groupUsername, subUsername] = currentUser.split('::');
+                    const groupAccount = accounts[groupUsername];
+                    
+                    if (!groupAccount) {
+                        console.error('Group account not found!');
+                        return;
+                    }
+                    
+                    // Save to GROUP data (shared across all members)
+                    groupAccount.data = {
+                        tasks: tasks,
+                        hugGroups: hugGroups,
+                        completedTasksCount: completedTasksCount,
+                        spentHugs: groupAccount.data?.spentHugs || 0,
+                        projects: projects,
+                        notes: notes
+                    };
+                    
+                    localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                } else {
+                    // Regular account or group admin
+                    if (!accounts[currentUser]) {
+                        console.error('User account not found!');
+                        return;
+                    }
+                    
+                    accounts[currentUser].data = {
+                        tasks: tasks,
+                        hugGroups: hugGroups,
+                        completedTasksCount: completedTasksCount,
+                        spentHugs: accounts[currentUser].data?.spentHugs || 0,
+                        projects: projects,
+                        notes: notes
+                    };
+                    
+                    localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                }
+                
+                // Verify save was successful
+                const verification = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                if (currentUser.includes('::')) {
+                    const [groupUsername, subUsername] = currentUser.split('::');
+                    if (!verification[groupUsername]) {
+                        console.error('Data save verification failed!');
+                    }
+                } else {
+                    if (!verification[currentUser]) {
+                        console.error('Data save verification failed!');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('There was an error saving your data. Please try again.');
+            }
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                
+                // Check if this is a sub-account
+                if (currentUser.includes('::')) {
+                    const [groupUsername, subUsername] = currentUser.split('::');
+                    const groupAccount = accounts[groupUsername];
+                    
+                    if (groupAccount && groupAccount.data) {
+                        // Load GROUP data (shared across all members)
+                        tasks = groupAccount.data.tasks || {};
+                        hugGroups = groupAccount.data.hugGroups || [];
+                        completedTasksCount = groupAccount.data.completedTasksCount || 0;
+                        projects = groupAccount.data.projects || [];
+                        notes = groupAccount.data.notes || [];
+                        return;
+                    }
+                } else {
+                    // Regular account or group admin
+                    const userData = accounts[currentUser];
+                    if (userData && userData.data) {
+                        tasks = userData.data.tasks || {};
+                        hugGroups = userData.data.hugGroups || [];
+                        completedTasksCount = userData.data.completedTasksCount || 0;
+                        projects = userData.data.projects || [];
+                        notes = userData.data.notes || [];
+                        return;
+                    }
+                }
+
+                // Initialize empty data if not found
+                tasks = {};
+                hugGroups = [];
+                completedTasksCount = 0;
+                projects = [];
+                notes = [];
+                saveUserData(); // Save the initialized data
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('There was an error loading your data.');
+            }
+        }
+
+        function syncData() {
+            saveUserData();
+            const syncStatus = document.getElementById('syncStatus');
+            if (syncStatus) {
+                syncStatus.textContent = 'Synced ✓';
+                syncStatus.style.color = '#66bb6a';
+            }
+        }
+
+        // Logout
+        function logout() {
+            saveUserData(); // Make sure to save before logout
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('currentAccountType');
+            localStorage.removeItem('currentUserDisplayName');
+            currentUser = null;
+            tasks = {};
+            hugGroups = [];
+            completedTasksCount = 0;
+            projects = [];
+            notes = [];
+            currentNoteId = null;
+            showScreen('initialChoice');
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            currentView = tabName;
+
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('onclick') === `showTab('${tabName}')`) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Hide all tabs
+            document.getElementById('todayTab').classList.add('hidden');
+            document.getElementById('daysTab').classList.add('hidden');
+            document.getElementById('projectsTab').classList.add('hidden');
+            document.getElementById('notesTab').classList.add('hidden');
+            document.getElementById('hugsTab').classList.add('hidden');
+            document.getElementById('alarmsTab').classList.add('hidden');
+            document.getElementById('settingsTab').classList.add('hidden');
+
+            // Show selected tab
+            if (tabName === 'today') {
+                document.getElementById('todayTab').classList.remove('hidden');
+                renderTodayTasks();
+            } else if (tabName === 'days') {
+                document.getElementById('daysTab').classList.remove('hidden');
+                renderDays();
+            } else if (tabName === 'projects') {
+                document.getElementById('projectsTab').classList.remove('hidden');
+                renderProjects();
+            } else if (tabName === 'notes') {
+                document.getElementById('notesTab').classList.remove('hidden');
+                renderNotes();
+            } else if (tabName === 'hugs') {
+                document.getElementById('hugsTab').classList.remove('hidden');
+                renderHugs();
+            } else if (tabName === 'alarms') {
+                document.getElementById('alarmsTab').classList.remove('hidden');
+                renderAlarms();
+            } else if (tabName === 'settings') {
+                document.getElementById('settingsTab').classList.remove('hidden');
+                loadSettings();
+            }
+        }
+
+        // Update Date Display
+        function updateDateDisplay() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+
+        // Settings
+        function loadSettings() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
+            const currentAccount = accounts[actualUsername];
+            
+            if (!currentAccount) return;
+            
+            // Load basic settings
+            document.getElementById('settingsUsername').textContent = actualUsername;
+            
+            // Show current password
+            if (currentUser.includes('::')) {
+                // Sub-account
+                const subUsername = currentUser.split('::')[1];
+                const subAccount = currentAccount.subAccounts.find(s => s.username === subUsername);
+                if (subAccount) {
+                    document.getElementById('settingsCurrentPassword').textContent = subAccount.password;
+                    document.getElementById('settingsDisplayName').value = subAccount.displayName || '';
+                }
+            } else {
+                // Regular account
+                document.getElementById('settingsCurrentPassword').textContent = currentAccount.password;
+                document.getElementById('settingsDisplayName').value = currentAccount.displayName || '';
+            }
+            
+            document.getElementById('settingsNewPassword').value = '';
+            
+            // Load group credentials if admin
+            if (currentAccount.type === 'group' && currentAccount.isAdmin) {
+                document.getElementById('groupUsername').textContent = actualUsername;
+                document.getElementById('groupPassword').textContent = currentAccount.password;
+            }
+            
+            // Check if install button should be shown
+            const settingsInstallBtn = document.getElementById('settingsInstallBtn');
+            const settingsInstallMsg = document.getElementById('settingsInstallMessage');
+            
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                // Already installed
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'none';
+                if (settingsInstallMsg) {
+                    settingsInstallMsg.textContent = '✓ App is already installed on this device';
+                    settingsInstallMsg.style.display = 'block';
+                    settingsInstallMsg.style.color = '#66bb6a';
+                }
+            } else if (!deferredPrompt) {
+                // Not available
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'none';
+                if (settingsInstallMsg) {
+                    settingsInstallMsg.textContent = 'Installation not available on this browser';
+                    settingsInstallMsg.style.display = 'block';
+                }
+            } else {
+                // Available
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'block';
+                if (settingsInstallMsg) settingsInstallMsg.style.display = 'none';
+            }
+            
+            // Show/hide group admin section
+            const groupAdminSection = document.getElementById('groupAdminSection');
+            if (currentAccount.type === 'group' && currentAccount.isAdmin) {
+                groupAdminSection.classList.remove('hidden');
+                loadGroupMembers();
+            } else {
+                groupAdminSection.classList.add('hidden');
+            }
+        }
+
+        function saveSettings() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const displayName = document.getElementById('settingsDisplayName').value.trim();
+            const newPassword = document.getElementById('settingsNewPassword').value.trim();
+            
+            if (displayName) {
+                accounts[currentUser].displayName = displayName;
+            }
+            
+            if (newPassword) {
+                accounts[currentUser].password = newPassword;
+            }
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            // Show success message
+            const message = document.getElementById('settingsSaveMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+            
+            // Clear password field
+            document.getElementById('settingsNewPassword').value = '';
+        }
+
+        function changeAdminPassword() {
+            const newPassword = document.getElementById('newAdminPassword').value.trim();
+            
+            if (!newPassword) {
+                alert('Please enter a new admin password');
+                return;
+            }
+            
+            localStorage.setItem('adminPassword', newPassword);
+            
+            // Show success message
+            const message = document.getElementById('adminPasswordMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+            
+            // Clear field
+            document.getElementById('newAdminPassword').value = '';
+        }
+
+        function accessAdminDashboard() {
+            const password = document.getElementById('adminDashboardPassword').value.trim();
+            const errorDiv = document.getElementById('adminDashboardError');
+            const storedAdminPassword = localStorage.getItem('adminPassword') || 'hug2025';
+            
+            if (!password) {
+                errorDiv.textContent = 'Please enter the admin password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== storedAdminPassword) {
+                errorDiv.textContent = 'Incorrect admin password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Password correct - show dashboard
+            errorDiv.style.display = 'none';
+            document.getElementById('adminDashboardContent').style.display = 'block';
+            loadAllAccounts();
+        }
+
+        function loadAllAccounts() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accountsList = document.getElementById('allAccountsList');
+            
+            if (Object.keys(accounts).length === 0) {
+                accountsList.innerHTML = '<p style="color: #999; padding: 10px;">No accounts found</p>';
+                return;
+            }
+            
+            accountsList.innerHTML = '';
+            
+            Object.entries(accounts).forEach(([username, data]) => {
+                const accountDiv = document.createElement('div');
+                accountDiv.className = 'account-item';
+                accountDiv.style.marginBottom = '15px';
+                
+                const totalHugs = (data.data?.hugGroups || []).reduce((sum, g) => sum + g.count, 0);
+                const spentHugs = data.data?.spentHugs || 0;
+                const availableHugs = totalHugs - spentHugs;
+                
+                const members = data.type === 'group' && data.members && data.members.length > 0 ? 
+                    `<br><small style="display: block; margin-top: 5px;"><strong>Group Members:</strong> ${data.members.join(', ')}</small>` : '';
+                
+                const subAccountsInfo = data.subAccounts && data.subAccounts.length > 0 ?
+                    `<br><small style="display: block; margin-top: 5px;"><strong>Invited Users:</strong></small>` +
+                    data.subAccounts.map(s => `<br><small style="margin-left: 20px;">• ${s.displayName || s.username} (${s.username}) - Pass: ${s.password}</small>`).join('') : '';
+                
+                const isAdmin = data.isAdmin ? '<br><small style="color: #9575cd; font-weight: 600;">👑 Group Admin</small>' : '';
+                
+                const taskCount = data.data && data.data.tasks ? Object.values(data.data.tasks).reduce((sum, dayTasks) => sum + dayTasks.length, 0) : 0;
+                const completedCount = data.data && data.data.tasks ? Object.values(data.data.tasks).reduce((sum, dayTasks) => sum + dayTasks.filter(t => t.completed).length, 0) : 0;
+                
+                accountDiv.innerHTML = `
+                    <div class="account-info">
+                        <strong>${username}</strong>
+                        <small>${data.type === 'group' ? '👥 Group' : '👤 Personal'} Account | ${availableHugs} points | ${taskCount} tasks (${completedCount} completed)${isAdmin}${members}${subAccountsInfo}</small>
+                        
+                        <div class="copyable-credential" style="margin-top: 10px;">
+                            <span>${username}</span>
+                            <button class="copy-btn" onclick="copyAdminCredential('${username}', this)">Copy</button>
+                        </div>
+                        
+                        <div class="copyable-credential">
+                            <span>${data.password}</span>
+                            <button class="copy-btn" onclick="copyAdminCredential('${data.password}', this)">Copy</button>
+                        </div>
+                    </div>
+                    <div class="account-actions">
+                        <button class="delete-btn" onclick="deleteAccountFromDashboard('${username}')">Delete</button>
+                    </div>
+                `;
+                
+                accountsList.appendChild(accountDiv);
+            });
+        }
+
+        function copyAdminCredential(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function deleteAccountFromDashboard(username) {
+            if (!confirm(`Are you sure you want to delete ${username}? This cannot be undone.`)) {
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            delete accounts[username];
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            loadAllAccounts();
+        }
+
+        function loadGroupMembers() {
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            const membersList = document.getElementById('groupMembersList');
+            
+            if (!currentAccount || !currentAccount.subAccounts) {
+                membersList.innerHTML = '<p style="color: #999;">No members yet. Use the Invite User button to add members.</p>';
+                return;
+            }
+            
+            membersList.innerHTML = '<h4 style="margin-bottom: 15px; color: #5e8fb5;">Group Members</h4>';
+            
+            currentAccount.subAccounts.forEach((subAccount, index) => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'account-item';
+                memberDiv.innerHTML = `
+                    <div class="account-info">
+                        <strong>${subAccount.displayName || subAccount.username}</strong>
+                        <small>Username: ${subAccount.username}</small>
+                    </div>
+                    <div class="account-actions">
+                        <button class="delete-btn" onclick="removeGroupMember(${index})">Remove</button>
+                    </div>
+                `;
+                membersList.appendChild(memberDiv);
+            });
+        }
+
+        function showInviteUserModal() {
+            document.getElementById('inviteUserModal').classList.remove('hidden');
+            document.getElementById('inviteUsername').value = '';
+            document.getElementById('invitePassword').value = '';
+            document.getElementById('inviteDisplayName').value = '';
+            document.getElementById('inviteError').textContent = '';
+        }
+
+        function closeInviteUser() {
+            document.getElementById('inviteUserModal').classList.add('hidden');
+        }
+
+        function closeInviteUserIfOutside(event) {
+            if (event.target.id === 'inviteUserModal') {
+                closeInviteUser();
+            }
+        }
+
+        function createInvitedUser() {
+            const username = document.getElementById('inviteUsername').value.trim();
+            const password = document.getElementById('invitePassword').value.trim();
+            const displayName = document.getElementById('inviteDisplayName').value.trim();
+            const errorDiv = document.getElementById('inviteError');
+            
+            if (!username || !password) {
+                errorDiv.textContent = 'Please fill in username and password';
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            
+            // Initialize subAccounts if it doesn't exist
+            if (!currentAccount.subAccounts) {
+                currentAccount.subAccounts = [];
+            }
+            
+            // Check if username already exists
+            const usernameExists = currentAccount.subAccounts.some(sub => sub.username === username);
+            if (usernameExists) {
+                errorDiv.textContent = 'Username already exists in this group';
+                return;
+            }
+            
+            // Create new sub-account (no separate data - they share the group tasks)
+            currentAccount.subAccounts.push({
+                username: username,
+                password: password,
+                displayName: displayName || username,
+                createdAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            closeInviteUser();
+            loadGroupMembers();
+        }
+
+        function removeGroupMember(index) {
+            if (!confirm('Are you sure you want to remove this member?')) {
+                return;
+            }
+            
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const currentAccount = accounts[currentUser];
+            
+            currentAccount.subAccounts.splice(index, 1);
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            
+            loadGroupMembers();
+        }
+
+        // Custom Alert
+        function showCustomAlert(message, title = '⚠️ Alert') {
+            const modalHTML = `
+                <div class="alert-overlay" onclick="closeCustomAlert()"></div>
+                <div class="custom-alert">
+                    <h3>${title}</h3>
+                    <div style="color: #666; margin-bottom: 20px; font-size: 16px;">${message}</div>
+                    ${message.includes('button') ? '' : '<button class="login-btn" onclick="closeCustomAlert()" style="margin: 0;">OK</button>'}
+                </div>
+            `;
+            
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'customAlertModal';
+            modalDiv.innerHTML = modalHTML;
+            document.body.appendChild(modalDiv);
+        }
+        
+        function closeCustomAlert() {
+            const modal = document.getElementById('customAlertModal');
+            if (modal) modal.remove();
+        }
+
+        function showCustomConfirm(title, message, onConfirm) {
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'customConfirmModal';
+            modalDiv.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('customConfirmModal').remove()"></div>
+                <div class="custom-alert">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="login-btn decline-btn" onclick="document.getElementById('customConfirmModal').remove()" style="margin: 0;">Cancel</button>
+                        <button class="login-btn" id="customConfirmOkBtn" style="margin: 0;">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalDiv);
+            document.getElementById('customConfirmOkBtn').onclick = () => {
+                modalDiv.remove();
+                onConfirm();
+            };
+        }
+
+        function showCustomPrompt(title, message, defaultValue, onSubmit) {
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'customPromptModal';
+            modalDiv.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('customPromptModal').remove()"></div>
+                <div class="custom-alert">
+                    <h3>${title}</h3>
+                    <p style="margin-bottom: 12px;">${message}</p>
+                    <input id="customPromptInput" class="login-input" style="margin-bottom: 16px;" value="${defaultValue || ''}" />
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="login-btn decline-btn" onclick="document.getElementById('customPromptModal').remove()" style="margin: 0;">Cancel</button>
+                        <button class="login-btn" id="customPromptOkBtn" style="margin: 0;">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalDiv);
+            const input = document.getElementById('customPromptInput');
+            input.focus();
+            input.select();
+            document.getElementById('customPromptOkBtn').onclick = () => {
+                const val = input.value;
+                modalDiv.remove();
+                onSubmit(val);
+            };
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('customPromptOkBtn').click();
+            });
+        }
+
+
+        // Utilities
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        function formatTime(militaryTime) {
+            if (!militaryTime) return 'No time';
+            
+            const [hours, minutes] = militaryTime.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {
+                    console.log('Service worker registration failed');
+                });
+            });
+        }
+
+        // Updates
+        function checkForUpdates() {
+            // Placeholder for update checking
+        }
+
+        function updateApp() {
+            document.getElementById('updateBanner').classList.remove('show');
+            location.reload();
+        }
+
+        function dismissUpdate() {
+            document.getElementById('updateBanner').classList.remove('show');
+        }
+
+        // Enter Key Support
+        function setupEnterKeyListeners() {
+            const enterHandlers = {
+                'passcodeInput': checkPasscode,
+                'loginPassword': loginPersonalAccount,
+                'personalConfirmPassword': createPersonalAccount,
+                'groupAdminConfirm': createGroupAdmin,
+                'yourNameInGroup': joinGroup,
+                'taskInput': addTask,
+                'editDayTaskInput': addTaskToEditDay,
+                'projectTaskInput': addTaskToProject,
+                'newProjectName': addProject
+            };
+            
+            Object.entries(enterHandlers).forEach(([id, handler]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') handler();
+                    });
+                }
+            });
+        }
