@@ -89,6 +89,14 @@
                     assignedTag = `<span class="task-assigned">@${task.assignedTo}</span>`;
                 }
 
+                let projectTag = '';
+                if (task.project) {
+                    const proj = projects.find(p => p.id == task.project);
+                    if (proj) {
+                        projectTag = `<span style="font-size: 11px; background: #e3f2fd; color: #5e8fb5; border-radius: 4px; padding: 2px 6px; margin-left: 4px;">📁 ${proj.name}</span>`;
+                    }
+                }
+
                 let rolloverTag = '';
                 if (task.rolledFrom) {
                     rolloverTag = `<span style="font-size: 11px; color: #bbb; margin-left: 4px;" title="Rolled over from ${task.rolledFrom}">↩</span>`;
@@ -100,7 +108,7 @@
                     <div class="task-content" onclick="editTask(${index}, false)" style="cursor: pointer;">
                         <span class="task-text" style="${task.rolledFrom ? 'color: #aaa;' : ''}">${task.text}</span>
                         <span class="task-time">${formatTime(task.time)}</span>
-                        ${assignedTag}${rolloverTag}
+                        ${assignedTag}${projectTag}${rolloverTag}
                     </div>
                     <button class="task-delete" onclick="deleteTask(${index})">Delete</button>
                 `;
