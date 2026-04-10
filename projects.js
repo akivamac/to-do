@@ -133,8 +133,8 @@
                 taskList.innerHTML = allTasks.map(t => `
                     <div style="padding: 12px; border: 2px solid ${t.completed ? '#c8e6c9' : '#e0e0e0'}; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                         <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="toggleProjectTask(${t.id}, '${t.date}')">
-                        <span style="flex: 1; color: ${t.completed ? '#999' : '#333'}; ${t.completed ? 'text-decoration: line-through;' : ''}">${t.text}</span>
-                        <span style="font-size: 12px; color: #888;">${t.date}</span>
+                        <span style="flex: 1; color: ${t.completed ? '#999' : '#333'}; ${t.completed ? 'text-decoration: line-through;' : ''}">${escapeHtml(t.text)}</span>
+                        <span style="font-size: 12px; color: #888;">${escapeHtml(t.date)}</span>
                     </div>
                 `).join('');
             }

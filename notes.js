@@ -2,12 +2,6 @@
         // Notes
         let noteSyncTimer = null;
 
-        function escapeHtml(str) {
-            const div = document.createElement('div');
-            div.appendChild(document.createTextNode(str));
-            return div.innerHTML;
-        }
-
         // Allowlist-based sanitizer: only permit known-safe tags, no attributes
         function sanitizeNoteHtml(html) {
             // No span: without style attr it's a no-op. Scripts in detached DOM don't execute in modern browsers.

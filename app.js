@@ -35,15 +35,22 @@
             if (!deferredPrompt) {
                 // Check if already installed
                 if (window.matchMedia('(display-mode: standalone)').matches) {
-                    alert('✓ App is already installed! You can find it on your home screen or app menu.');
+                    showCustomAlert('✓ App is already installed! You can find it on your home screen or app menu.');
                 } else {
-                    alert('❌ Installation is not available on this device or browser.\n\nTry using:\n• Chrome on Android\n• Safari on iOS\n• Edge on Windows');
+                    showCustomAlert('❌ Installation is not available on this device or browser.<br><br>Try using:<br>• Chrome on Android<br>• Safari on iOS<br>• Edge on Windows');
                 }
                 return;
             }
             
             // Call the existing installApp function
             installApp();
+        }
+
+        // Utilities (defined early — used by all modules)
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(String(str)));
+            return div.innerHTML;
         }
 
         // Global Variables
@@ -138,9 +145,7 @@
 
         function backToInitialChoice() {
             showScreen('initialChoice');
-            // Clear any error messages
             document.getElementById('passcodeError').textContent = '';
-            document.getElementById('adminError').textContent = '';
         }
 
         function backToPasscodeGate() {
@@ -430,35 +435,37 @@
             const subUsername = sessionStorage.getItem('pendingSubUsername');
             const password = document.getElementById('subAccountPassword').value.trim();
             const errorDiv = document.getElementById('groupJoinError');
-            
+
             if (!password) {
-                alert('Please enter your password');
+                showCustomAlert('Please enter your password');
                 return;
             }
-            
+
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
             const groupAccount = accounts[groupUsername];
             const subAccount = groupAccount.subAccounts.find(sub => sub.username === subUsername);
-            
+
             if (subAccount.password !== password) {
-                alert('Incorrect password');
+                showCustomAlert('Incorrect password');
                 return;
             }
-            
+
             // Log them in
             currentUser = groupUsername + '::' + subUsername; // Special format for sub-accounts
             localStorage.setItem('currentUser', currentUser);
             localStorage.setItem('currentAccountType', 'subaccount');
             localStorage.setItem('currentUserDisplayName', subAccount.displayName);
-            
+
             // Load SHARED group data (not individual)
             tasks = groupAccount.data.tasks || {};
             hugGroups = groupAccount.data.hugGroups || [];
             completedTasksCount = groupAccount.data.completedTasksCount || 0;
-            
+            projects = groupAccount.data.projects || [];
+            notes = groupAccount.data.notes || [];
+
             sessionStorage.removeItem('pendingGroupUsername');
             sessionStorage.removeItem('pendingSubUsername');
-            
+
             showScreen('mainApp');
         }
 
@@ -480,33 +487,13 @@
             });
         }
 
-        // Admin Password Check
-
-
-
-
-        function copyAdminCredential(text, button) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = button.textContent;
-                button.textContent = '✓';
-                button.classList.add('copied');
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.classList.remove('copied');
-                }, 2000);
-            });
-        }
-
         function deleteAccount(username) {
-            if (!confirm(`Are you sure you want to delete ${username}? This cannot be undone.`)) {
-                return;
-            }
-            
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            delete accounts[username];
-            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            loadAdminDashboard();
+            showCustomConfirm('Delete Account', `Are you sure you want to delete ${escapeHtml(username)}? This cannot be undone.`, () => {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                delete accounts[username];
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                loadAllAccounts();
+            });
         }
 
         // Data Management - Group tasks are SHARED among all members
@@ -515,18 +502,17 @@
             
             try {
                 const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-                
+
                 // Check if this is a sub-account
                 if (currentUser.includes('::')) {
-                    const [groupUsername, subUsername] = currentUser.split('::');
+                    const [groupUsername] = currentUser.split('::');
                     const groupAccount = accounts[groupUsername];
-                    
+
                     if (!groupAccount) {
                         console.error('Group account not found!');
                         return;
                     }
-                    
-                    // Save to GROUP data (shared across all members)
+
                     groupAccount.data = {
                         tasks: tasks,
                         hugGroups: hugGroups,
@@ -535,15 +521,14 @@
                         projects: projects,
                         notes: notes
                     };
-                    
+
                     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
                 } else {
-                    // Regular account or group admin
                     if (!accounts[currentUser]) {
                         console.error('User account not found!');
                         return;
                     }
-                    
+
                     accounts[currentUser].data = {
                         tasks: tasks,
                         hugGroups: hugGroups,
@@ -552,25 +537,12 @@
                         projects: projects,
                         notes: notes
                     };
-                    
+
                     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-                }
-                
-                // Verify save was successful
-                const verification = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-                if (currentUser.includes('::')) {
-                    const [groupUsername, subUsername] = currentUser.split('::');
-                    if (!verification[groupUsername]) {
-                        console.error('Data save verification failed!');
-                    }
-                } else {
-                    if (!verification[currentUser]) {
-                        console.error('Data save verification failed!');
-                    }
                 }
             } catch (error) {
                 console.error('Error saving data:', error);
-                alert('There was an error saving your data. Please try again.');
+                showCustomAlert('There was an error saving your data. Please try again.');
             }
         }
 
@@ -616,7 +588,7 @@
                 saveUserData(); // Save the initialized data
             } catch (error) {
                 console.error('Error loading data:', error);
-                alert('There was an error loading your data.');
+                showCustomAlert('There was an error loading your data.');
             }
         }
 
@@ -772,15 +744,23 @@
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
             const displayName = document.getElementById('settingsDisplayName').value.trim();
             const newPassword = document.getElementById('settingsNewPassword').value.trim();
-            
-            if (displayName) {
-                accounts[currentUser].displayName = displayName;
+
+            const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
+            const account = accounts[actualUsername];
+            if (!account) return;
+
+            if (currentUser.includes('::')) {
+                const subUsername = currentUser.split('::')[1];
+                const subAccount = account.subAccounts && account.subAccounts.find(s => s.username === subUsername);
+                if (subAccount) {
+                    if (displayName) subAccount.displayName = displayName;
+                    if (newPassword) subAccount.password = newPassword;
+                }
+            } else {
+                if (displayName) account.displayName = displayName;
+                if (newPassword) account.password = newPassword;
             }
-            
-            if (newPassword) {
-                accounts[currentUser].password = newPassword;
-            }
-            
+
             localStorage.setItem('todoAccounts', JSON.stringify(accounts));
             
             // Show success message
@@ -796,9 +776,9 @@
 
         function changeAdminPassword() {
             const newPassword = document.getElementById('newAdminPassword').value.trim();
-            
+
             if (!newPassword) {
-                alert('Please enter a new admin password');
+                showCustomAlert('Please enter a new admin password');
                 return;
             }
             
@@ -853,43 +833,40 @@
                 const accountDiv = document.createElement('div');
                 accountDiv.className = 'account-item';
                 accountDiv.style.marginBottom = '15px';
-                
+
                 const totalHugs = (data.data?.hugGroups || []).reduce((sum, g) => sum + g.count, 0);
                 const spentHugs = data.data?.spentHugs || 0;
                 const availableHugs = totalHugs - spentHugs;
-                
-                const members = data.type === 'group' && data.members && data.members.length > 0 ? 
-                    `<br><small style="display: block; margin-top: 5px;"><strong>Group Members:</strong> ${data.members.join(', ')}</small>` : '';
-                
+
+                const members = data.type === 'group' && data.members && data.members.length > 0 ?
+                    `<br><small style="display: block; margin-top: 5px;"><strong>Group Members:</strong> ${data.members.map(escapeHtml).join(', ')}</small>` : '';
+
                 const subAccountsInfo = data.subAccounts && data.subAccounts.length > 0 ?
                     `<br><small style="display: block; margin-top: 5px;"><strong>Invited Users:</strong></small>` +
-                    data.subAccounts.map(s => `<br><small style="margin-left: 20px;">• ${s.displayName || s.username} (${s.username}) - Pass: ${s.password}</small>`).join('') : '';
-                
+                    data.subAccounts.map(s => `<br><small style="margin-left: 20px;">• ${escapeHtml(s.displayName || s.username)} (${escapeHtml(s.username)})</small>`).join('') : '';
+
                 const isAdmin = data.isAdmin ? '<br><small style="color: #9575cd; font-weight: 600;">👑 Group Admin</small>' : '';
-                
+
                 const taskCount = data.data && data.data.tasks ? Object.values(data.data.tasks).reduce((sum, dayTasks) => sum + dayTasks.length, 0) : 0;
                 const completedCount = data.data && data.data.tasks ? Object.values(data.data.tasks).reduce((sum, dayTasks) => sum + dayTasks.filter(t => t.completed).length, 0) : 0;
-                
+
+                const safeUsername = escapeHtml(username);
+
                 accountDiv.innerHTML = `
                     <div class="account-info">
-                        <strong>${username}</strong>
+                        <strong>${safeUsername}</strong>
                         <small>${data.type === 'group' ? '👥 Group' : '👤 Personal'} Account | ${availableHugs} points | ${taskCount} tasks (${completedCount} completed)${isAdmin}${members}${subAccountsInfo}</small>
-                        
+
                         <div class="copyable-credential" style="margin-top: 10px;">
-                            <span>${username}</span>
-                            <button class="copy-btn" onclick="copyAdminCredential('${username}', this)">Copy</button>
-                        </div>
-                        
-                        <div class="copyable-credential">
-                            <span>${data.password}</span>
-                            <button class="copy-btn" onclick="copyAdminCredential('${data.password}', this)">Copy</button>
+                            <span>${safeUsername}</span>
                         </div>
                     </div>
                     <div class="account-actions">
-                        <button class="delete-btn" onclick="deleteAccountFromDashboard('${username}')">Delete</button>
+                        <button class="delete-btn">Delete</button>
                     </div>
                 `;
-                
+
+                accountDiv.querySelector('.delete-btn').addEventListener('click', () => deleteAccountFromDashboard(username));
                 accountsList.appendChild(accountDiv);
             });
         }
@@ -899,7 +876,6 @@
                 const originalText = button.textContent;
                 button.textContent = '✓';
                 button.classList.add('copied');
-                
                 setTimeout(() => {
                     button.textContent = originalText;
                     button.classList.remove('copied');
@@ -908,14 +884,12 @@
         }
 
         function deleteAccountFromDashboard(username) {
-            if (!confirm(`Are you sure you want to delete ${username}? This cannot be undone.`)) {
-                return;
-            }
-            
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            delete accounts[username];
-            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            loadAllAccounts();
+            showCustomConfirm('Delete Account', `Are you sure you want to delete ${escapeHtml(username)}? This cannot be undone.`, () => {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                delete accounts[username];
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                loadAllAccounts();
+            });
         }
 
         function loadGroupMembers() {
@@ -1005,27 +979,23 @@
         }
 
         function removeGroupMember(index) {
-            if (!confirm('Are you sure you want to remove this member?')) {
-                return;
-            }
-            
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const currentAccount = accounts[currentUser];
-            
-            currentAccount.subAccounts.splice(index, 1);
-            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            
-            loadGroupMembers();
+            showCustomConfirm('Remove Member', 'Are you sure you want to remove this member?', () => {
+                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                const currentAccount = accounts[currentUser];
+                currentAccount.subAccounts.splice(index, 1);
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+                loadGroupMembers();
+            });
         }
 
         // Custom Alert
-        function showCustomAlert(message, title = '⚠️ Alert') {
+        function showCustomAlert(message, title = '⚠️ Alert', showOkButton = true) {
             const modalHTML = `
                 <div class="alert-overlay" onclick="closeCustomAlert()"></div>
                 <div class="custom-alert">
                     <h3>${title}</h3>
                     <div style="color: #666; margin-bottom: 20px; font-size: 16px;">${message}</div>
-                    ${message.includes('button') ? '' : '<button class="login-btn" onclick="closeCustomAlert()" style="margin: 0;">OK</button>'}
+                    ${showOkButton ? '<button class="login-btn" onclick="closeCustomAlert()" style="margin: 0;">OK</button>' : ''}
                 </div>
             `;
             
@@ -1069,7 +1039,7 @@
                 <div class="custom-alert">
                     <h3>${title}</h3>
                     <p style="margin-bottom: 12px;">${message}</p>
-                    <input id="customPromptInput" class="login-input" style="margin-bottom: 16px;" value="${defaultValue || ''}" />
+                    <input id="customPromptInput" class="login-input" style="margin-bottom: 16px;" value="${escapeHtml(defaultValue || '')}" />
                     <div style="display: flex; gap: 10px; justify-content: center;">
                         <button class="login-btn decline-btn" onclick="document.getElementById('customPromptModal').remove()" style="margin: 0;">Cancel</button>
                         <button class="login-btn" id="customPromptOkBtn" style="margin: 0;">OK</button>
@@ -1107,7 +1077,7 @@
         }
 
         function formatTime(militaryTime) {
-            if (!militaryTime) return 'No time';
+            if (!militaryTime) return '';
             
             const [hours, minutes] = militaryTime.split(':');
             const hour = parseInt(hours);

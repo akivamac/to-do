@@ -65,7 +65,7 @@
                         <input type="time" id="editAlarmTime" value="${alarm.time}" class="login-input" style="margin: 0 0 15px 0;" />
                         
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Label</label>
-                        <input type="text" id="editAlarmLabel" value="${alarm.label}" class="login-input" style="margin: 0 0 15px 0;" />
+                        <input type="text" id="editAlarmLabel" value="${escapeHtml(alarm.label)}" class="login-input" style="margin: 0 0 15px 0;" />
                         
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="editAlarmRecurring" ${alarm.recurring ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;" />
@@ -144,14 +144,8 @@
             alarms.forEach(alarm => {
                 const alarmMinute = parseInt(alarm.time.split(':')[0]) * 60 + parseInt(alarm.time.split(':')[1]);
 
-                // Clear dismissed flag once the alarm time has passed
-                if (alarm.dismissed && alarm.time !== currentTime) {
-                    alarm.dismissed = false;
-                    saveAlarms();
-                }
-
-                // Check if alarm should ring (but not if already dismissed)
-                if (alarm.active && alarm.time === currentTime && !alarm.ringing && !alarm.dismissed) {
+                // Check if alarm should ring
+                if (alarm.active && alarm.time === currentTime && !alarm.ringing) {
                     alarm.ringing = true;
                     alarm.lastRang = currentMinute;
                     saveAlarms();
@@ -257,9 +251,10 @@
             
             // Show custom alert popup
             showCustomAlert(
-                `<div style="font-size: 18px; margin-bottom: 10px;">${alarm.label}</div>
+                `<div style="font-size: 18px; margin-bottom: 10px;">${escapeHtml(alarm.label)}</div>
                 <button class="login-btn" onclick="dismissAlarm(${alarm.id});" style="margin: 10px auto 0;">Dismiss Alarm</button>`,
-                '⏰ Alarm Ringing!'
+                '⏰ Alarm Ringing!',
+                false
             );
         }
 
@@ -282,8 +277,8 @@
 
                 div.innerHTML = `
                     <div class="alarm-info">
-                        <div class="alarm-time">${alarm.time}</div>
-                        <div class="alarm-label">${alarm.label}${alarm.recurring ? ' 🔄' : ''}</div>
+                        <div class="alarm-time">${escapeHtml(alarm.time)}</div>
+                        <div class="alarm-label">${escapeHtml(alarm.label)}${alarm.recurring ? ' 🔄' : ''}</div>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         ${alarm.ringing ? '<button class="login-btn" onclick="dismissAlarm(' + alarm.id + ')" style="padding: 8px 16px; margin: 0; font-size: 14px;">Dismiss</button>' : ''}
@@ -307,7 +302,7 @@
                 timerSeconds = hours * 3600 + minutes * 60 + seconds;
                 
                 if (timerSeconds === 0) {
-                    alert('Please set a time for the timer');
+                    showCustomAlert('Please set a time for the timer');
                     return;
                 }
             }

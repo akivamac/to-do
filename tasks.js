@@ -86,27 +86,27 @@
                 
                 let assignedTag = '';
                 if (task.assignedTo) {
-                    assignedTag = `<span class="task-assigned">@${task.assignedTo}</span>`;
+                    assignedTag = `<span class="task-assigned">@${escapeHtml(task.assignedTo)}</span>`;
                 }
 
                 let projectTag = '';
                 if (task.project) {
                     const proj = projects.find(p => p.id == task.project);
                     if (proj) {
-                        projectTag = `<span style="font-size: 11px; background: #e3f2fd; color: #5e8fb5; border-radius: 4px; padding: 2px 6px; margin-left: 4px;">📁 ${proj.name}</span>`;
+                        projectTag = `<span style="font-size: 11px; background: #e3f2fd; color: #5e8fb5; border-radius: 4px; padding: 2px 6px; margin-left: 4px;">📁 ${escapeHtml(proj.name)}</span>`;
                     }
                 }
 
                 let rolloverTag = '';
                 if (task.rolledFrom) {
-                    rolloverTag = `<span style="font-size: 11px; color: #bbb; margin-left: 4px;" title="Rolled over from ${task.rolledFrom}">↩</span>`;
+                    rolloverTag = `<span style="font-size: 11px; color: #bbb; margin-left: 4px;" title="Rolled over from ${escapeHtml(task.rolledFrom)}">↩</span>`;
                 }
 
                 taskDiv.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
                     <div class="task-content" onclick="editTask(${index}, false)" style="cursor: pointer;">
-                        <span class="task-text" style="${task.rolledFrom ? 'color: #aaa;' : ''}">${task.text}</span>
+                        <span class="task-text" style="${task.rolledFrom ? 'color: #aaa;' : ''}">${escapeHtml(task.text)}</span>
                         <span class="task-time">${formatTime(task.time)}</span>
                         ${assignedTag}${projectTag}${rolloverTag}
                     </div>
@@ -218,7 +218,7 @@
                     <h3>Edit Task</h3>
                     <div style="text-align: left; margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Task</label>
-                        <input type="text" id="editTaskText" value="${task.text}" class="login-input" style="margin: 0 0 15px 0;" />
+                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input" style="margin: 0 0 15px 0;" />
                         
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Time</label>
                         <input type="time" id="editTaskTime" value="${task.time}" class="login-input" style="margin: 0 0 15px 0;" />
@@ -419,14 +419,14 @@
                 
                 let assignedTag = '';
                 if (task.assignedTo) {
-                    assignedTag = `<span class="task-assigned">@${task.assignedTo}</span>`;
+                    assignedTag = `<span class="task-assigned">@${escapeHtml(task.assignedTo)}</span>`;
                 }
-                
+
                 taskDiv.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
                     <div class="task-content" onclick="editTask(${index}, true)" style="cursor: pointer;">
-                        <span class="task-text">${task.text}</span>
+                        <span class="task-text">${escapeHtml(task.text)}</span>
                         <span class="task-time">${formatTime(task.time)}</span>
                         ${assignedTag}
                     </div>
