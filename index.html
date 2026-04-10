@@ -89,11 +89,20 @@
     <div id="createPersonalAccount" class="container hidden">
         <div class="login-screen">
             <h1>👤 Create Personal Account</h1>
-            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">Set up your personal task management account</p>
-            <input type="text" id="personalUsername" class="login-input" placeholder="Choose a username (e.g., john_doe)" />
-            <input type="password" id="personalPassword" class="login-input" placeholder="Choose a password" />
-            <input type="password" id="personalConfirmPassword" class="login-input" placeholder="Confirm password" />
-            <button class="login-btn" onclick="createPersonalAccount()">Create My Account</button>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">Set up your personal task management account</p>
+            <div id="inviteHint" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:10px 16px;margin:0 auto 16px;max-width:400px;font-size:14px;"></div>
+            <div style="background:#fff8e1;border-left:3px solid #ffc107;border-radius:8px;padding:12px 16px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:13px;color:#555;">
+                💡 Tip: use your password manager to generate a long random password — it's more secure than 2FA and you never have to think about it.
+            </div>
+            <form onsubmit="event.preventDefault(); createPersonalAccount();" autocomplete="on" style="width:100%;max-width:400px;margin:0 auto;">
+                <input type="text" id="personalUsername" name="username" autocomplete="username"
+                    class="login-input" placeholder="Choose a username (e.g., alex_smith)" />
+                <input type="password" id="personalPassword" name="new-password" autocomplete="new-password"
+                    class="login-input" placeholder="Choose a password" />
+                <input type="password" id="personalConfirmPassword" name="confirm-password" autocomplete="new-password"
+                    class="login-input" placeholder="Confirm password" />
+                <button type="submit" class="login-btn" style="width:calc(100% - 20px);">Create My Account</button>
+            </form>
             <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
             <div id="personalAccountError" class="login-error"></div>
         </div>
@@ -104,9 +113,13 @@
         <div class="login-screen">
             <h1>🔓 Sign In</h1>
             <p style="margin-bottom: 20px; font-size: 14px; color: #666;">Enter your username and password to access your account</p>
-            <input type="text" id="loginUsername" class="login-input" placeholder="Username" />
-            <input type="password" id="loginPassword" class="login-input" placeholder="Password" />
-            <button class="login-btn" onclick="loginPersonalAccount()">Sign In</button>
+            <form onsubmit="event.preventDefault(); loginPersonalAccount();" autocomplete="on" style="width:100%;max-width:400px;margin:0 auto;">
+                <input type="text" id="loginUsername" name="username" autocomplete="username"
+                    class="login-input" placeholder="Username" />
+                <input type="password" id="loginPassword" name="password" autocomplete="current-password"
+                    class="login-input" placeholder="Password" />
+                <button type="submit" class="login-btn" style="width:calc(100% - 20px);">Sign In</button>
+            </form>
             <button class="login-btn back-btn" onclick="backToInitialChoice()">Back</button>
             <div id="loginAccountError" class="login-error"></div>
         </div>
@@ -228,8 +241,13 @@
                 
                 <div class="add-task">
                     <div class="add-task-inputs">
-                        <input type="text" id="taskInput" placeholder="Add a new task..." />
-                        <input type="time" id="taskTime" />
+                        <input type="text" id="taskInput" placeholder="Add a new task..."
+                            oninput="showPeacefulSuggestion('taskInput','taskSuggestion')" />
+                        <div id="taskTimeDisplay" class="add-task-time-btn"
+                            onclick="showTimePicker(document.getElementById('taskTime').value, v=>{document.getElementById('taskTime').value=v;document.getElementById('taskTimeDisplay').textContent=formatTime(v)||'Set time';})">
+                            Set time
+                        </div>
+                        <input type="hidden" id="taskTime" />
                         <select id="taskAssign" class="login-input" style="margin: 0; padding: 14px;">
                             <option value="">Assign to...</option>
                         </select>
@@ -237,9 +255,11 @@
                             <option value="">No Project</option>
                         </select>
                     </div>
+                    <div id="taskSuggestion" style="display:none;background:#e8f5e9;border-radius:6px;padding:6px 12px;font-size:12px;color:#2e7d32;margin-bottom:8px;"></div>
                     <button class="add-task-btn" onclick="addTask()">Add Task</button>
                 </div>
 
+                <div id="todayProgressWrap"></div>
                 <div class="task-list" id="taskList"></div>
             </div>
 
@@ -284,20 +304,50 @@
                 </div>
                 <div id="noteEditorView" class="hidden">
                     <div class="admin-card">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                             <button onclick="closeNoteEditor()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
-                            <input type="text" id="noteTitleInput" class="login-input" style="margin: 0; flex: 1; font-weight: bold;" placeholder="Note title..." oninput="saveCurrentNote()" />
+                            <input type="text" id="noteTitleInput" class="login-input" style="margin: 0; flex: 1; font-weight: bold; min-width:120px;" placeholder="Note title..." oninput="saveCurrentNote()" />
+                            <button onclick="downloadCurrentNote()" title="Download as .md" style="background: #e3f2fd; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #1976d2;">⬇ .md</button>
                             <button onclick="deleteCurrentNote()" style="background: #ffebee; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #e53935;">Delete</button>
                         </div>
                         <div class="note-toolbar">
-                            <button onclick="noteFormat('bold')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-weight: bold; font-size: 13px;">B</button>
-                            <button onclick="noteFormat('italic')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-style: italic; font-size: 13px;">I</button>
-                            <button onclick="noteFormat('underline')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; text-decoration: underline; font-size: 13px;">U</button>
-                            <button onclick="noteFormat('insertUnorderedList')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px;">• Bullet</button>
-                            <button onclick="noteFormat('insertOrderedList')" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px;">1. Number</button>
+                            <button onclick="noteFormat('bold')" title="Bold" class="tb-btn"><strong>B</strong></button>
+                            <button onclick="noteFormat('italic')" title="Italic" class="tb-btn"><em>I</em></button>
+                            <button onclick="noteFormat('strikeThrough')" title="Strikethrough" class="tb-btn"><s>S</s></button>
+                            <button onclick="noteFormat('underline')" title="Underline" class="tb-btn"><u>U</u></button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="noteFormatBlock('h1')" title="Heading 1" class="tb-btn">H1</button>
+                            <button onclick="noteFormatBlock('h2')" title="Heading 2" class="tb-btn">H2</button>
+                            <button onclick="noteFormatBlock('h3')" title="Heading 3" class="tb-btn">H3</button>
+                            <button onclick="noteFormatBlock('p')" title="Normal text" class="tb-btn">P</button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="noteFormat('insertUnorderedList')" title="Bullet list" class="tb-btn">• List</button>
+                            <button onclick="noteFormat('insertOrderedList')" title="Numbered list" class="tb-btn">1. List</button>
+                            <button onclick="noteInsertAlphaList()" title="Alphabetical list" class="tb-btn">a. List</button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="noteInsertLink()" title="Insert link" class="tb-btn">🔗</button>
+                            <button onclick="noteInsertHR()" title="Horizontal rule" class="tb-btn">—</button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="noteAlign('left')" title="Align left" class="tb-btn">⬅</button>
+                            <button onclick="noteAlign('center')" title="Center" class="tb-btn">⬛</button>
+                            <button onclick="noteAlign('right')" title="Align right" class="tb-btn">➡</button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="noteSetFontSize('small')" title="Small text" class="tb-btn" style="font-size:10px;">A</button>
+                            <button onclick="noteSetFontSize('medium')" title="Normal text" class="tb-btn">A</button>
+                            <button onclick="noteSetFontSize('large')" title="Large text" class="tb-btn" style="font-size:18px;">A</button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="noteInsertTable()" title="Insert table" class="tb-btn">⊞ Table</button>
+                            <span class="tb-sep">|</span>
+                            <button onclick="toggleNotePreview()" title="Toggle preview" class="tb-btn" id="previewToggleBtn">👁 Preview</button>
                         </div>
-                        <div id="noteEditor" contenteditable="true" oninput="saveCurrentNote()"
-                            style="min-height: 300px; border: 1px solid #ddd; border-radius: 10px; padding: 16px; font-size: 15px; line-height: 1.6; outline: none; background: #fafafa;"></div>
+                        <div style="display:flex;gap:12px;min-height:300px;">
+                            <div id="noteEditor" contenteditable="true" oninput="saveCurrentNote()"
+                                style="flex:1;min-height:300px;border:1px solid #ddd;border-radius:10px;padding:16px;
+                                font-size:15px;line-height:1.6;outline:none;background:#fafafa;
+                                overflow-y:auto;word-break:break-word;"></div>
+                            <div id="notePreviewPane" style="display:none;flex:1;min-height:300px;border:1px solid #e0e0e0;
+                                border-radius:10px;padding:16px;overflow-y:auto;background:white;font-size:15px;line-height:1.6;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -428,6 +478,13 @@
                     <div id="settingsSaveMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Settings saved!</div>
                 </div>
 
+                <!-- Invite by Link -->
+                <div class="admin-card">
+                    <h3>🔗 Invite Someone</h3>
+                    <p style="margin-bottom:15px;color:#666;font-size:14px;">Generate a one-time invite link to share with anyone you want to join.</p>
+                    <button class="login-btn" onclick="generateInviteLink()">Generate Invite Link</button>
+                </div>
+
                 <!-- Group Admin Section -->
                 <div id="groupAdminSection" class="hidden">
                     <div class="admin-card">
@@ -505,6 +562,9 @@
                     <select id="editDayTaskAssign" class="login-input" style="margin: 0; padding: 14px;">
                         <option value="">Assign to...</option>
                     </select>
+                    <select id="editDayTaskProject" class="login-input" style="margin: 0; padding: 14px;">
+                        <option value="">No project</option>
+                    </select>
                 </div>
                 <button class="add-task-btn" onclick="addTaskToEditDay()">Add Task</button>
             </div>
@@ -540,10 +600,14 @@
         </div>
     </div>
 
+    <!-- marked.js for Markdown preview in note editor (CDN, no build step) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="app.js"></script>
     <script src="tasks.js"></script>
     <script src="alarms.js"></script>
     <script src="projects.js"></script>
     <script src="notes.js"></script>
+    <!-- backside.js loaded last so it can reference functions defined in the files above -->
+    <script src="backside.js"></script>
 </body>
 </html>

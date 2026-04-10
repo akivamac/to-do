@@ -2,6 +2,41 @@
         // Notes
         let noteSyncTimer = null;
 
+        // ── Note saved toast ─────────────────────────────────────────
+        function showNoteSavedToast() {
+            let toast = document.getElementById('noteSavedToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'noteSavedToast';
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#66bb6a;color:white;' +
+                    'padding:10px 20px;border-radius:20px;font-size:14px;z-index:99999;opacity:0;' +
+                    'transition:opacity 0.3s;pointer-events:none;';
+                toast.textContent = '✓ Note saved';
+                document.body.appendChild(toast);
+            }
+            toast.style.opacity = '1';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
+
+        // ── Download note as .md ─────────────────────────────────────
+        function downloadCurrentNote() {
+            if (!currentNoteId) return;
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+            const title   = note.title || 'Untitled';
+            const content = note.content || '';
+            // Convert HTML to rough Markdown for download
+            const tmp  = document.createElement('div');
+            tmp.innerHTML = content;
+            const text = tmp.innerText || tmp.textContent || '';
+            const blob = new Blob(['# ' + title + '\n\n' + text], { type: 'text/markdown' });
+            const a    = document.createElement('a');
+            a.href     = URL.createObjectURL(blob);
+            a.download = title.replace(/[^a-z0-9\-_ ]/gi, '_') + '.md';
+            a.click();
+        }
+
         // Allowlist-based sanitizer: only permit known-safe tags, no attributes
         function sanitizeNoteHtml(html) {
             // No span: without style attr it's a no-op. Scripts in detached DOM don't execute in modern browsers.
@@ -64,6 +99,7 @@
         }
 
         function closeNoteEditor() {
+            if (currentNoteId) showNoteSavedToast();
             currentNoteId = null;
             renderNotes();
         }
@@ -72,22 +108,35 @@
             if (!currentNoteId) return;
             const note = notes.find(n => n.id === currentNoteId);
             if (!note) return;
-            note.title = document.getElementById('noteTitleInput').value;
-            note.content = document.getElementById('noteEditor').innerHTML;
+            note.title     = document.getElementById('noteTitleInput').value;
+            note.content   = document.getElementById('noteEditor').innerHTML;
             note.updatedAt = new Date().toISOString();
             saveUserData();
-            // Debounce syncData — don't blast the server on every keystroke
+            // Update live preview if it exists
+            updateNotePreview();
             clearTimeout(noteSyncTimer);
-            noteSyncTimer = setTimeout(() => syncData(), 1500);
+            noteSyncTimer = setTimeout(() => {
+                syncData();
+                if (bsIsConfigured()) bsSyncNote(note).catch(e => console.warn('Note sync:', e));
+            }, 1500);
+        }
+
+        function updateNotePreview() {
+            const preview = document.getElementById('notePreviewPane');
+            if (!preview || typeof marked === 'undefined') return;
+            const raw = document.getElementById('noteEditor').innerText || '';
+            preview.innerHTML = marked.parse(raw);
         }
 
         function deleteCurrentNote() {
             if (!currentNoteId) return;
             showCustomConfirm('Delete this note?', 'This cannot be undone.', () => {
+                const note = notes.find(n => n.id === currentNoteId);
                 notes = notes.filter(n => n.id !== currentNoteId);
                 currentNoteId = null;
                 saveUserData();
                 syncData();
+                if (note && bsIsConfigured()) bsRemoveNote(note).catch(console.error);
                 renderNotes();
             });
         }
@@ -101,6 +150,77 @@
                 console.warn('execCommand failed:', command, e);
             }
             saveCurrentNote();
+        }
+
+        function noteFormatBlock(tag) {
+            document.getElementById('noteEditor').focus();
+            try { document.execCommand('formatBlock', false, tag); } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function noteInsertLink() {
+            const url = prompt('Enter URL:');
+            if (!url) return;
+            document.getElementById('noteEditor').focus();
+            try { document.execCommand('createLink', false, url); } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function noteInsertHR() {
+            document.getElementById('noteEditor').focus();
+            try { document.execCommand('insertHTML', false, '<hr/>'); } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function noteInsertAlphaList() {
+            // Insert an alphabetical ordered list using CSS list-style-type
+            document.getElementById('noteEditor').focus();
+            try {
+                document.execCommand('insertHTML', false,
+                    '<ol style="list-style-type:lower-alpha"><li>Item</li></ol>');
+            } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function noteAlign(direction) {
+            const cmds = { left:'justifyLeft', center:'justifyCenter', right:'justifyRight' };
+            document.getElementById('noteEditor').focus();
+            try { document.execCommand(cmds[direction], false, null); } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function noteSetFontSize(size) {
+            const sizeMap = { small:'1', medium:'3', large:'5', huge:'7' };
+            document.getElementById('noteEditor').focus();
+            try { document.execCommand('fontSize', false, sizeMap[size] || '3'); } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function noteInsertTable() {
+            document.getElementById('noteEditor').focus();
+            const rows = 3, cols = 3;
+            let html = '<table style="border-collapse:collapse;width:100%;margin:8px 0;">';
+            for (let r = 0; r < rows; r++) {
+                html += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    const tag = r === 0 ? 'th' : 'td';
+                    html += `<${tag} style="border:1px solid #ccc;padding:6px 10px;min-width:60px;" contenteditable="true">${r===0?'Header ':''}</th>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table><p><br></p>';
+            try { document.execCommand('insertHTML', false, html); } catch(e) {}
+            saveCurrentNote();
+        }
+
+        function toggleNotePreview() {
+            const pane = document.getElementById('notePreviewPane');
+            const btn  = document.getElementById('previewToggleBtn');
+            if (!pane) return;
+            const shown = pane.style.display !== 'none';
+            pane.style.display = shown ? 'none' : 'block';
+            if (btn) btn.style.background = shown ? '' : '#e3f2fd';
+            if (!shown) updateNotePreview();
         }
 
         // Days Page - Shows next 90 days

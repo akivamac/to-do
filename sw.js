@@ -1,4 +1,4 @@
-const CACHE_NAME = 'peaceful-tasks-v1';
+const CACHE_NAME = 'peaceful-tasks-v2';
 const ASSETS = [
     '/to-do/',
     '/to-do/index.html',
@@ -8,7 +8,10 @@ const ASSETS = [
     '/to-do/alarms.js',
     '/to-do/projects.js',
     '/to-do/notes.js',
-    '/to-do/manifest.json'
+    '/to-do/backside.js',
+    '/to-do/manifest.json',
+    '/to-do/icon-192.png',
+    '/to-do/icon-512.png'
 ];
 
 self.addEventListener('install', event => {

@@ -1,15 +1,18 @@
         // Projects
         function populateProjectDropdown() {
-            const sel = document.getElementById('taskProject');
-            if (!sel) return;
-            const current = sel.value;
-            sel.innerHTML = '<option value="">No Project</option>';
-            projects.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = p.name;
-                if (String(p.id) === String(current)) opt.selected = true;
-                sel.appendChild(opt);
+            const selIds = ['taskProject', 'editDayTaskProject'];
+            selIds.forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel) return;
+                const current = sel.value;
+                sel.innerHTML = '<option value="">No Project</option>';
+                projects.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.name;
+                    if (String(p.id) === String(current)) opt.selected = true;
+                    sel.appendChild(opt);
+                });
             });
         }
 
@@ -55,23 +58,27 @@
             });
         }
 
-        function addProject() {
+        async function addProject() {
             const input = document.getElementById('newProjectName');
             const name = input.value.trim();
             if (!name) return;
-            projects.push({ id: Date.now(), name: name });
+            const project = { id: Date.now(), name };
+            projects.push(project);
             input.value = '';
             saveUserData();
             syncData();
+            if (bsIsConfigured()) bsSyncProject(project).catch(e => showApiError('Project sync: ' + e.message));
             renderProjects();
             populateProjectDropdown();
         }
 
-        function deleteProject(id) {
+        async function deleteProject(id) {
             showCustomConfirm('Delete this project?', 'Tasks assigned to it will keep their data but lose the project link.', () => {
+                const proj = projects.find(p => String(p.id) === String(id));
                 projects = projects.filter(p => String(p.id) !== String(id));
                 saveUserData();
                 syncData();
+                if (proj && bsIsConfigured()) bsRemoveProject(proj).catch(console.error);
                 renderProjects();
                 populateProjectDropdown();
             });
@@ -85,6 +92,7 @@
                     p.name = newName.trim();
                     saveUserData();
                     syncData();
+                    if (bsIsConfigured()) bsSyncProject(p).catch(console.error);
                     renderProjects();
                     populateProjectDropdown();
                 }

@@ -76,18 +76,35 @@
             checkForUpdates();
         });
 
-        function loadInitialState() {
-            // Load alarms
+        async function loadInitialState() {
             loadAlarms();
-            
-            // Check if user is logged in
+
+            // Handle invite link before anything else
+            await handleInviteToken().catch(console.error);
+
             const savedUser = localStorage.getItem('currentUser');
-            const savedAccountType = localStorage.getItem('currentAccountType');
-            
             if (savedUser) {
                 currentUser = savedUser;
-                loadUserData();
-                showScreen('mainApp');
+                if (bsIsConfigured()) {
+                    // Try to restore crypto key from sessionStorage
+                    sessionCryptoKey = await restoreCryptoKey().catch(() => null);
+                    if (!sessionCryptoKey) {
+                        // Key not available — need password again
+                        showScreen('loginPersonalAccount');
+                        const err = document.getElementById('loginAccountError');
+                        if (err) err.textContent = 'Session expired — please sign in again to decrypt your data.';
+                        return;
+                    }
+                    // Check trial
+                    if (currentBsContact && isTrialExpired(currentBsContact)) {
+                        showPaywallModal(currentBsContact);
+                        return;
+                    }
+                    await loadAndShowApp();
+                } else {
+                    loadUserData();
+                    showScreen('mainApp');
+                }
             } else {
                 showScreen('initialChoice');
             }
@@ -122,6 +139,7 @@
                 renderTodayTasks();
                 renderHugs();
                 showTab('today');
+                showHintsBanner();
             }
         }
 
@@ -219,43 +237,49 @@
         }
 
         // Create Personal Account
-        function createPersonalAccount() {
+        async function createPersonalAccount() {
             const username = document.getElementById('personalUsername').value.trim();
             const password = document.getElementById('personalPassword').value.trim();
             const confirmPassword = document.getElementById('personalConfirmPassword').value.trim();
             const errorDiv = document.getElementById('personalAccountError');
-            
+
             if (!username || !password || !confirmPassword) {
                 errorDiv.textContent = 'Please fill in all fields';
                 return;
             }
-            
             if (password !== confirmPassword) {
                 errorDiv.textContent = 'Passwords do not match';
                 return;
             }
-            
+
+            // --- Backside signup (when configured) ---
+            if (bsIsConfigured()) {
+                errorDiv.textContent = 'Creating account…';
+                try {
+                    await bsSignup(username, password, 'member');
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('currentAccountType', 'personal');
+                    await clearPendingInvite();
+                    await loadAndShowApp();
+                } catch(err) {
+                    errorDiv.textContent = err.message || 'Error creating account.';
+                    console.error(err);
+                }
+                return;
+            }
+
+            // --- Fallback: localStorage signup ---
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            
             if (accounts[username]) {
                 errorDiv.textContent = 'Username already exists';
                 return;
             }
-            
-            // Create the account
             accounts[username] = {
-                password: password,
-                type: 'personal',
-                data: {
-                    tasks: {},
-                    hugGroups: [],
-                    completedTasksCount: 0,
-                    spentHugs: 0
-                },
+                password, type: 'personal',
+                data: { tasks: {}, hugGroups: [], completedTasksCount: 0, spentHugs: 0 },
                 createdAt: new Date().toISOString()
             };
-            
-            // Save and log in
             localStorage.setItem('todoAccounts', JSON.stringify(accounts));
             currentUser = username;
             localStorage.setItem('currentUser', currentUser);
@@ -265,24 +289,47 @@
         }
 
         // Login Personal Account
-        function loginPersonalAccount() {
+        async function loginPersonalAccount() {
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             const errorDiv = document.getElementById('loginAccountError');
-            
+
             if (!username || !password) {
                 errorDiv.textContent = 'Please fill in all fields';
                 return;
             }
-            
+
+            // --- Backside login (when configured) ---
+            if (bsIsConfigured()) {
+                errorDiv.textContent = 'Signing in…';
+                try {
+                    const contact = await bsLogin(username, password);
+                    if (!contact) {
+                        errorDiv.textContent = 'Invalid username or password';
+                        return;
+                    }
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('currentAccountType', 'personal');
+                    if (isTrialExpired(contact)) {
+                        showPaywallModal(contact);
+                        return;
+                    }
+                    await loadAndShowApp();
+                } catch(err) {
+                    errorDiv.textContent = 'Connection error — please try again.';
+                    console.error(err);
+                }
+                return;
+            }
+
+            // --- Fallback: localStorage login ---
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
             const account = accounts[username];
-            
             if (!account || account.password !== password) {
                 errorDiv.textContent = 'Invalid username or password';
                 return;
             }
-            
             currentUser = username;
             localStorage.setItem('currentUser', currentUser);
             localStorage.setItem('currentAccountType', account.type);
@@ -601,20 +648,25 @@
             }
         }
 
-        // Logout
+        // Logout — uses custom confirm modal (never browser confirm())
         function logout() {
-            saveUserData(); // Make sure to save before logout
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('currentAccountType');
-            localStorage.removeItem('currentUserDisplayName');
-            currentUser = null;
-            tasks = {};
-            hugGroups = [];
-            completedTasksCount = 0;
-            projects = [];
-            notes = [];
-            currentNoteId = null;
-            showScreen('initialChoice');
+            showCustomConfirm('Log Out', 'Are you sure you want to log out?', () => {
+                saveUserData();
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('currentAccountType');
+                localStorage.removeItem('currentUserDisplayName');
+                sessionStorage.removeItem('_pt_ck');
+                sessionCryptoKey   = null;
+                currentBsContact   = null;
+                currentUser        = null;
+                tasks              = {};
+                hugGroups          = [];
+                completedTasksCount= 0;
+                projects           = [];
+                notes              = [];
+                currentNoteId      = null;
+                showScreen('initialChoice');
+            });
         }
 
         // Tab Management
@@ -663,11 +715,20 @@
             }
         }
 
-        // Update Date Display
+        // Update Date + Time Display (time refreshes every minute)
+        let _dateTimeInterval = null;
         function updateDateDisplay() {
-            const today = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-US', options);
+            const tick = () => {
+                const now = new Date();
+                const dateEl = document.getElementById('dateDisplay');
+                if (!dateEl) return;
+                const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                dateEl.innerHTML = `<div>${dateStr}</div><div style="font-size:15px;color:#888;margin-top:4px;">${timeStr}</div>`;
+            };
+            tick();
+            clearInterval(_dateTimeInterval);
+            _dateTimeInterval = setInterval(tick, 60000);
         }
 
 
@@ -741,17 +802,26 @@
         }
 
         function saveSettings() {
+            // NOTE: Password change is intentionally disabled when Backside is configured.
+            // Changing the password would produce a different PBKDF2-derived AES-256-GCM key,
+            // making all existing encrypted tasks, notes, and other data permanently unreadable.
+            // This is a known limitation. To support password changes in the future, implement
+            // re-encryption of all user data before updating the key.
+            if (bsIsConfigured()) {
+                showCustomAlert('Password changes are disabled because your data is encrypted with a key derived from your password. Changing it would make all your data unreadable. Use your password manager to ensure you never lose access.');
+                return;
+            }
+
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
             const displayName = document.getElementById('settingsDisplayName').value.trim();
             const newPassword = document.getElementById('settingsNewPassword').value.trim();
-
             const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
             const account = accounts[actualUsername];
             if (!account) return;
 
             if (currentUser.includes('::')) {
                 const subUsername = currentUser.split('::')[1];
-                const subAccount = account.subAccounts && account.subAccounts.find(s => s.username === subUsername);
+                const subAccount = account.subAccounts?.find(s => s.username === subUsername);
                 if (subAccount) {
                     if (displayName) subAccount.displayName = displayName;
                     if (newPassword) subAccount.password = newPassword;
@@ -762,15 +832,9 @@
             }
 
             localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            
-            // Show success message
             const message = document.getElementById('settingsSaveMessage');
             message.style.display = 'block';
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 3000);
-            
-            // Clear password field
+            setTimeout(() => { message.style.display = 'none'; }, 3000);
             document.getElementById('settingsNewPassword').value = '';
         }
 
@@ -1060,6 +1124,113 @@
             });
         }
 
+
+        // ── Hints Banner (once per session) ─────────────────────────
+        function showHintsBanner() {
+            if (sessionStorage.getItem('_hintsDismissed')) return;
+            if (document.getElementById('hintsBanner')) return;
+            const el = document.createElement('div');
+            el.id = 'hintsBanner';
+            el.style.cssText = 'background:#e8f5e9;border-left:4px solid #66bb6a;padding:12px 16px;' +
+                'margin-bottom:12px;border-radius:8px;font-size:13px;color:#2e7d32;display:flex;' +
+                'justify-content:space-between;align-items:flex-start;gap:10px;';
+            el.innerHTML = `
+                <div>
+                    <strong>💡 Quick tips:</strong>
+                    <ul style="margin:6px 0 0 16px;padding:0;">
+                        <li>Drag ☰ handles to reorder tasks</li>
+                        <li>Double-click any task to edit it</li>
+                        <li>Notes auto-save as you type</li>
+                        <li>Complete 5 tasks → earn 100 points 🎉</li>
+                    </ul>
+                </div>
+                <button onclick="document.getElementById('hintsBanner').remove();sessionStorage.setItem('_hintsDismissed','1');"
+                    style="background:none;border:none;font-size:20px;cursor:pointer;color:#66bb6a;flex-shrink:0;line-height:1;">×</button>`;
+            const content = document.querySelector('.main-content');
+            if (content) content.prepend(el);
+        }
+
+        // ── Invite by Link (admin in Settings) ──────────────────────
+        async function generateInviteLink() {
+            if (!bsIsConfigured()) {
+                showCustomAlert('Backside is not configured yet. Add your API key to backside.js to enable invites.');
+                return;
+            }
+            const contactId = localStorage.getItem('currentContactId');
+            if (!contactId) { showCustomAlert('Please sign in to generate an invite link.'); return; }
+            try {
+                const token = await bsGenerateInviteToken(contactId);
+                const link  = `https://akivamac.github.io/to-do/?invite=${token}`;
+                showCustomAlert(`<strong>Invite Link</strong><br><br>
+                    <input value="${link}" readonly
+                        style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:12px;margin-top:8px;"
+                        onclick="this.select()" />
+                    <br><small style="color:#888;">Share this link with the person you want to invite. It expires after they sign up.</small>`, '🔗 Invite Link');
+            } catch(e) {
+                showCustomAlert('Could not generate invite link: ' + e.message);
+            }
+        }
+
+        // ── Custom Time Picker ───────────────────────────────────────
+        let _timePickerCallback = null;
+
+        function showTimePicker(currentValue, callback) {
+            _timePickerCallback = callback;
+            const parts = (currentValue || '').split(':');
+            let h = parseInt(parts[0] || '12');
+            let m = parseInt(parts[1] || '0');
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            if (h === 0) h = 12;
+            else if (h > 12) h -= 12;
+
+            document.getElementById('timePickerModal')?.remove();
+            const modal = document.createElement('div');
+            modal.id = 'timePickerModal';
+            modal.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('timePickerModal').remove()"></div>
+                <div class="custom-alert" style="max-width:300px;text-align:center;">
+                    <h3>🕐 Set Time</h3>
+                    <div style="display:flex;gap:12px;justify-content:center;align-items:center;margin:20px 0;">
+                        <div>
+                            <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">Hour</label>
+                            <select id="tpHour" class="login-input" style="margin:0;width:70px;text-align:center;">
+                                ${Array.from({length:12},(_,i)=>i+1).map(n=>`<option ${n===h?'selected':''}>${n}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div style="font-size:24px;font-weight:bold;color:#5e8fb5;padding-top:16px;">:</div>
+                        <div>
+                            <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">Minute</label>
+                            <select id="tpMinute" class="login-input" style="margin:0;width:70px;text-align:center;">
+                                ${[0,5,10,15,20,25,30,35,40,45,50,55].map(n=>`<option value="${n}" ${n===m?'selected':''}>${String(n).padStart(2,'0')}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">AM/PM</label>
+                            <select id="tpAmpm" class="login-input" style="margin:0;width:70px;text-align:center;">
+                                <option ${ampm==='AM'?'selected':''}>AM</option>
+                                <option ${ampm==='PM'?'selected':''}>PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:center;">
+                        <button class="login-btn" style="margin:0;" onclick="confirmTimePicker()">Set</button>
+                        <button class="login-btn back-btn" style="margin:0;"
+                            onclick="document.getElementById('timePickerModal').remove()">Cancel</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+        }
+
+        function confirmTimePicker() {
+            let h  = parseInt(document.getElementById('tpHour').value);
+            const m  = parseInt(document.getElementById('tpMinute').value);
+            const ap = document.getElementById('tpAmpm').value;
+            if (ap === 'PM' && h !== 12) h += 12;
+            if (ap === 'AM' && h === 12) h = 0;
+            const val = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+            document.getElementById('timePickerModal').remove();
+            if (_timePickerCallback) _timePickerCallback(val);
+        }
 
         // Utilities
         function formatDate(date) {

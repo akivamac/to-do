@@ -1,4 +1,81 @@
         // Task Management
+
+        // ── Peaceful task name suggestions ───────────────────────────
+        // Maps stressful words/phrases → calmer alternatives
+        const STRESS_REWRITES = {
+            'urgent': 'when you can',
+            'asap': 'soon',
+            'deadline': 'due date',
+            'overdue': 'to revisit',
+            'must': 'aim to',
+            'critical': 'important',
+            'stress': 'work on',
+            'stressed': 'take time for',
+            'panic': 'address',
+            'panicking': 'take a breath and',
+            'emergency': 'priority item',
+            'immediately': 'today',
+            'right now': 'when ready',
+            'hurry': 'handle',
+            'rush': 'do',
+            'crushing': 'working through',
+            'overwhelm': 'manage',
+            'overwhelmed': 'work through'
+        };
+
+        function getPeacefulSuggestion(text) {
+            if (!text) return null;
+            const lower = text.toLowerCase();
+            for (const [bad, calm] of Object.entries(STRESS_REWRITES)) {
+                if (lower.includes(bad)) {
+                    const calmed = text.replace(new RegExp(bad, 'gi'), calm);
+                    if (calmed.toLowerCase() !== lower) return calmed;
+                }
+            }
+            return null;
+        }
+
+        function showPeacefulSuggestion(inputId, suggestionId) {
+            const input = document.getElementById(inputId);
+            const box   = document.getElementById(suggestionId);
+            if (!input || !box) return;
+            const suggestion = getPeacefulSuggestion(input.value);
+            if (suggestion) {
+                box.innerHTML = `💚 Calmer wording: <em>"${escapeHtml(suggestion)}"</em>
+                    <button onclick="acceptSuggestion('${inputId}','${escapeHtml(suggestion).replace(/'/g,"\\'")}')"
+                        style="margin-left:8px;background:#66bb6a;color:white;border:none;border-radius:6px;
+                        padding:2px 10px;cursor:pointer;font-size:12px;">Use this</button>
+                    <button onclick="document.getElementById('${suggestionId}').style.display='none'"
+                        style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
+        }
+
+        function acceptSuggestion(inputId, value) {
+            const input = document.getElementById(inputId);
+            if (input) input.value = value;
+            const suggestionId = inputId.replace('Input','Suggestion').replace('Text','Suggestion');
+            const box = document.getElementById(suggestionId);
+            if (box) box.style.display = 'none';
+        }
+
+        // ── Double-click tooltip (once per session) ──────────────────
+        function maybeShowDblClickTooltip() {
+            if (sessionStorage.getItem('_dblClickTip')) return;
+            const el = document.createElement('div');
+            el.id = 'dblClickTip';
+            el.style.cssText = 'background:#fff8e1;border-left:3px solid #ffc107;padding:8px 12px;' +
+                'border-radius:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;' +
+                'align-items:center;margin-bottom:8px;';
+            el.innerHTML = `<span>✏️ Tip: you can also <strong>double-click</strong> a task to edit it</span>
+                <button onclick="this.parentElement.remove();sessionStorage.setItem('_dblClickTip','1')"
+                    style="background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+            const taskList = document.getElementById('taskList');
+            if (taskList) taskList.before(el);
+        }
+
         function populateAssignDropdowns() {
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
             const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
@@ -67,197 +144,230 @@
             const today = formatDate(new Date());
             const taskList = document.getElementById('taskList');
             taskList.innerHTML = '';
-            
-            if (!tasks[today] || tasks[today].length === 0) {
+
+            const todayTasks = tasks[today] || [];
+
+            // ── Progress bar ────────────────────────────────────────
+            const total     = todayTasks.length;
+            const done      = todayTasks.filter(t => t.completed).length;
+            const pct       = total > 0 ? Math.round((done / total) * 100) : 0;
+            let progressEl  = document.getElementById('todayProgressWrap');
+            if (!progressEl) {
+                progressEl = document.createElement('div');
+                progressEl.id = 'todayProgressWrap';
+                progressEl.style.cssText = 'margin-bottom:16px;';
+                taskList.before(progressEl);
+            }
+            progressEl.innerHTML = total === 0 ? '' : `
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;">
+                    <span>${done} of ${total} tasks completed</span><span>${pct}%</span>
+                </div>
+                <div style="background:#e0e0e0;border-radius:8px;height:8px;overflow:hidden;">
+                    <div style="background:linear-gradient(90deg,#66bb6a,#81c784);height:100%;width:${pct}%;border-radius:8px;transition:width 0.4s;"></div>
+                </div>`;
+
+            if (todayTasks.length === 0) {
                 taskList.innerHTML = '<div class="empty-state">No tasks for today. Add one above! 📝</div>';
+                maybeShowDblClickTooltip();
                 return;
             }
-            
-            tasks[today].forEach((task, index) => {
+
+            todayTasks.forEach((task, index) => {
                 const taskDiv = document.createElement('div');
                 taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
                 taskDiv.draggable = true;
                 taskDiv.dataset.index = index;
-                
+
                 taskDiv.addEventListener('dragstart', handleDragStart);
                 taskDiv.addEventListener('dragover', handleDragOver);
                 taskDiv.addEventListener('drop', handleDrop);
                 taskDiv.addEventListener('dragend', handleDragEnd);
-                
+
+                // Double-click to edit (keep for power users)
+                taskDiv.addEventListener('dblclick', (e) => {
+                    if (!e.target.matches('input,button,select')) editTask(index, false);
+                });
+
                 let assignedTag = '';
                 if (task.assignedTo) {
                     assignedTag = `<span class="task-assigned">@${escapeHtml(task.assignedTo)}</span>`;
                 }
-
                 let projectTag = '';
                 if (task.project) {
-                    const proj = projects.find(p => p.id == task.project);
-                    if (proj) {
-                        projectTag = `<span style="font-size: 11px; background: #e3f2fd; color: #5e8fb5; border-radius: 4px; padding: 2px 6px; margin-left: 4px;">📁 ${escapeHtml(proj.name)}</span>`;
-                    }
+                    const proj = projects.find(p => String(p.id) === String(task.project));
+                    if (proj) projectTag = `<span style="font-size:11px;background:#e3f2fd;color:#5e8fb5;border-radius:4px;padding:2px 6px;margin-left:4px;">📁 ${escapeHtml(proj.name)}</span>`;
                 }
-
                 let rolloverTag = '';
                 if (task.rolledFrom) {
-                    rolloverTag = `<span style="font-size: 11px; color: #bbb; margin-left: 4px;" title="Rolled over from ${escapeHtml(task.rolledFrom)}">↩</span>`;
+                    rolloverTag = `<span style="font-size:11px;color:#bbb;margin-left:4px;" title="Rolled over from ${escapeHtml(task.rolledFrom)}">↩</span>`;
                 }
 
                 taskDiv.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
-                    <div class="task-content" onclick="editTask(${index}, false)" style="cursor: pointer;">
-                        <span class="task-text" style="${task.rolledFrom ? 'color: #aaa;' : ''}">${escapeHtml(task.text)}</span>
-                        <span class="task-time">${formatTime(task.time)}</span>
+                    <div class="task-content" style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <span class="task-text" style="${task.rolledFrom ? 'color:#aaa;' : ''}">${escapeHtml(task.text)}</span>
+                        ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTag}${rolloverTag}
                     </div>
+                    <button class="task-edit-btn" onclick="editTask(${index}, false)" title="Edit task">✏️</button>
                     <button class="task-delete" onclick="deleteTask(${index})">Delete</button>
                 `;
-                
+
                 taskList.appendChild(taskDiv);
             });
+
+            maybeShowDblClickTooltip();
         }
 
-        function addTask() {
-            const input = document.getElementById('taskInput');
-            const timeInput = document.getElementById('taskTime');
+        async function addTask() {
+            const input       = document.getElementById('taskInput');
+            const timeInput   = document.getElementById('taskTime');
             const assignInput = document.getElementById('taskAssign');
-            const projectInput = document.getElementById('taskProject');
+            const projectInput= document.getElementById('taskProject');
             const text = input.value.trim();
+            if (!text) return;
 
-            if (text) {
-                const today = formatDate(new Date());
-                if (!tasks[today]) {
-                    tasks[today] = [];
-                }
+            const today = formatDate(new Date());
+            if (!tasks[today]) tasks[today] = [];
 
-                tasks[today].push({
-                    text: text,
-                    time: timeInput.value || '',
-                    completed: false,
-                    assignedTo: assignInput.value || '',
-                    project: projectInput ? projectInput.value || '' : '',
-                    id: Date.now(),
-                    createdBy: currentUser,
-                    createdAt: new Date().toISOString()
-                });
+            const task = {
+                text,
+                time:       timeInput.value || '',
+                completed:  false,
+                assignedTo: assignInput.value || '',
+                project:    projectInput ? projectInput.value || '' : '',
+                id:         Date.now(),
+                createdBy:  currentUser,
+                createdAt:  new Date().toISOString()
+            };
+            tasks[today].push(task);
 
-                renderTodayTasks();
-                saveUserData();
-                syncData();
+            renderTodayTasks();
+            saveUserData();
+            syncData();
 
-                input.value = '';
-                timeInput.value = '';
-                assignInput.value = '';
-                if (projectInput) projectInput.value = '';
+            if (bsIsConfigured()) {
+                bsSyncTask(task, today).catch(e => showApiError('Could not sync task: ' + e.message));
             }
+
+            input.value = '';
+            timeInput.value = '';
+            assignInput.value = '';
+            if (projectInput) projectInput.value = '';
         }
 
-        function toggleTask(index) {
+        async function toggleTask(index) {
             const today = formatDate(new Date());
             const task = tasks[today][index];
             const wasCompleted = task.completed;
             task.completed = !task.completed;
-            
-            // Only count points if task hasn't been completed before
-            if (!wasCompleted && task.completed) {
-                // First time completing - check if this task was ever completed before
-                if (!task.hasBeenCompleted) {
-                    task.hasBeenCompleted = true;
-                    completedTasksCount++;
-                    checkHugReward();
-                }
+
+            if (!wasCompleted && task.completed && !task.hasBeenCompleted) {
+                task.hasBeenCompleted = true;
+                completedTasksCount++;
+                checkHugReward();
             }
-            
+
             renderTodayTasks();
             saveUserData();
             syncData();
+            if (bsIsConfigured()) bsSyncTask(task, today).catch(console.error);
             if (currentView === 'projects' && currentProjectId) showProjectTasks(currentProjectId);
         }
 
-        function deleteTask(index) {
+        async function deleteTask(index) {
             const today = formatDate(new Date());
             const task = tasks[today][index];
-            
-            // Only deduct points if this task was completed and counted
-            if (task.completed && task.hasBeenCompleted) {
-                completedTasksCount--;
-            }
-            
+            if (task.completed && task.hasBeenCompleted) completedTasksCount--;
             tasks[today].splice(index, 1);
             renderTodayTasks();
             saveUserData();
             syncData();
+            if (bsIsConfigured()) bsRemoveTask(task).catch(console.error);
         }
 
         function editTask(index, isEditDay) {
             const dateStr = isEditDay ? currentEditDay : formatDate(new Date());
             const task = tasks[dateStr][index];
-            
+
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const currentAccount = accounts[currentUser.split('::')[0]];
+            const currentAccount = accounts[(currentUser || '').split('::')[0]];
             let memberOptions = '<option value="">No one</option>';
-            
-            if (currentAccount && currentAccount.type === 'group') {
-                if (currentAccount.members) {
-                    currentAccount.members.forEach(member => {
-                        const selected = task.assignedTo === member ? 'selected' : '';
-                        memberOptions += `<option value="${member}" ${selected}>${member}</option>`;
-                    });
-                }
-                if (currentAccount.subAccounts) {
-                    currentAccount.subAccounts.forEach(sub => {
-                        const selected = task.assignedTo === sub.username ? 'selected' : '';
-                        memberOptions += `<option value="${sub.username}" ${selected}>${sub.displayName || sub.username}</option>`;
-                    });
-                }
+            if (currentAccount?.type === 'group') {
+                (currentAccount.members || []).forEach(member => {
+                    memberOptions += `<option value="${member}" ${task.assignedTo===member?'selected':''}>${member}</option>`;
+                });
+                (currentAccount.subAccounts || []).forEach(sub => {
+                    memberOptions += `<option value="${sub.username}" ${task.assignedTo===sub.username?'selected':''}>${sub.displayName||sub.username}</option>`;
+                });
             }
-            
-            const modalHTML = `
+
+            let projectOptions = '<option value="">No project</option>';
+            projects.forEach(p => {
+                projectOptions += `<option value="${p.id}" ${String(task.project)===String(p.id)?'selected':''}>${escapeHtml(p.name)}</option>`;
+            });
+
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'editTaskModal';
+            modalDiv.innerHTML = `
                 <div class="alert-overlay" onclick="closeEditTaskModal()"></div>
-                <div class="custom-alert" onclick="event.stopPropagation()">
+                <div class="custom-alert" onclick="event.stopPropagation()" style="max-width:440px;">
                     <h3>Edit Task</h3>
-                    <div style="text-align: left; margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Task</label>
-                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input" style="margin: 0 0 15px 0;" />
-                        
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Time</label>
-                        <input type="time" id="editTaskTime" value="${task.time}" class="login-input" style="margin: 0 0 15px 0;" />
-                        
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Assigned To</label>
-                        <select id="editTaskAssigned" class="login-input" style="margin: 0;">
+                    <div style="text-align:left;margin-bottom:20px;">
+                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Task</label>
+                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input"
+                            style="margin:0 0 4px 0;"
+                            oninput="showPeacefulSuggestion('editTaskText','editTaskSuggestion')" />
+                        <div id="editTaskSuggestion" style="display:none;background:#e8f5e9;border-radius:6px;
+                            padding:6px 10px;font-size:12px;color:#2e7d32;margin-bottom:10px;"></div>
+
+                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Time</label>
+                        <div style="display:flex;gap:8px;align-items:center;margin-bottom:15px;">
+                            <input type="text" id="editTaskTimeDisplay" readonly class="login-input" style="margin:0;flex:1;cursor:pointer;"
+                                placeholder="No time" value="${task.time ? formatTime(task.time) : ''}"
+                                onclick="showTimePicker(document.getElementById('editTaskTimeHidden').value, v=>{document.getElementById('editTaskTimeHidden').value=v;document.getElementById('editTaskTimeDisplay').value=formatTime(v);})" />
+                            <input type="hidden" id="editTaskTimeHidden" value="${task.time||''}" />
+                            <button type="button" onclick="document.getElementById('editTaskTimeHidden').value='';document.getElementById('editTaskTimeDisplay').value='';"
+                                style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;">Clear</button>
+                        </div>
+
+                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Project</label>
+                        <select id="editTaskProject" class="login-input" style="margin:0 0 15px 0;">
+                            ${projectOptions}
+                        </select>
+
+                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Assigned To</label>
+                        <select id="editTaskAssigned" class="login-input" style="margin:0;">
                             ${memberOptions}
                         </select>
                     </div>
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button class="login-btn" onclick="saveEditTask(${index}, ${isEditDay})" style="margin: 0;">Save</button>
-                        <button class="login-btn back-btn" onclick="closeEditTaskModal()" style="margin: 0;">Cancel</button>
+                    <div style="display:flex;gap:10px;justify-content:center;">
+                        <button class="login-btn" onclick="saveEditTask(${index}, ${isEditDay})" style="margin:0;">Save</button>
+                        <button class="login-btn back-btn" onclick="closeEditTaskModal()" style="margin:0;">Cancel</button>
                     </div>
-                </div>
-            `;
-            
-            const modalDiv = document.createElement('div');
-            modalDiv.id = 'editTaskModal';
-            modalDiv.innerHTML = modalHTML;
+                </div>`;
             document.body.appendChild(modalDiv);
         }
         
-        function saveEditTask(index, isEditDay) {
+        async function saveEditTask(index, isEditDay) {
             const dateStr = isEditDay ? currentEditDay : formatDate(new Date());
             const task = tasks[dateStr][index];
-            
-            task.text = document.getElementById('editTaskText').value;
-            task.time = document.getElementById('editTaskTime').value;
+
+            task.text       = document.getElementById('editTaskText').value;
+            task.time       = document.getElementById('editTaskTimeHidden').value;
             task.assignedTo = document.getElementById('editTaskAssigned').value;
-            
+            task.project    = document.getElementById('editTaskProject')?.value || task.project;
+
             saveUserData();
             syncData();
-            
-            if (isEditDay) {
-                renderEditDayTasks();
-            } else {
-                renderTodayTasks();
+
+            if (bsIsConfigured()) {
+                bsSyncTask(task, dateStr).catch(e => showApiError('Sync error: ' + e.message));
             }
-            
+
+            if (isEditDay) renderEditDayTasks();
+            else           renderTodayTasks();
             closeEditTaskModal();
         }
         
@@ -334,31 +444,49 @@
         function renderDays() {
             const grid = document.getElementById('daysGrid');
             grid.innerHTML = '';
-            
+
+            // On small screens show ±2 days around today (5 total: -2,-1,0,+1,+2)
+            // On larger screens show next 90 days
+            const isSmall = window.matchMedia('(max-width:600px)').matches;
             const today = new Date();
-            for (let i = 1; i < 91; i++) {
-                const date = new Date(today);
-                date.setDate(today.getDate() + i);
-                const dateStr = formatDate(date);
-                
-                const dayTasks = tasks[dateStr] || [];
-                const taskCount = dayTasks.length;
-                const completedCount = dayTasks.filter(t => t.completed).length;
-                
+
+            const entries = [];
+            if (isSmall) {
+                for (let i = -2; i <= 2; i++) {
+                    const d = new Date(today);
+                    d.setDate(today.getDate() + i);
+                    entries.push({ offset: i, date: d });
+                }
+            } else {
+                for (let i = 1; i < 91; i++) {
+                    const d = new Date(today);
+                    d.setDate(today.getDate() + i);
+                    entries.push({ offset: i, date: d });
+                }
+            }
+
+            entries.forEach(({ offset, date }) => {
+                const dateStr    = formatDate(date);
+                const dayTasks   = tasks[dateStr] || [];
+                const taskCount  = dayTasks.length;
+                const doneCount  = dayTasks.filter(t => t.completed).length;
+                const isToday    = offset === 0;
+                const isTomorrow = offset === 1;
+
                 const card = document.createElement('div');
-                card.className = 'day-card';
+                card.className = 'day-card' + (isToday ? ' day-card-today' : '');
                 card.onclick = () => openEditDay(dateStr);
-                
-                const dayName = i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'long' });
-                
+
+                const dayName = isToday ? 'Today' : isTomorrow ? 'Tomorrow'
+                    : date.toLocaleDateString('en-US', { weekday: 'long' });
+
                 card.innerHTML = `
                     <div class="day-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                     <div class="day-name">${dayName}</div>
-                    <div class="task-count">${taskCount} task${taskCount !== 1 ? 's' : ''} (${completedCount} done)</div>
+                    <div class="task-count">${taskCount} task${taskCount !== 1 ? 's' : ''} (${doneCount} done)</div>
                 `;
-                
                 grid.appendChild(card);
-            }
+            });
         }
 
         // Edit Day Modal
@@ -422,14 +550,20 @@
                     assignedTag = `<span class="task-assigned">@${escapeHtml(task.assignedTo)}</span>`;
                 }
 
+                let projectTagED = '';
+                if (task.project) {
+                    const proj = projects.find(p => String(p.id) === String(task.project));
+                    if (proj) projectTagED = `<span style="font-size:11px;background:#e3f2fd;color:#5e8fb5;border-radius:4px;padding:2px 6px;margin-left:4px;">📁 ${escapeHtml(proj.name)}</span>`;
+                }
                 taskDiv.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
-                    <div class="task-content" onclick="editTask(${index}, true)" style="cursor: pointer;">
+                    <div class="task-content" style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                         <span class="task-text">${escapeHtml(task.text)}</span>
-                        <span class="task-time">${formatTime(task.time)}</span>
-                        ${assignedTag}
+                        ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
+                        ${assignedTag}${projectTagED}
                     </div>
+                    <button class="task-edit-btn" onclick="editTask(${index}, true)" title="Edit task">✏️</button>
                     <button class="task-delete" onclick="deleteEditDayTask(${index})">Delete</button>
                 `;
                 
@@ -437,35 +571,34 @@
             });
         }
 
-        function addTaskToEditDay() {
-            const input = document.getElementById('editDayTaskInput');
-            const timeInput = document.getElementById('editDayTaskTime');
+        async function addTaskToEditDay() {
+            const input       = document.getElementById('editDayTaskInput');
+            const timeInput   = document.getElementById('editDayTaskTime');
             const assignInput = document.getElementById('editDayTaskAssign');
+            const projectInput= document.getElementById('editDayTaskProject');
             const text = input.value.trim();
-            
-            if (text) {
-                if (!tasks[currentEditDay]) {
-                    tasks[currentEditDay] = [];
-                }
-                
-                tasks[currentEditDay].push({
-                    text: text,
-                    time: timeInput.value || '',
-                    completed: false,
-                    assignedTo: assignInput.value || '',
-                    id: Date.now(),
-                    createdBy: currentUser,
-                    createdAt: new Date().toISOString()
-                });
-                
-                renderEditDayTasks();
-                saveUserData();
-                syncData();
-                
-                input.value = '';
-                timeInput.value = '';
-                assignInput.value = '';
-            }
+            if (!text) return;
+
+            if (!tasks[currentEditDay]) tasks[currentEditDay] = [];
+            const task = {
+                text,
+                time:       timeInput.value || '',
+                completed:  false,
+                assignedTo: assignInput.value || '',
+                project:    projectInput ? projectInput.value || '' : '',
+                id:         Date.now(),
+                createdBy:  currentUser,
+                createdAt:  new Date().toISOString()
+            };
+            tasks[currentEditDay].push(task);
+            renderEditDayTasks();
+            saveUserData();
+            syncData();
+            if (bsIsConfigured()) bsSyncTask(task, currentEditDay).catch(console.error);
+            input.value = '';
+            timeInput.value = '';
+            assignInput.value = '';
+            if (projectInput) projectInput.value = '';
         }
 
         function toggleEditDayTask(index) {
