@@ -33,6 +33,146 @@
         <button onclick="dismissUpdate()">Got it!</button>
     </div>
 
+    <!-- Welcome Landing Page -->
+    <div id="landingPage" class="container">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+            <!-- Hero Section -->
+            <section style="text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%); border-radius: 12px; margin-bottom: 60px;">
+                <h1 style="font-size: 42px; color: #333; margin: 0 0 10px 0; font-weight: 700;">Welcome to Peaceful Tasks</h1>
+                <p style="font-size: 18px; color: #666; margin: 0 0 30px 0;">Where productivity meets peace</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="login-btn" onclick="showSignIn()" style="padding: 15px 40px; font-size: 16px; background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);">Sign In</button>
+                    <button class="login-btn" onclick="showCreateAccount()" style="padding: 15px 40px; font-size: 16px;">Sign Up</button>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section style="margin-bottom: 60px;">
+                <h2 style="font-size: 28px; color: #333; text-align: center; margin-bottom: 40px;">What you get</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <!-- Feature 1: Security -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;">🔐</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Security</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">End-to-end encryption on everything. Your data is encrypted before it ever leaves your device.</p>
+                    </div>
+                    <!-- Feature 2: Organization -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;">📁</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Organization</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Projects and movable tasks so you decide exactly where everything lives on your list.</p>
+                    </div>
+                    <!-- Feature 3: Collaboration -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;">👥</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Collaboration</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Group and family accounts built in. Everyone stays in sync.</p>
+                    </div>
+                    <!-- Feature 4: More Features -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;">⭐</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">More features</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">A full points and rewards system, plus alarms, timers, and a stopwatch built right in.</p>
+                    </div>
+                    <!-- Feature 5: Built for Calm -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;">🌸</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Built for calm</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Every detail is designed to reduce stress, not add to it. From peaceful name suggestions to a gentle, focused interface.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Get the App Section -->
+            <section style="background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 40px; margin-bottom: 60px;">
+                <h2 style="font-size: 28px; color: #333; margin-top: 0; margin-bottom: 20px;">Get the App</h2>
+                <p style="color: #666; margin: 0 0 24px 0; font-size: 14px; line-height: 1.6;">We don't offer App Store access, but you can install Peaceful Tasks directly from here. Once installed, it works offline and launches from your home screen like a native app. On Android you may see a prompt to allow installation from unknown sources — just follow the popup that appears and you'll be all set.</p>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">Select your device:</label>
+                    <select id="osSelector" class="login-input" style="margin: 0; max-width: 300px;" onchange="updateInstallInstructions(this.value)">
+                        <option value="">Choose your device...</option>
+                        <option value="android">Android</option>
+                        <option value="ios">iOS</option>
+                        <option value="mac">macOS</option>
+                        <option value="windows">Windows</option>
+                        <option value="linux">Linux</option>
+                    </select>
+                </div>
+
+                <div id="installInstructions" style="background: #f5f5f5; border-radius: 8px; padding: 20px; display: none;">
+                    <!-- Android Instructions -->
+                    <div id="androidInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on Android</h3>
+                        <p style="color: #666; margin: 12px 0;">Chrome or Firefox will show an install prompt. Just tap <strong>"Install"</strong> when you see it.</p>
+                        <p style="color: #666; margin: 12px 0;">If you don't see a prompt, or it's already installed:</p>
+                        <ol style="color: #666; padding-left: 20px; margin: 12px 0;">
+                            <li>Tap the menu (three dots) in your browser</li>
+                            <li>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
+                        </ol>
+                        <button class="login-btn" onclick="triggerInstallPrompt()" style="margin-top: 12px; padding: 12px 24px;">Install Peaceful Tasks</button>
+                    </div>
+                    <!-- iOS Instructions -->
+                    <div id="iosInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on iOS</h3>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Open this page in <strong>Safari</strong></li>
+                            <li>Tap the <strong>Share</strong> button (box with arrow)</li>
+                            <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                            <li>Confirm with <strong>"Add"</strong></li>
+                        </ol>
+                        <p style="color: #999; margin-top: 16px; font-size: 13px;">Peaceful Tasks will now appear on your home screen like a regular app!</p>
+                    </div>
+                    <!-- macOS Instructions -->
+                    <div id="macosInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on macOS</h3>
+                        <p style="color: #666; margin: 12px 0;">Use <strong>Chrome</strong>, <strong>Edge</strong>, or <strong>Brave</strong> for best results:</p>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Look for the <strong>install icon</strong> in the address bar (right side)</li>
+                            <li>Click it and confirm</li>
+                        </ol>
+                        <p style="color: #666; margin: 12px 0;">Or save locally:</p>
+                        <a href="index.html" style="display: inline-block; background: #64b5f6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 8px;">Download index.html</a>
+                    </div>
+                    <!-- Windows Instructions -->
+                    <div id="windowsInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on Windows</h3>
+                        <p style="color: #666; margin: 12px 0;">Use <strong>Chrome</strong>, <strong>Edge</strong>, or <strong>Brave</strong>:</p>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Look for the <strong>install icon</strong> in the address bar (right side)</li>
+                            <li>Click it and confirm</li>
+                        </ol>
+                        <p style="color: #666; margin: 12px 0;">Or save locally:</p>
+                        <a href="index.html" style="display: inline-block; background: #64b5f6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 8px;">Download index.html</a>
+                    </div>
+                    <!-- Linux Instructions -->
+                    <div id="linuxInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on Linux</h3>
+                        <p style="color: #666; margin: 12px 0;">Use <strong>Chrome</strong>, <strong>Chromium</strong>, or <strong>Brave</strong>:</p>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Look for the <strong>install icon</strong> in the address bar (right side)</li>
+                            <li>Click it and confirm</li>
+                        </ol>
+                        <p style="color: #666; margin: 12px 0;">Or save locally:</p>
+                        <a href="index.html" style="display: inline-block; background: #64b5f6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 8px;">Download index.html</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="text-align: center; padding: 20px; border-top: 1px solid #eee;">
+                <div style="margin-bottom: 16px;">
+                    <a href="#" onclick="showLegalModal('terms'); return false;" style="color: #5e8fb5; text-decoration: none; margin: 0 8px; font-size: 13px;">Terms</a>
+                    <span style="color: #ddd;">·</span>
+                    <a href="#" onclick="showLegalModal('privacy'); return false;" style="color: #5e8fb5; text-decoration: none; margin: 0 8px; font-size: 13px;">Privacy</a>
+                    <span style="color: #ddd;">·</span>
+                    <a href="#" onclick="showLegalModal('security'); return false;" style="color: #5e8fb5; text-decoration: none; margin: 0 8px; font-size: 13px;">Security</a>
+                </div>
+                <p style="color: #999; font-size: 12px; margin: 0;">Peaceful Tasks • Built with 🌸 for calm productivity</p>
+            </footer>
+        </div>
+    </div>
+
     <!-- Initial Choice Screen -->
     <div id="initialChoice" class="container">
         <div class="login-screen">

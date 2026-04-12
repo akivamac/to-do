@@ -46,6 +46,107 @@
             installApp();
         }
 
+        // ── Landing Page Functions ────────────────────────────────
+        function showLandingPage() {
+            document.getElementById('landingPage').classList.remove('hidden');
+            document.getElementById('initialChoice').classList.add('hidden');
+            // Auto-detect OS
+            detectAndSelectOS();
+        }
+
+        function hideLandingPage() {
+            document.getElementById('landingPage').classList.add('hidden');
+        }
+
+        function detectAndSelectOS() {
+            const ua = navigator.userAgent;
+            const selector = document.getElementById('osSelector');
+            if (!selector) return;
+
+            let os = '';
+            if (/android/i.test(ua)) os = 'android';
+            else if (/iphone|ipad|ipod/i.test(ua)) os = 'ios';
+            else if (/macintosh|mac os x/i.test(ua)) os = 'mac';
+            else if (/windows|win32/i.test(ua)) os = 'windows';
+            else if (/linux/i.test(ua)) os = 'linux';
+
+            if (os) {
+                selector.value = os;
+                updateInstallInstructions(os);
+            }
+        }
+
+        function updateInstallInstructions(os) {
+            const instructionsDiv = document.getElementById('installInstructions');
+            if (!instructionsDiv) return;
+
+            // Hide all instructions
+            const allInstructions = [
+                'androidInstructions', 'iosInstructions', 'macosInstructions',
+                'windowsInstructions', 'linuxInstructions'
+            ];
+            allInstructions.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
+            // Show selected
+            if (os) {
+                const el = document.getElementById(os + 'Instructions');
+                if (el) el.style.display = 'block';
+                instructionsDiv.style.display = 'block';
+            } else {
+                instructionsDiv.style.display = 'none';
+            }
+        }
+
+        function triggerInstallPrompt() {
+            if (!deferredPrompt) {
+                showCustomAlert('Installation not available on this device/browser. Try Chrome on Android, Safari on iOS, or Edge on Windows.');
+                return;
+            }
+            installApp();
+        }
+
+        function showLegalModal(type) {
+            const titles = {
+                'terms': 'Terms of Service',
+                'privacy': 'Privacy Policy',
+                'security': 'Security Policy'
+            };
+            const title = titles[type] || 'Document';
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'legalModal';
+            modalDiv.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('legalModal').remove()"></div>
+                <div class="custom-alert" style="max-width: 500px; max-height: 70vh; overflow-y: auto;">
+                    <h3 style="margin-top: 0; color: #5e8fb5;">${title}</h3>
+                    <p style="color: #666; line-height: 1.6; margin: 0 0 20px 0;">
+                        This document is coming soon. Check back later for the full ${title}.
+                    </p>
+                    <div style="text-align: center;">
+                        <button class="login-btn" onclick="document.getElementById('legalModal').remove()" style="margin: 0;">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalDiv);
+        }
+
+        // ── Check if landing page should be shown ────────────────────────────────
+        function checkShowLandingPage() {
+            const isLoggedIn = localStorage.getItem('currentUser');
+            const landingPage = document.getElementById('landingPage');
+            const initialChoice = document.getElementById('initialChoice');
+
+            if (!isLoggedIn && landingPage && initialChoice) {
+                landingPage.classList.remove('hidden');
+                initialChoice.classList.add('hidden');
+                detectAndSelectOS();
+            } else if (isLoggedIn && landingPage) {
+                landingPage.classList.add('hidden');
+            }
+        }
+
         // Utilities (defined early — used by all modules)
         function escapeHtml(str) {
             const div = document.createElement('div');
@@ -106,7 +207,7 @@
                     showScreen('mainApp');
                 }
             } else {
-                showScreen('initialChoice');
+                showScreen('landingPage');
             }
         }
 
@@ -114,7 +215,7 @@
         function showScreen(screenId) {
             // Hide all screens
             const screens = [
-                'initialChoice', 'passcodeGate', 'accountTypeSelection',
+                'landingPage', 'initialChoice', 'passcodeGate', 'accountTypeSelection',
                 'createPersonalAccount', 'loginPersonalAccount', 'groupSetup',
                 'createGroupAdmin', 'groupJoin', 'showGroupCredentials',
                 'welcomeScreen', 'mainApp'
