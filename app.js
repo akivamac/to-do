@@ -112,26 +112,66 @@
         }
 
         function showLegalModal(type) {
-            const titles = {
-                'terms': 'Terms of Service',
-                'privacy': 'Privacy Policy',
-                'security': 'Security Policy'
+            const content = {
+                terms: {
+                    title: 'Terms of Service',
+                    body: `<p>Last updated: April 2026</p>
+<p>By using Peaceful Tasks, you agree to these terms.</p>
+<h4>Use of the App</h4>
+<p>Peaceful Tasks is provided for personal and family productivity use. You may not use it for unlawful purposes or attempt to reverse-engineer, exploit, or disrupt the service.</p>
+<h4>Your Account</h4>
+<p>You are responsible for keeping your password safe. We recommend using a password manager with a strong generated password. We cannot recover lost passwords.</p>
+<h4>Data</h4>
+<p>Your task, note, and project data is encrypted end-to-end before leaving your device. We cannot read your data. See our Security policy for details.</p>
+<h4>Availability</h4>
+<p>We aim to keep Peaceful Tasks running smoothly but cannot guarantee uninterrupted access. The app may be updated or changed at any time.</p>
+<h4>Contact</h4>
+<p>For questions, use the Feature Request form inside the app.</p>`
+                },
+                privacy: {
+                    title: 'Privacy Policy',
+                    body: `<p>Last updated: April 2026</p>
+<p>We take your privacy seriously. Here is what we collect and why.</p>
+<h4>What We Collect</h4>
+<p>We store your username and a hashed (not readable) version of your password. Your tasks, notes, and projects are stored encrypted — we cannot read them.</p>
+<h4>What We Don't Collect</h4>
+<p>We do not collect your real name, email address, phone number, location, or any payment information at this time. We do not run ads and do not sell data.</p>
+<h4>Reviews and Feature Requests</h4>
+<p>If you submit a review or feature request, that content is stored unencrypted so the development team can read it. Do not include personal information in reviews or requests.</p>
+<h4>Third Parties</h4>
+<p>Data is stored via Backside (backside.app), our backend provider. Their privacy practices apply to infrastructure-level storage. Your content remains encrypted at the application layer.</p>
+<h4>Changes</h4>
+<p>We may update this policy. Continued use of the app means you accept the updated policy.</p>`
+                },
+                security: {
+                    title: 'Security',
+                    body: `<p>Last updated: April 2026</p>
+<p>Peaceful Tasks is built with security as a core feature, not an afterthought.</p>
+<h4>End-to-End Encryption</h4>
+<p>All task titles, descriptions, note titles, and note content are encrypted on your device using AES-256-GCM before being sent to our servers. Your encryption key is derived from your password using PBKDF2 with 200,000 iterations. We never see your key or your unencrypted data.</p>
+<h4>Password Storage</h4>
+<p>Your password is never stored anywhere. Only a SHA-256 hash is stored for login verification. We strongly recommend using a password manager with a long randomly generated password.</p>
+<h4>Transport Security</h4>
+<p>All data in transit is protected by TLS 1.3.</p>
+<h4>What This Means</h4>
+<p>Even if our servers were compromised, your tasks and notes would remain unreadable to anyone without your password. This also means we cannot recover your data if you lose your password.</p>
+<h4>Reporting Issues</h4>
+<p>If you discover a security issue, please submit it via the Feature Request form in the app marked clearly as a security report.</p>`
+                }
             };
-            const title = titles[type] || 'Document';
+
+            const { title, body } = content[type] || { title: 'Document', body: '<p>Coming soon.</p>' };
             const modalDiv = document.createElement('div');
             modalDiv.id = 'legalModal';
             modalDiv.innerHTML = `
                 <div class="alert-overlay" onclick="document.getElementById('legalModal').remove()"></div>
-                <div class="custom-alert" style="max-width: 500px; max-height: 70vh; overflow-y: auto;">
-                    <h3 style="margin-top: 0; color: #5e8fb5;">${title}</h3>
-                    <p style="color: #666; line-height: 1.6; margin: 0 0 20px 0;">
-                        This document is coming soon. Check back later for the full ${title}.
-                    </p>
-                    <div style="text-align: center;">
-                        <button class="login-btn" onclick="document.getElementById('legalModal').remove()" style="margin: 0;">Close</button>
+                <div class="custom-alert" style="max-width:520px;max-height:75vh;overflow-y:auto;text-align:left;">
+                    <h3 style="margin-top:0;color:#5e8fb5;">${title}</h3>
+                    <div style="color:#555;line-height:1.7;font-size:14px;">${body}</div>
+                    <div style="text-align:center;margin-top:20px;">
+                        <button class="login-btn" onclick="document.getElementById('legalModal').remove()" style="margin:0;">Close</button>
                     </div>
-                </div>
-            `;
+                </div>`;
             document.body.appendChild(modalDiv);
         }
 
