@@ -269,6 +269,7 @@
                 } else {
                     showScreen('landingPage');
                 }
+                sessionStorage.removeItem('routerPath');
             }
         }
 

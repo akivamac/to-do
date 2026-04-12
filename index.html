@@ -961,10 +961,6 @@
             // Get stored path from 404.html redirect, or use current pathname
             let routePath = pendingRouterPath || window.location.pathname;
 
-            // Clear sessionStorage after storing in global variable
-            if (pendingRouterPath) {
-                sessionStorage.removeItem('routerPath');
-            }
 
             // Always handle routing (prevents blank page)
             try {
