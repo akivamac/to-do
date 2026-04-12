@@ -311,34 +311,52 @@
                             <button onclick="deleteCurrentNote()" style="background: #ffebee; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #e53935;">Delete</button>
                         </div>
                         <div class="note-toolbar">
-                            <button onclick="noteFormat('bold')" title="Bold" class="tb-btn"><strong>B</strong></button>
-                            <button onclick="noteFormat('italic')" title="Italic" class="tb-btn"><em>I</em></button>
-                            <button onclick="noteFormat('strikeThrough')" title="Strikethrough" class="tb-btn"><s>S</s></button>
-                            <button onclick="noteFormat('underline')" title="Underline" class="tb-btn"><u>U</u></button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="noteFormatBlock('h1')" title="Heading 1" class="tb-btn">H1</button>
-                            <button onclick="noteFormatBlock('h2')" title="Heading 2" class="tb-btn">H2</button>
-                            <button onclick="noteFormatBlock('h3')" title="Heading 3" class="tb-btn">H3</button>
-                            <button onclick="noteFormatBlock('p')" title="Normal text" class="tb-btn">P</button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="noteFormat('insertUnorderedList')" title="Bullet list" class="tb-btn">• List</button>
-                            <button onclick="noteFormat('insertOrderedList')" title="Numbered list" class="tb-btn">1. List</button>
-                            <button onclick="noteInsertAlphaList()" title="Alphabetical list" class="tb-btn">a. List</button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="noteInsertLink()" title="Insert link" class="tb-btn">🔗</button>
-                            <button onclick="noteInsertHR()" title="Horizontal rule" class="tb-btn">—</button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="noteAlign('left')" title="Align left" class="tb-btn">⬅</button>
-                            <button onclick="noteAlign('center')" title="Center" class="tb-btn">⬛</button>
-                            <button onclick="noteAlign('right')" title="Align right" class="tb-btn">➡</button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="noteSetFontSize('small')" title="Small text" class="tb-btn" style="font-size:10px;">A</button>
-                            <button onclick="noteSetFontSize('medium')" title="Normal text" class="tb-btn">A</button>
-                            <button onclick="noteSetFontSize('large')" title="Large text" class="tb-btn" style="font-size:18px;">A</button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="noteInsertTable()" title="Insert table" class="tb-btn">⊞ Table</button>
-                            <span class="tb-sep">|</span>
-                            <button onclick="toggleNotePreview()" title="Toggle preview" class="tb-btn" id="previewToggleBtn">👁 Preview</button>
+                            <!-- Text Style Group -->
+                            <button onclick="noteFormat('bold')" title="Bold (Ctrl+B)" class="tb-btn tb-full-label"><strong>Bold</strong></button>
+                            <button onclick="noteFormat('italic')" title="Italic (Ctrl+I)" class="tb-btn tb-full-label"><em>Italic</em></button>
+                            <button onclick="noteFormat('strikeThrough')" title="Strikethrough" class="tb-btn tb-full-label"><s>Strike</s></button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Headings Group (Dropdown) -->
+                            <select id="headingSelector" class="tb-dropdown" onchange="noteFormatHeading(this.value); this.value='';" title="Heading styles">
+                                <option value="">Paragraph</option>
+                                <option value="h1">Title (H1)</option>
+                                <option value="h2">Heading 1 (H2)</option>
+                                <option value="h3">Heading 2 (H3)</option>
+                                <option value="h4">Heading 3 (H4)</option>
+                            </select>
+                            <span class="tb-divider"></span>
+
+                            <!-- Font Size Group (Dropdown) -->
+                            <select id="fontSizeSelector" class="tb-dropdown" onchange="noteSetFontSize(this.value); this.value='';" title="Font size">
+                                <option value="">Normal Size</option>
+                                <option value="small">Small</option>
+                                <option value="medium">Normal</option>
+                                <option value="large">Large</option>
+                                <option value="huge">Huge</option>
+                            </select>
+                            <span class="tb-divider"></span>
+
+                            <!-- Alignment Group -->
+                            <button onclick="noteAlign('left')" title="Align left" class="tb-btn">⬅ Left</button>
+                            <button onclick="noteAlign('center')" title="Align center" class="tb-btn">⬛ Center</button>
+                            <button onclick="noteAlign('right')" title="Align right" class="tb-btn">➡ Right</button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Lists Group -->
+                            <button onclick="noteFormat('insertUnorderedList')" title="Bullet List" class="tb-btn tb-full-label">• Bullet List</button>
+                            <button onclick="noteFormat('insertOrderedList')" title="Numbered List" class="tb-btn tb-full-label">1. Numbered List</button>
+                            <button onclick="noteInsertAlphaList()" title="Alphabetical List" class="tb-btn tb-full-label">a. Alpha List</button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Insert Group -->
+                            <button onclick="noteInsertLink()" title="Insert Link" class="tb-btn tb-full-label">🔗 Link</button>
+                            <button onclick="noteInsertTable()" title="Insert Table" class="tb-btn tb-full-label">⊞ Table</button>
+                            <button onclick="noteInsertHR()" title="Horizontal Divider" class="tb-btn tb-full-label">— Divider</button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Preview Toggle -->
+                            <button onclick="toggleNotePreview()" title="Toggle preview" class="tb-btn tb-full-label" id="previewToggleBtn">👁 Preview</button>
                         </div>
                         <div style="display:flex;gap:12px;min-height:300px;">
                             <div id="noteEditor" contenteditable="true" oninput="saveCurrentNote()"

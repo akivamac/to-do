@@ -158,6 +158,11 @@
             saveCurrentNote();
         }
 
+        function noteFormatHeading(tag) {
+            if (!tag) return;
+            noteFormatBlock(tag);
+        }
+
         function noteInsertLink() {
             const url = prompt('Enter URL:');
             if (!url) return;
