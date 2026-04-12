@@ -422,8 +422,12 @@
 
                 <div class="add-task">
                     <div class="add-task-inputs">
-                        <input type="text" id="taskInput" placeholder="Add a new task..."
-                            oninput="showPeacefulSuggestion('taskInput','taskSuggestion')" />
+                        <div style="display: flex; gap: 8px; align-items: center; flex: 1;">
+                            <input type="text" id="taskInput" placeholder="Add a new task..."
+                                oninput="showPeacefulSuggestion('taskInput','taskSuggestion')" style="flex: 1;" />
+                            <button id="voiceMicButton" onclick="startVoiceInput()" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px; display: none;" title="Voice input">🎤</button>
+                            <div id="voiceListeningIndicator" style="display: none; font-size: 12px; color: #666; animation: pulse 1.5s infinite;">🔴 Listening...</div>
+                        </div>
                         <div id="taskTimeDisplay" class="add-task-time-btn"
                             onclick="showTimePicker(document.getElementById('taskTime').value, v=>{document.getElementById('taskTime').value=v;document.getElementById('taskTimeDisplay').textContent=formatTime(v)||'Set time';})">
                             Set time

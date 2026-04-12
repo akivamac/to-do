@@ -176,6 +176,7 @@
             loadInitialState();
             setupEnterKeyListeners();
             checkForUpdates();
+            initVoiceInput();
         });
 
         async function loadInitialState() {
@@ -1699,6 +1700,137 @@
             currentListId = null;
             document.getElementById('listsDetailView').classList.add('hidden');
             document.getElementById('listsListView').classList.remove('hidden');
+        }
+
+        // ── Voice Input for Tasks ─────────────────────────────────
+
+        let voiceRecognition = null;
+
+        function initVoiceInput() {
+            // Check if Web Speech API is supported (Chromium-based browsers only)
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const micButton = document.getElementById('voiceMicButton');
+
+            if (SpeechRecognition) {
+                voiceRecognition = new SpeechRecognition();
+                voiceRecognition.continuous = false;
+                voiceRecognition.interimResults = false;
+                voiceRecognition.lang = 'en-US';
+
+                voiceRecognition.onstart = () => {
+                    document.getElementById('voiceListeningIndicator').style.display = 'inline';
+                };
+
+                voiceRecognition.onend = () => {
+                    document.getElementById('voiceListeningIndicator').style.display = 'none';
+                };
+
+                voiceRecognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+
+                    const taskInput = document.getElementById('taskInput');
+                    taskInput.value = transcript;
+                    taskInput.focus();
+                    showPeacefulSuggestion('taskInput', 'taskSuggestion');
+                };
+
+                voiceRecognition.onerror = (event) => {
+                    console.error('Voice recognition error:', event.error);
+                    document.getElementById('voiceListeningIndicator').style.display = 'none';
+                };
+
+                // Show mic button on supported browsers
+                if (micButton) {
+                    micButton.style.display = 'block';
+                }
+            } else if (micButton) {
+                // Hide mic button on unsupported browsers
+                micButton.style.display = 'none';
+            }
+        }
+
+        function startVoiceInput() {
+            if (!voiceRecognition) return;
+
+            // Request microphone permission if needed
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({ name: 'microphone' }).catch(() => {
+                    // Fallback: just start recognition
+                    voiceRecognition.start();
+                });
+            } else {
+                voiceRecognition.start();
+            }
+        }
+
+        // ── Real-Time Sync Notifications ──────────────────────────
+
+        async function checkForAssignmentNotifications() {
+            if (!bsIsConfigured()) return;
+
+            const currentContactId = localStorage.getItem('currentContactId');
+            if (!currentContactId) return;
+
+            try {
+                const tasks = await bsFetchTasks();
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const notifiedTasks = JSON.parse(localStorage.getItem('notifiedTaskIds') || '{}');
+                const nowMinus24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+                tasks.forEach(task => {
+                    const isAssignedToMe = task.metadata?.assignedTo === currentContactId;
+                    const createdBy = task.metadata?.created_by || task.metadata?.contactId;
+                    const isNotByMe = createdBy !== currentContactId;
+                    const createdRecently = new Date(task.created_at || task.metadata?.created_at) > nowMinus24h;
+                    const wasNotNotified = !notifiedTasks[task.id];
+
+                    if (isAssignedToMe && isNotByMe && createdRecently && wasNotNotified) {
+                        const assignedByUser = task.metadata?.assigned_by_name || 'Someone';
+                        const taskTitle = task.title || 'Untitled task';
+
+                        // Show toast
+                        showToastNotification(`${assignedByUser} assigned you: ${taskTitle}`);
+
+                        // Try to show browser notification
+                        if ('Notification' in window && Notification.permission === 'granted' && document.hasFocus && document.hasFocus()) {
+                            new Notification('Peaceful Tasks', {
+                                body: `${assignedByUser} assigned you: ${taskTitle}`,
+                                icon: 'icon-192.png'
+                            });
+                        }
+
+                        // Mark as notified
+                        notifiedTasks[task.id] = Date.now();
+                        localStorage.setItem('notifiedTaskIds', JSON.stringify(notifiedTasks));
+                    }
+                });
+            } catch (e) {
+                console.error('Error checking notifications:', e);
+            }
+        }
+
+        function showToastNotification(message) {
+            const toast = document.getElementById('hugToast');
+            if (!toast) return;
+
+            const toastContent = toast.querySelector('.hug-toast-content');
+            if (toastContent) {
+                toastContent.textContent = message;
+            }
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function requestBrowserNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
         }
 
         // ── Error Logging ──────────────────────────────────────────
