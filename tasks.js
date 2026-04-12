@@ -1,26 +1,38 @@
         // Task Management
 
         // ── Peaceful task name suggestions ───────────────────────────
-        // Maps stressful words/phrases → calmer alternatives
+        // Maps stressful words/phrases → calmer alternatives.
+        // Zero external API calls — all suggestions are from this local lookup table.
         const STRESS_REWRITES = {
+            // High-stress words
             'urgent': 'when you can',
             'asap': 'soon',
             'deadline': 'due date',
             'overdue': 'to revisit',
             'must': 'aim to',
             'critical': 'important',
+            'crisis': 'challenge to address',
+            'dire': 'noteworthy',
+            'vital': 'valuable',
+            'crucial': 'important',
+            // Stress-related words
             'stress': 'work on',
             'stressed': 'take time for',
             'panic': 'address',
             'panicking': 'take a breath and',
+            'pressure': 'focus on',
+            // Time pressure
             'emergency': 'priority item',
             'immediately': 'today',
             'right now': 'when ready',
             'hurry': 'handle',
             'rush': 'do',
+            // Emotional states
             'crushing': 'working through',
             'overwhelm': 'manage',
-            'overwhelmed': 'work through'
+            'overwhelmed': 'work through',
+            'forced': 'choose to',
+            'have to': 'can'
         };
 
         function getPeacefulSuggestion(text) {
