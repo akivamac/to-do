@@ -949,6 +949,12 @@
     <script>
         // Router initialization - handle URL routing via 404.html bridge
         function initRouter() {
+            // Ensure DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initRouter);
+                return;
+            }
+
             // Get stored path from 404.html redirect, or use current pathname
             let routePath = sessionStorage.getItem('routerPath');
             if (routePath) {
@@ -958,7 +964,13 @@
             }
 
             // Always handle routing (prevents blank page)
-            handleRouting(routePath);
+            try {
+                handleRouting(routePath);
+            } catch (e) {
+                console.error('Routing error:', e);
+                // Fallback: show landing page
+                showLandingPage();
+            }
 
             // Handle browser back/forward buttons
             window.addEventListener('popstate', () => {

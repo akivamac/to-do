@@ -273,19 +273,26 @@
                 'createGroupAdmin', 'groupJoin', 'showGroupCredentials',
                 'welcomeScreen', 'mainApp'
             ];
-            
+
             screens.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) element.classList.add('hidden');
             });
-            
+
             // Show requested screen
             const element = document.getElementById(screenId);
             if (element) {
                 element.classList.remove('hidden');
                 currentScreen = screenId;
+            } else {
+                console.warn('Screen not found:', screenId);
+                // Fallback: show landing page if requested screen doesn't exist
+                const landingPage = document.getElementById('landingPage');
+                if (landingPage) {
+                    landingPage.classList.remove('hidden');
+                }
             }
-            
+
             // Update UI if showing main app
             if (screenId === 'mainApp') {
                 updateDateDisplay();
