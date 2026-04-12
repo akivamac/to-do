@@ -1566,7 +1566,9 @@
             showCustomConfirm('⚠️ Clear All Data', 'This will clear all cached data, offline storage, and service worker cache. You will need to sign in again.', async () => {
                 try {
                     // Clear localStorage
+                    const savedAccounts = localStorage.getItem('todoAccounts');
                     localStorage.clear();
+                    if (savedAccounts) localStorage.setItem('todoAccounts', savedAccounts);
 
                     // Clear sessionStorage
                     sessionStorage.clear();
