@@ -7,8 +7,39 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Peaceful Tasks">
+
+    <!-- SEO Meta Tags -->
+    <title>Peaceful Tasks - Secure End-to-End Encrypted To-Do App</title>
+    <meta name="description" content="Peaceful Tasks is a secure, end-to-end encrypted to-do app designed for calm productivity. Organize tasks, collaborate with family, earn rewards, and enjoy a peaceful interface.">
+    <meta name="keywords" content="to-do app, task manager, encrypted, secure, productivity, family sharing, end-to-end encryption, peaceful">
+    <meta name="author" content="Akiva Mac">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://akivamac.github.io/to-do/">
+    <meta property="og:title" content="Peaceful Tasks - Secure To-Do App">
+    <meta property="og:description" content="A calm, secure, end-to-end encrypted to-do app where productivity meets peace.">
+    <meta property="og:image" content="https://akivamac.github.io/to-do/icon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Peaceful Tasks - Secure To-Do App">
+    <meta name="twitter:description" content="A calm, secure, end-to-end encrypted to-do app where productivity meets peace.">
+    <meta name="twitter:image" content="https://akivamac.github.io/to-do/icon-512.png">
+
+    <!-- Canonical URL -->
+    <meta property="og:url" content="https://akivamac.github.io/to-do/">
+    <link rel="canonical" href="https://akivamac.github.io/to-do/">
+
+    <!-- Additional Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link rel="manifest" href="manifest.json">
-    <title>My Peaceful Tasks</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -44,6 +75,10 @@
                     <button class="login-btn" onclick="showSignIn()" style="padding: 15px 40px; font-size: 16px; background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);">Sign In</button>
                     <button class="login-btn" onclick="showCreateAccount()" style="padding: 15px 40px; font-size: 16px;">Sign Up</button>
                 </div>
+                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    <p style="color: #856404; margin: 0; font-weight: 600; font-size: 14px;">⚠️ Coming Soon</p>
+                    <p style="color: #856404; margin: 8px 0 0 0; font-size: 13px; line-height: 1.5;">This app may not work or save info properly. You can explore and get to know it, but don't expect it to work perfectly. We hope this will be launched this week! Please check back.</p>
+                </div>
             </section>
 
             <!-- Features Section -->
@@ -52,31 +87,31 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                     <!-- Feature 1: Security -->
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <div style="font-size: 40px; margin-bottom: 12px;">🔐</div>
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Security - End-to-end encryption">🔐</div>
                         <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Security</h3>
                         <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">End-to-end encryption on everything. Your data is encrypted before it ever leaves your device.</p>
                     </div>
                     <!-- Feature 2: Organization -->
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <div style="font-size: 40px; margin-bottom: 12px;">📁</div>
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Organization - Projects and task management">📁</div>
                         <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Organization</h3>
                         <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Projects and movable tasks so you decide exactly where everything lives on your list.</p>
                     </div>
                     <!-- Feature 3: Collaboration -->
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <div style="font-size: 40px; margin-bottom: 12px;">👥</div>
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Collaboration - Family and group sharing">👥</div>
                         <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Collaboration</h3>
                         <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Group and family accounts built in. Everyone stays in sync.</p>
                     </div>
                     <!-- Feature 4: More Features -->
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <div style="font-size: 40px; margin-bottom: 12px;">⭐</div>
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="More Features - Rewards, alarms, timers">⭐</div>
                         <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">More features</h3>
                         <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">A full points and rewards system, plus alarms, timers, and a stopwatch built right in.</p>
                     </div>
                     <!-- Feature 5: Built for Calm -->
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <div style="font-size: 40px; margin-bottom: 12px;">🌸</div>
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Built for Calm - Peaceful design interface">🌸</div>
                         <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Built for calm</h3>
                         <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Every detail is designed to reduce stress, not add to it. From peaceful name suggestions to a gentle, focused interface.</p>
                     </div>
@@ -806,6 +841,35 @@
             <div id="featureRequestsList"></div>
         </div>
     </div>
+
+    <!-- Structured Data (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Peaceful Tasks",
+      "description": "A secure, end-to-end encrypted to-do app designed for calm productivity",
+      "url": "https://akivamac.github.io/to-do/",
+      "applicationCategory": "ProductivityApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "operatingSystem": "Web, Android, iOS",
+      "author": {
+        "@type": "Person",
+        "name": "Akiva Mac"
+      },
+      "image": "https://akivamac.github.io/to-do/icon-512.png",
+      "screenshot": "https://akivamac.github.io/to-do/icon-512.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      }
+    }
+    </script>
 
     <!-- marked.js for Markdown preview in note editor (CDN, no build step) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
