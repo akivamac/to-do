@@ -920,6 +920,31 @@
             background: #e3f2fd;
         }
 
+        /* ── Notes list indentation ──────────────────────────────── */
+        #noteEditor ul,
+        #noteEditor ol {
+            list-style-position: outside;
+            padding-left: 24px;
+            margin: 8px 0;
+        }
+
+        #noteEditor li {
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        #notePreviewPane ul,
+        #notePreviewPane ol {
+            list-style-position: outside;
+            padding-left: 24px;
+            margin: 8px 0;
+        }
+
+        #notePreviewPane li {
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
         /* ── Spin animation for loading ──────────────────────────── */
         @keyframes spin {
             from { transform: rotate(0deg); }
