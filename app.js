@@ -1630,12 +1630,6 @@
                 const contacts = await bsFetchContacts();
                 const contact = contacts.find(c => c.id === contactId);
 
-                // Check if user has admin role
-                if (contact?.metadata?.role !== 'admin') {
-                    showCustomAlert('Access denied. Admin only.');
-                    return;
-                }
-
                 if (!contact) return;
 
                 const adminPasswordHash = contact.metadata?.admin_password_hash;
