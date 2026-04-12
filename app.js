@@ -52,6 +52,10 @@
             document.getElementById('initialChoice').classList.add('hidden');
             // Auto-detect OS
             detectAndSelectOS();
+            // Load reviews if Backside is configured
+            if (bsIsConfigured()) {
+                loadReviewsOnLandingPage();
+            }
         }
 
         function hideLandingPage() {
@@ -1467,6 +1471,345 @@
             document.getElementById('updateBanner').classList.remove('show');
         }
 
+        // ── Reviews & Feature Requests ─────────────────────────────
+
+        let selectedReviewRating = 0;
+        let adminLongPressTimer = null;
+
+        function selectReviewRating(stars) {
+            selectedReviewRating = stars;
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`rating${i}`);
+                if (btn) {
+                    btn.style.opacity = i <= stars ? '1' : '0.5';
+                }
+            }
+        }
+
+        async function submitReview() {
+            const reviewText = document.getElementById('reviewText').value.trim();
+            if (!reviewText) {
+                showCustomAlert('Please write a review');
+                return;
+            }
+            if (selectedReviewRating === 0) {
+                showCustomAlert('Please select a star rating');
+                return;
+            }
+
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const username = currentUser.displayName || currentUser.username || 'Anonymous';
+
+            try {
+                await bsCreateNote({
+                    title: `Review from ${username}`,
+                    body: reviewText,
+                    tags: ['peaceful-review'],
+                    encrypted: false,
+                    metadata: { rating: selectedReviewRating, contact_id: localStorage.getItem('currentContactId') }
+                });
+
+                document.getElementById('reviewText').value = '';
+                selectedReviewRating = 0;
+                for (let i = 1; i <= 5; i++) {
+                    const btn = document.getElementById(`rating${i}`);
+                    if (btn) btn.style.opacity = '0.5';
+                }
+
+                const msgEl = document.getElementById('reviewMessage');
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+                }
+            } catch (e) {
+                showCustomAlert('Error submitting review. Please try again.');
+                console.error(e);
+            }
+        }
+
+        async function submitFeatureRequest() {
+            const featureText = document.getElementById('featureRequestText').value.trim();
+            if (!featureText) {
+                showCustomAlert('Please describe your feature idea');
+                return;
+            }
+
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const username = currentUser.displayName || currentUser.username || 'Anonymous';
+
+            try {
+                await bsCreateNote({
+                    title: `Feature Request from ${username}`,
+                    body: featureText,
+                    tags: ['peaceful-feature-request'],
+                    encrypted: false,
+                    metadata: { contact_id: localStorage.getItem('currentContactId'), submitted_at: new Date().toISOString() }
+                });
+
+                document.getElementById('featureRequestText').value = '';
+                const msgEl = document.getElementById('featureRequestMessage');
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                    setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+                }
+            } catch (e) {
+                showCustomAlert('Error submitting feature request. Please try again.');
+                console.error(e);
+            }
+        }
+
+        async function loadReviewsOnLandingPage() {
+            try {
+                const notes = await bsFetchNotes();
+                const reviews = notes.filter(n => n.tags && n.tags.includes('peaceful-review')).sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA;
+                }).slice(0, 6);
+
+                const reviewsGrid = document.getElementById('reviewsGrid');
+                if (!reviewsGrid) return;
+
+                if (reviews.length === 0) {
+                    reviewsGrid.innerHTML = '<div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><p style="color: #999; margin: 0; font-size: 14px;">Be the first to leave a review!</p></div>';
+                    return;
+                }
+
+                reviewsGrid.innerHTML = reviews.map(review => {
+                    const rating = review.metadata?.rating || 0;
+                    const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+                    const username = review.metadata?.username || review.title.replace('Review from ', '');
+                    return `
+                        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <div style="font-size: 18px; margin-bottom: 10px;">${stars}</div>
+                            <p style="color: #333; margin: 0 0 10px 0; line-height: 1.5; font-size: 14px;">${review.body || ''}</p>
+                            <p style="color: #999; margin: 0; font-size: 12px;">— ${username}</p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Error loading reviews:', e);
+            }
+        }
+
+        // ── Admin Panel for Feature Requests ────────────────────────
+
+        function startLongPress(event) {
+            if (event.touches) {
+                adminLongPressTimer = setTimeout(() => openAdminAccess(event), 1000);
+            }
+        }
+
+        function cancelLongPress() {
+            if (adminLongPressTimer) {
+                clearTimeout(adminLongPressTimer);
+                adminLongPressTimer = null;
+            }
+        }
+
+        async function openAdminAccess(event) {
+            event.preventDefault();
+            if (event.button && event.button !== 2) return; // Only right-click on desktop
+
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.role !== 'admin') {
+                showCustomAlert('Access denied. Admin only.');
+                return;
+            }
+
+            const contactId = localStorage.getItem('currentContactId');
+            if (!contactId) return;
+
+            try {
+                const contacts = await bsFetchContacts();
+                const contact = contacts.find(c => c.id === contactId);
+
+                if (!contact) return;
+
+                const adminPasswordHash = contact.metadata?.admin_password_hash;
+                const modal = document.getElementById('adminAccessModal');
+                const contentDiv = document.getElementById('adminAccessContent');
+
+                if (!adminPasswordHash) {
+                    // First-time setup
+                    contentDiv.innerHTML = `
+                        <p style="color: #666; margin-bottom: 15px;">Set your admin password to secure access</p>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Admin Password</label>
+                            <input type="password" id="adminPassword1" class="login-input" style="margin: 0;" placeholder="Enter password" />
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Confirm Password</label>
+                            <input type="password" id="adminPassword2" class="login-input" style="margin: 0;" placeholder="Confirm password" />
+                        </div>
+                        <button class="login-btn" onclick="setAdminPassword()" style="width: 100%;">Set Password</button>
+                        <div id="adminAccessError" class="login-error"></div>
+                    `;
+                } else {
+                    // Password entry
+                    contentDiv.innerHTML = `
+                        <p style="color: #666; margin-bottom: 15px;">Enter your admin password</p>
+                        <div style="margin-bottom: 15px;">
+                            <input type="password" id="adminPasswordEntry" class="login-input" style="margin: 0;" placeholder="Admin password" />
+                        </div>
+                        <button class="login-btn" onclick="verifyAdminPassword()" style="width: 100%;">Access Panel</button>
+                        <div id="adminAccessError" class="login-error"></div>
+                    `;
+                }
+
+                modal.classList.remove('hidden');
+            } catch (e) {
+                console.error('Error opening admin access:', e);
+                showCustomAlert('Error accessing admin panel');
+            }
+        }
+
+        async function setAdminPassword() {
+            const pwd1 = document.getElementById('adminPassword1').value;
+            const pwd2 = document.getElementById('adminPassword2').value;
+            const errorEl = document.getElementById('adminAccessError');
+
+            if (!pwd1 || !pwd2) {
+                errorEl.textContent = 'Please fill in both fields';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (pwd1 !== pwd2) {
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const hash = await sha256hex(pwd1);
+                const contactId = localStorage.getItem('currentContactId');
+                await bsUpdateContact(contactId, { metadata: { admin_password_hash: hash } });
+
+                closeAdminAccess();
+                openAdminPanel();
+            } catch (e) {
+                errorEl.textContent = 'Error setting password';
+                errorEl.style.display = 'block';
+                console.error(e);
+            }
+        }
+
+        async function verifyAdminPassword() {
+            const pwd = document.getElementById('adminPasswordEntry').value;
+            const errorEl = document.getElementById('adminAccessError');
+
+            if (!pwd) {
+                errorEl.textContent = 'Please enter your password';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const hash = await sha256hex(pwd);
+                const contactId = localStorage.getItem('currentContactId');
+                const contacts = await bsFetchContacts();
+                const contact = contacts.find(c => c.id === contactId);
+
+                if (contact?.metadata?.admin_password_hash !== hash) {
+                    errorEl.textContent = 'Incorrect password';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                closeAdminAccess();
+                openAdminPanel();
+            } catch (e) {
+                errorEl.textContent = 'Error verifying password';
+                errorEl.style.display = 'block';
+                console.error(e);
+            }
+        }
+
+        async function openAdminPanel() {
+            try {
+                const notes = await bsFetchNotes();
+                const requests = notes.filter(n => n.tags && n.tags.includes('peaceful-feature-request'));
+
+                const undone = requests.filter(r => !r.tags?.includes('done')).sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA;
+                });
+
+                const done = requests.filter(r => r.tags?.includes('done')).sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA;
+                });
+
+                const allRequests = [...undone, ...done];
+                const listDiv = document.getElementById('featureRequestsList');
+
+                if (allRequests.length === 0) {
+                    listDiv.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No feature requests yet.</p>';
+                } else {
+                    listDiv.innerHTML = allRequests.map((req, idx) => {
+                        const isDone = req.tags?.includes('done');
+                        const submittedBy = req.metadata?.username || req.title.replace('Feature Request from ', '');
+                        const submittedDate = new Date(req.metadata?.submitted_at || req.created_at).toLocaleDateString();
+                        return `
+                            <div style="background: ${isDone ? '#f5f5f5' : 'white'}; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 12px; ${isDone ? 'opacity: 0.6;' : ''}">
+                                <p style="color: ${isDone ? '#999' : '#333'}; margin: 0 0 10px 0; line-height: 1.5;">${req.body || ''}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                    <div style="color: #999; font-size: 12px;">
+                                        <strong>${submittedBy}</strong> • ${submittedDate}
+                                    </div>
+                                    ${!isDone ? `<button class="login-btn" onclick="markFeatureRequestDone('${req.id}')" style="padding: 8px 16px; font-size: 13px;">Mark as Done</button>` : '<span style="color: #66bb6a; font-weight: 600;">✓ Done</span>'}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                document.getElementById('mainApp').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+            } catch (e) {
+                showCustomAlert('Error loading admin panel');
+                console.error(e);
+            }
+        }
+
+        async function markFeatureRequestDone(noteId) {
+            try {
+                const notes = await bsFetchNotes();
+                const note = notes.find(n => n.id === noteId);
+                if (!note) return;
+
+                const tags = Array.isArray(note.tags) ? note.tags : [];
+                if (!tags.includes('done')) {
+                    tags.push('done');
+                }
+
+                await bsUpdateNote(noteId, { tags });
+                openAdminPanel();
+            } catch (e) {
+                showCustomAlert('Error updating request');
+                console.error(e);
+            }
+        }
+
+        function closeAdminAccess() {
+            const modal = document.getElementById('adminAccessModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function closeAdminAccessIfOutside(event) {
+            if (event.target.id === 'adminAccessModal') {
+                closeAdminAccess();
+            }
+        }
+
+        function exitAdminPanel() {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
         // Enter Key Support
         function setupEnterKeyListeners() {
             const enterHandlers = {
@@ -1480,7 +1823,7 @@
                 'projectTaskInput': addTaskToProject,
                 'newProjectName': addProject
             };
-            
+
             Object.entries(enterHandlers).forEach(([id, handler]) => {
                 const element = document.getElementById(id);
                 if (element) {

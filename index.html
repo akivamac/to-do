@@ -83,6 +83,16 @@
                 </div>
             </section>
 
+            <!-- Reviews Section -->
+            <section style="margin-bottom: 60px;">
+                <h2 style="font-size: 28px; color: #333; text-align: center; margin-bottom: 40px;">What people are saying</h2>
+                <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <p style="color: #999; margin: 0; font-size: 14px;">Be the first to leave a review!</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Get the App Section -->
             <section style="background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 40px; margin-bottom: 60px;">
                 <h2 style="font-size: 28px; color: #333; margin-top: 0; margin-bottom: 20px;">Get the App</h2>
@@ -518,7 +528,7 @@
             <!-- Hugs Tab -->
             <div id="hugsTab" class="hidden">
                 <div class="hug-header">
-                    <div class="hug-count" id="totalHugs">0</div>
+                    <div class="hug-count" id="totalHugs" oncontextmenu="openAdminAccess(event)" onmousedown="startLongPress(event)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event)" ontouchend="cancelLongPress()">0</div>
                     <div class="hug-label">Available Points</div>
                 </div>
                 
@@ -641,6 +651,40 @@
                     <div id="settingsSaveMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Settings saved!</div>
                 </div>
 
+                <!-- Leave a Review Section -->
+                <div class="admin-card">
+                    <h3>⭐ Leave a Review</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Tell us what you think about Peaceful Tasks</p>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #666;">Your Rating</label>
+                        <div style="display: flex; gap: 8px; font-size: 28px;">
+                            <button onclick="selectReviewRating(1)" id="rating1" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(2)" id="rating2" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(3)" id="rating3" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(4)" id="rating4" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(5)" id="rating5" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Tell us what you think</label>
+                        <textarea id="reviewText" class="login-input" style="margin: 0; min-height: 100px; padding: 12px;" placeholder="Share your thoughts about Peaceful Tasks..."></textarea>
+                    </div>
+                    <button class="login-btn" onclick="submitReview()">Submit Review</button>
+                    <div id="reviewMessage" style="margin-top: 10px; color: #66bb6a; display: none;">Thanks for your review!</div>
+                </div>
+
+                <!-- Submit a Feature Request Section -->
+                <div class="admin-card">
+                    <h3>💡 Submit a Feature Request</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Have an idea to make Peaceful Tasks better?</p>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">What would you like to see?</label>
+                        <textarea id="featureRequestText" class="login-input" style="margin: 0; min-height: 100px; padding: 12px;" placeholder="Describe your feature idea..."></textarea>
+                    </div>
+                    <button class="login-btn" onclick="submitFeatureRequest()">Send Request</button>
+                    <div id="featureRequestMessage" style="margin-top: 10px; color: #66bb6a; display: none;">Request received — thank you!</div>
+                </div>
+
                 <!-- Invite by Link -->
                 <div class="admin-card">
                     <h3>🔗 Invite Someone</h3>
@@ -742,24 +786,42 @@
             <button class="modal-close" onclick="closeInviteUser()">×</button>
             <h2>Invite New User</h2>
             <p style="color: #666; margin-bottom: 20px;">Create a new account for someone to join your group</p>
-            
+
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Username</label>
                 <input type="text" id="inviteUsername" class="login-input" style="margin: 0;" placeholder="Choose a username" />
             </div>
-            
+
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Password</label>
                 <input type="password" id="invitePassword" class="login-input" style="margin: 0;" placeholder="Choose a password" />
             </div>
-            
+
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name (optional)</label>
                 <input type="text" id="inviteDisplayName" class="login-input" style="margin: 0;" placeholder="Their display name" />
             </div>
-            
+
             <button class="login-btn" onclick="createInvitedUser()">Create User</button>
             <div id="inviteError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Admin Access Modal -->
+    <div id="adminAccessModal" class="modal hidden" onclick="closeAdminAccessIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px;">
+            <button class="modal-close" onclick="closeAdminAccess()">×</button>
+            <h2 id="adminAccessTitle">Admin Access</h2>
+            <div id="adminAccessContent"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="container hidden">
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <button class="login-btn back-btn" onclick="exitAdminPanel()" style="margin-bottom: 20px;">← Back</button>
+            <h1>Feature Requests</h1>
+            <div id="featureRequestsList"></div>
         </div>
     </div>
 
@@ -772,5 +834,93 @@
     <script src="notes.js"></script>
     <!-- backside.js loaded last so it can reference functions defined in the files above -->
     <script src="backside.js"></script>
+
+    <script>
+        // Router initialization - handle URL routing via 404.html bridge
+        function initRouter() {
+            // Get stored path from 404.html redirect
+            const storedPath = sessionStorage.getItem('routerPath');
+            if (storedPath) {
+                sessionStorage.removeItem('routerPath');
+                handleRouting(storedPath);
+            }
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', () => {
+                handleRouting(window.location.pathname);
+            });
+        }
+
+        function handleRouting(path) {
+            const isLoggedIn = !!JSON.parse(localStorage.getItem('user'));
+
+            if (path.includes('/to-do/app') || path === '/to-do/') {
+                if (isLoggedIn) {
+                    if (path.includes('/to-do/app')) {
+                        showMainApp();
+                    } else {
+                        // Redirect / to /app if logged in
+                        navigateTo('/to-do/app');
+                    }
+                } else {
+                    // Not logged in, show landing page
+                    showLandingPage();
+                    navigateTo('/to-do/');
+                }
+            } else if (path.includes('/to-do/login')) {
+                if (isLoggedIn) {
+                    navigateTo('/to-do/app');
+                } else {
+                    showSignIn();
+                    navigateTo('/to-do/login');
+                }
+            } else if (path.includes('/to-do/sign-up')) {
+                if (isLoggedIn) {
+                    navigateTo('/to-do/app');
+                } else {
+                    showCreateAccount();
+                    navigateTo('/to-do/sign-up');
+                }
+            }
+        }
+
+        function navigateTo(path) {
+            // Update URL using history.pushState without page reload
+            history.pushState(null, '', path);
+        }
+
+        // Wrap existing navigation functions to also update URL
+        const originalShowSignIn = showSignIn;
+        showSignIn = function() {
+            originalShowSignIn.call(this);
+            navigateTo('/to-do/login');
+        };
+
+        const originalShowCreateAccount = showCreateAccount;
+        showCreateAccount = function() {
+            originalShowCreateAccount.call(this);
+            navigateTo('/to-do/sign-up');
+        };
+
+        const originalShowMainApp = showMainApp;
+        showMainApp = function() {
+            originalShowMainApp.call(this);
+            navigateTo('/to-do/app');
+        };
+
+        const originalLogout = logout;
+        logout = function() {
+            originalLogout.call(this);
+            navigateTo('/to-do/');
+            showLandingPage();
+        };
+
+        // Initialize router when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRouter);
+        } else {
+            initRouter();
+        }
+    </script>
 </body>
 </html>
