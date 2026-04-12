@@ -69,7 +69,7 @@
             let os = '';
             if (/android/i.test(ua)) os = 'android';
             else if (/iphone|ipad|ipod/i.test(ua)) os = 'ios';
-            else if (/macintosh|mac os x/i.test(ua)) os = 'mac';
+            else if (/macintosh|mac os x/i.test(ua)) os = 'macos';
             else if (/windows|win32/i.test(ua)) os = 'windows';
             else if (/linux/i.test(ua)) os = 'linux';
 
