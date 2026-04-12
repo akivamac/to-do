@@ -223,7 +223,10 @@ async function bsClearInviteToken(contactId) {
 // ── Load all user data from Backside ─────────────────────────
 
 async function loadBacksideData() {
-    const contactId = localStorage.getItem('currentContactId') || '';
+    const contactId = localStorage.getItem('currentContactId');
+    if (!contactId) {
+        throw new Error('No contact ID found. Please sign in again.');
+    }
     const [rawTasks, rawProjects, rawNotes] = await Promise.all([
         bsFetchTasks(), bsFetchProjects(), bsFetchNotes()
     ]);
@@ -407,6 +410,12 @@ async function loadAndShowApp() {
     }
 
     hideLoadingSpinner();
+
+    // Check if trial has expired
+    if (currentBsContact && isTrialExpired(currentBsContact)) {
+        showCustomAlert('Your trial has expired. Contact support to upgrade your plan.');
+    }
+
     renderTodayTasks();
     renderHugs();
     populateProjectDropdown();

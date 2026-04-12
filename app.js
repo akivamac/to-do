@@ -171,6 +171,17 @@
         const ADMIN_PASSWORD = 'hug2025';
         const ANTI_CHEAT_TIME = 1000;
 
+        // localStorage key constants
+        const KEY_CURRENT_USER = 'currentUser';
+        const KEY_CURRENT_ACCOUNT_TYPE = 'currentAccountType';
+        const KEY_CURRENT_USER_DISPLAY_NAME = 'currentUserDisplayName';
+        const KEY_TODO_ACCOUNTS = 'todoAccounts';
+        const KEY_ALARMS = 'alarms';
+        const KEY_NOTIFIED_TASK_IDS = 'notifiedTaskIds';
+        const KEY_CURRENT_CONTACT_ID = 'currentContactId';
+        const KEY_INSTALL_DISMISSED = 'installDismissed';
+        const KEY_MIGRATED = '_pt_migrated';
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadInitialState();
@@ -762,7 +773,9 @@
                 completedTasksCount= 0;
                 projects           = [];
                 notes              = [];
+                lists              = [];
                 currentNoteId      = null;
+                currentListId      = null;
                 showScreen('landingPage');
             });
         }
@@ -778,7 +791,13 @@
                     item.classList.add('active');
                 }
             });
-            
+
+            // Clear list polling when switching away from lists tab
+            if (tabName !== 'lists' && listsPollingInterval) {
+                clearInterval(listsPollingInterval);
+                listsPollingInterval = null;
+            }
+
             // Hide all tabs
             document.getElementById('todayTab').classList.add('hidden');
             document.getElementById('daysTab').classList.add('hidden');
@@ -1515,6 +1534,7 @@
         let lists = [];
         let currentListId = null;
         let listsPollingInterval = null;
+        let listOperationInProgress = false;
 
         async function loadLists() {
             if (!bsIsConfigured()) return;
@@ -1539,8 +1559,8 @@
             }
 
             listsList.innerHTML = lists.map(list => `
-                <div onclick="openListDetail('${list.id}')" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;">
-                    <h4 style="color: #5e8fb5; margin: 0 0 8px 0;">${list.title || 'Untitled'}</h4>
+                <div onclick="openListDetail('${escapeHtml(list.id)}')" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;">
+                    <h4 style="color: #5e8fb5; margin: 0 0 8px 0;">${escapeHtml(list.title || 'Untitled')}</h4>
                     <p style="color: #999; margin: 0; font-size: 12px;">Tap to edit</p>
                 </div>
             `).join('');
@@ -1592,6 +1612,9 @@
                 loadLists().then(() => {
                     const updated = lists.find(l => l.id === listId);
                     if (updated) renderListItems(updated);
+                }).catch(e => {
+                    console.error('List polling error:', e);
+                    // Don't show alert every 5 seconds, just log it
                 });
             }, 5000);
         }
@@ -1629,12 +1652,21 @@
         }
 
         async function addListItem() {
+            if (listOperationInProgress) return;
+            listOperationInProgress = true;
+
             const input = document.getElementById('listItemInput');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text) {
+                listOperationInProgress = false;
+                return;
+            }
 
             const list = lists.find(l => l.id === currentListId);
-            if (!list) return;
+            if (!list) {
+                listOperationInProgress = false;
+                return;
+            }
 
             const items = parseListItems(list.body || '');
             items.push({ checked: false, text });
@@ -1648,12 +1680,20 @@
             } catch (e) {
                 showCustomAlert('Error adding item');
                 console.error(e);
+            } finally {
+                listOperationInProgress = false;
             }
         }
 
         async function toggleListItem(listId, index) {
+            if (listOperationInProgress) return;
+            listOperationInProgress = true;
+
             const list = lists.find(l => l.id === listId);
-            if (!list) return;
+            if (!list) {
+                listOperationInProgress = false;
+                return;
+            }
 
             const items = parseListItems(list.body || '');
             if (index < items.length) {
@@ -1665,13 +1705,23 @@
                     if (updated) renderListItems(updated);
                 } catch (e) {
                     console.error(e);
+                } finally {
+                    listOperationInProgress = false;
                 }
+            } else {
+                listOperationInProgress = false;
             }
         }
 
         async function clearListChecked() {
+            if (listOperationInProgress) return;
+            listOperationInProgress = true;
+
             const list = lists.find(l => l.id === currentListId);
-            if (!list) return;
+            if (!list) {
+                listOperationInProgress = false;
+                return;
+            }
 
             const items = parseListItems(list.body || '').filter(item => !item.checked);
 
@@ -1683,6 +1733,8 @@
             } catch (e) {
                 showCustomAlert('Error clearing items');
                 console.error(e);
+            } finally {
+                listOperationInProgress = false;
             }
         }
 
@@ -1785,11 +1837,11 @@
                         // Show toast
                         showToastNotification(`${assignedByUser} assigned you: ${taskTitle}`);
 
-                        // Try to show browser notification
-                        if ('Notification' in window && Notification.permission === 'granted' && document.hasFocus && document.hasFocus()) {
+                        // Try to show browser notification (only if document has focus)
+                        if ('Notification' in window && Notification.permission === 'granted' && document.hasFocus()) {
                             new Notification('Peaceful Tasks', {
                                 body: `${assignedByUser} assigned you: ${taskTitle}`,
-                                icon: 'icon-192.png'
+                                icon: '/to-do/icon-192.png'
                             });
                         }
 
