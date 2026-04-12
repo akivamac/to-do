@@ -787,6 +787,7 @@
             document.getElementById('todayTab').classList.add('hidden');
             document.getElementById('daysTab').classList.add('hidden');
             document.getElementById('projectsTab').classList.add('hidden');
+            document.getElementById('listsTab').classList.add('hidden');
             document.getElementById('notesTab').classList.add('hidden');
             document.getElementById('hugsTab').classList.add('hidden');
             document.getElementById('alarmsTab').classList.add('hidden');
@@ -802,6 +803,9 @@
             } else if (tabName === 'projects') {
                 document.getElementById('projectsTab').classList.remove('hidden');
                 renderProjects();
+            } else if (tabName === 'lists') {
+                document.getElementById('listsTab').classList.remove('hidden');
+                loadLists();
             } else if (tabName === 'notes') {
                 document.getElementById('notesTab').classList.remove('hidden');
                 renderNotes();
