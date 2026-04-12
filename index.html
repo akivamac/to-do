@@ -937,15 +937,6 @@
     <!-- backside.js loaded last so it can reference functions defined in the files above -->
     <script src="backside.js"></script>
 
-    <!-- Prevent flicker on page load -->
-    <style>
-        #passcodeGate, #accountTypeSelection, #createPersonalAccount, #loginPersonalAccount,
-        #groupSetup, #createGroupAdmin, #groupJoin, #showGroupCredentials,
-        #welcomeScreen, #mainApp, #adminPanel {
-            display: none;
-        }
-    </style>
-
     <script>
         const _route = new URLSearchParams(window.location.search).get('route');
         if (_route) history.replaceState({}, '', '/to-do/' + _route);
