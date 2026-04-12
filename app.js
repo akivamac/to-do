@@ -1497,6 +1497,11 @@
                 return;
             }
 
+            if (!bsIsConfigured()) {
+                showCustomAlert('Reviews require Backside to be configured. Contact the administrator.');
+                return;
+            }
+
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             const username = currentUser.displayName || currentUser.username || 'Anonymous';
 
@@ -1531,6 +1536,11 @@
             const featureText = document.getElementById('featureRequestText').value.trim();
             if (!featureText) {
                 showCustomAlert('Please describe your feature idea');
+                return;
+            }
+
+            if (!bsIsConfigured()) {
+                showCustomAlert('Feature requests require Backside to be configured. Contact the administrator.');
                 return;
             }
 
@@ -1614,6 +1624,11 @@
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             if (currentUser.role !== 'admin') {
                 showCustomAlert('Access denied. Admin only.');
+                return;
+            }
+
+            if (!bsIsConfigured()) {
+                showCustomAlert('Admin access requires Backside to be configured. Contact the administrator.');
                 return;
             }
 
@@ -1727,6 +1742,12 @@
         }
 
         async function openAdminPanel() {
+            if (!bsIsConfigured()) {
+                showCustomAlert('Admin panel requires Backside to be configured. Contact the administrator.');
+                exitAdminPanel();
+                return;
+            }
+
             try {
                 const notes = await bsFetchNotes();
                 const requests = notes.filter(n => n.tags && n.tags.includes('peaceful-feature-request'));
