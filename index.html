@@ -949,12 +949,16 @@
     <script>
         // Router initialization - handle URL routing via 404.html bridge
         function initRouter() {
-            // Get stored path from 404.html redirect
-            const storedPath = sessionStorage.getItem('routerPath');
-            if (storedPath) {
+            // Get stored path from 404.html redirect, or use current pathname
+            let routePath = sessionStorage.getItem('routerPath');
+            if (routePath) {
                 sessionStorage.removeItem('routerPath');
-                handleRouting(storedPath);
+            } else {
+                routePath = window.location.pathname;
             }
+
+            // Always handle routing (prevents blank page)
+            handleRouting(routePath);
 
             // Handle browser back/forward buttons
             window.addEventListener('popstate', () => {
@@ -991,6 +995,15 @@
                 } else {
                     showCreateAccount();
                     navigateTo('/to-do/sign-up');
+                }
+            } else {
+                // Default: show landing page for unmatched routes
+                if (isLoggedIn) {
+                    navigateTo('/to-do/app');
+                    loadAndShowApp();
+                } else {
+                    showLandingPage();
+                    navigateTo('/to-do/');
                 }
             }
         }
