@@ -947,6 +947,9 @@
     </style>
 
     <script>
+        // Store pending route for loadInitialState to check (must be before other code)
+        let pendingRouterPath = sessionStorage.getItem('routerPath');
+
         // Router initialization - handle URL routing via 404.html bridge
         function initRouter() {
             // Ensure DOM is ready
@@ -956,11 +959,11 @@
             }
 
             // Get stored path from 404.html redirect, or use current pathname
-            let routePath = sessionStorage.getItem('routerPath');
-            if (routePath) {
+            let routePath = pendingRouterPath || window.location.pathname;
+
+            // Clear sessionStorage after storing in global variable
+            if (pendingRouterPath) {
                 sessionStorage.removeItem('routerPath');
-            } else {
-                routePath = window.location.pathname;
             }
 
             // Always handle routing (prevents blank page)

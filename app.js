@@ -260,8 +260,8 @@
                     showScreen('mainApp');
                 }
             } else {
-                // Check for pending route from 404.html redirect
-                const pendingRoute = sessionStorage.getItem('routerPath');
+                // Check for pending route from 404.html redirect (stored in global by initRouter)
+                const pendingRoute = typeof pendingRouterPath !== 'undefined' ? pendingRouterPath : null;
                 if (pendingRoute && pendingRoute.includes('/to-do/login')) {
                     showScreen('loginPersonalAccount');
                 } else if (pendingRoute && pendingRoute.includes('/to-do/sign-up')) {
