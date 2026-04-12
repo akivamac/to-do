@@ -1468,6 +1468,29 @@
             document.getElementById('updateBanner').classList.remove('show');
         }
 
+        // ── Error Logging ──────────────────────────────────────────
+
+        async function logError(errorMessage, context = '') {
+            if (!bsIsConfigured()) return;
+            try {
+                const timestamp = new Date().toISOString();
+                await bsCreateNote({
+                    title: `Error Report - ${timestamp}`,
+                    body: `${errorMessage}\n\nContext: ${context}`,
+                    tags: ['peaceful-error'],
+                    encrypted: false,
+                    metadata: { timestamp, context }
+                });
+            } catch (e) {
+                console.error('Could not log error to Backside:', e);
+            }
+        }
+
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            logError(event.message, event.filename + ':' + event.lineno);
+        });
+
         // ── Reviews & Feature Requests ─────────────────────────────
 
         let selectedReviewRating = 0;
@@ -1742,6 +1765,11 @@
             try {
                 const notes = await bsFetchNotes();
                 const requests = notes.filter(n => n.tags && n.tags.includes('peaceful-feature-request'));
+                const errors = notes.filter(n => n.tags && n.tags.includes('peaceful-error')).sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA;
+                });
 
                 const undone = requests.filter(r => !r.tags?.includes('done')).sort((a, b) => {
                     const dateA = new Date(a.created_at || 0);
@@ -1758,10 +1786,34 @@
                 const allRequests = [...undone, ...done];
                 const listDiv = document.getElementById('featureRequestsList');
 
+                let html = '';
+
+                // Error Reports Section
+                if (errors.length > 0) {
+                    html += `<div style="margin-bottom: 40px;">
+                        <h3 style="color: #e57373; margin-bottom: 20px;">⚠️ Error Reports (${errors.length})</h3>
+                        ${errors.map(err => {
+                            const errDate = new Date(err.created_at).toLocaleString();
+                            return `
+                                <div style="background: #ffebee; border: 1px solid #ef5350; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                                    <p style="color: #c62828; margin: 0 0 10px 0; line-height: 1.5; font-family: monospace; font-size: 13px;">${err.body || ''}</p>
+                                    <div style="color: #999; font-size: 12px;">
+                                        ${errDate}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>`;
+                }
+
+                // Feature Requests Section
+                html += `<div>
+                    <h3 style="color: #5e8fb5; margin-bottom: 20px;">💡 Feature Requests ${allRequests.length > 0 ? `(${undone.length} new)` : ''}</h3>`;
+
                 if (allRequests.length === 0) {
-                    listDiv.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No feature requests yet.</p>';
+                    html += '<p style="color: #999; text-align: center; padding: 20px;">No feature requests yet.</p>';
                 } else {
-                    listDiv.innerHTML = allRequests.map((req, idx) => {
+                    html += allRequests.map((req, idx) => {
                         const isDone = req.tags?.includes('done');
                         const submittedBy = req.metadata?.username || req.title.replace('Feature Request from ', '');
                         const submittedDate = new Date(req.metadata?.submitted_at || req.created_at).toLocaleDateString();
@@ -1778,6 +1830,9 @@
                         `;
                     }).join('');
                 }
+
+                html += '</div>';
+                listDiv.innerHTML = html;
 
                 document.getElementById('mainApp').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
