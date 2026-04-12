@@ -352,6 +352,24 @@
             document.getElementById('groupAdminError').textContent = '';
         }
 
+        function testModeLogin() {
+            const testUser = 'test_user';
+            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            if (!accounts[testUser]) {
+                accounts[testUser] = {
+                    password: 'test', type: 'personal',
+                    data: { tasks: {}, hugGroups: [], completedTasksCount: 0, spentHugs: 0 },
+                    createdAt: new Date().toISOString()
+                };
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            }
+            currentUser = testUser;
+            localStorage.setItem('currentUser', testUser);
+            localStorage.setItem('currentAccountType', 'personal');
+            loadUserData();
+            showScreen('mainApp');
+        }
+
         // Passcode Check
         function checkPasscode() {
             const passcode = document.getElementById('passcodeInput').value.trim();
