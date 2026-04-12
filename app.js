@@ -264,7 +264,7 @@
         }
 
         function backToInitialChoice() {
-            showScreen('initialChoice');
+            showLandingPage();
             document.getElementById('passcodeError').textContent = '';
         }
 
