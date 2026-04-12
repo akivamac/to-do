@@ -1618,12 +1618,6 @@
             event.preventDefault();
             if (event.button && event.button !== 2) return; // Only right-click on desktop
 
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (currentUser.role !== 'admin') {
-                showCustomAlert('Access denied. Admin only.');
-                return;
-            }
-
             if (!bsIsConfigured()) {
                 showCustomAlert('Admin access requires Backside to be configured. Contact the administrator.');
                 return;
@@ -1635,6 +1629,12 @@
             try {
                 const contacts = await bsFetchContacts();
                 const contact = contacts.find(c => c.id === contactId);
+
+                // Check if user has admin role
+                if (contact?.metadata?.role !== 'admin') {
+                    showCustomAlert('Access denied. Admin only.');
+                    return;
+                }
 
                 if (!contact) return;
 
