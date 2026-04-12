@@ -378,6 +378,7 @@ async function migrateLocalToBackside(localTasks, localProjects, localNotes) {
 
 async function loadAndShowApp() {
     showScreen('mainApp');
+    navigateTo('/to-do/app');
     showLoadingSpinner();
 
     try {

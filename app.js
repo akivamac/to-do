@@ -744,11 +744,6 @@
 
         function syncData() {
             saveUserData();
-            const syncStatus = document.getElementById('syncStatus');
-            if (syncStatus) {
-                syncStatus.textContent = 'Synced ✓';
-                syncStatus.style.color = '#66bb6a';
-            }
         }
 
         // Logout — uses custom confirm modal (never browser confirm())
@@ -856,12 +851,10 @@
                 const subUsername = currentUser.split('::')[1];
                 const subAccount = currentAccount.subAccounts.find(s => s.username === subUsername);
                 if (subAccount) {
-                    document.getElementById('settingsCurrentPassword').textContent = subAccount.password;
                     document.getElementById('settingsDisplayName').value = subAccount.displayName || '';
                 }
             } else {
                 // Regular account
-                document.getElementById('settingsCurrentPassword').textContent = currentAccount.password;
                 document.getElementById('settingsDisplayName').value = currentAccount.displayName || '';
             }
             
@@ -1476,47 +1469,45 @@
         // ── Clear Data & Cache ────────────────────────────────────
 
         async function clearAllData() {
-            if (!confirm('⚠️ This will clear all cached data, offline storage, and service worker cache. You will need to sign in again. Continue?')) {
-                return;
-            }
+            showCustomConfirm('⚠️ Clear All Data', 'This will clear all cached data, offline storage, and service worker cache. You will need to sign in again.', async () => {
+                try {
+                    // Clear localStorage
+                    localStorage.clear();
 
-            try {
-                // Clear localStorage
-                localStorage.clear();
+                    // Clear sessionStorage
+                    sessionStorage.clear();
 
-                // Clear sessionStorage
-                sessionStorage.clear();
-
-                // Unregister service workers
-                if ('serviceWorker' in navigator) {
-                    const registrations = await navigator.serviceWorker.getRegistrations();
-                    for (let registration of registrations) {
-                        await registration.unregister();
+                    // Unregister service workers
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (let registration of registrations) {
+                            await registration.unregister();
+                        }
                     }
-                }
 
-                // Clear cache storage
-                if ('caches' in window) {
-                    const cacheNames = await caches.keys();
-                    for (let cacheName of cacheNames) {
-                        await caches.delete(cacheName);
+                    // Clear cache storage
+                    if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        for (let cacheName of cacheNames) {
+                            await caches.delete(cacheName);
+                        }
                     }
-                }
 
-                // Show message
-                const msgEl = document.getElementById('clearDataMessage');
-                if (msgEl) {
-                    msgEl.style.display = 'block';
-                }
+                    // Show message
+                    const msgEl = document.getElementById('clearDataMessage');
+                    if (msgEl) {
+                        msgEl.style.display = 'block';
+                    }
 
-                // Reload after 1 second
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            } catch (e) {
-                showCustomAlert('Error clearing data: ' + e.message);
-                console.error(e);
-            }
+                    // Reload after 1 second
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } catch (e) {
+                    showCustomAlert('Error clearing data: ' + e.message);
+                    console.error(e);
+                }
+            });
         }
 
         // ── Shared Lists Management ────────────────────────────────

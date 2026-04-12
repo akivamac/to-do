@@ -164,11 +164,12 @@
         }
 
         function noteInsertLink() {
-            const url = prompt('Enter URL:');
-            if (!url) return;
-            document.getElementById('noteEditor').focus();
-            try { document.execCommand('createLink', false, url); } catch(e) {}
-            saveCurrentNote();
+            showCustomPrompt('Insert Link', 'Enter the URL:', 'https://', (url) => {
+                if (!url || !url.trim()) return;
+                document.getElementById('noteEditor').focus();
+                try { document.execCommand('createLink', false, url.trim()); } catch(e) {}
+                saveCurrentNote();
+            });
         }
 
         function noteInsertHR() {
