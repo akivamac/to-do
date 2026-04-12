@@ -890,6 +890,9 @@
             } else if (tabName === 'days') {
                 document.getElementById('daysTab').classList.remove('hidden');
                 renderDays();
+                const _today = formatDate(new Date());
+                const _hasPast = Object.entries(tasks).some(([d, ts]) => d < _today && ts.some(t => !t.completed));
+                if (_hasPast) showPastIncompleteTasks();
             } else if (tabName === 'projects') {
                 document.getElementById('projectsTab').classList.remove('hidden');
                 renderProjects();
