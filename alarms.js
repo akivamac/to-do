@@ -25,7 +25,7 @@
         }
 
         function addAlarm() {
-            const timeInput = document.getElementById('alarmTime');
+            const timeInput = document.getElementById('alarmTimeHidden');
             const labelInput = document.getElementById('alarmLabel');
             const recurringInput = document.getElementById('alarmRecurring');
             
@@ -48,6 +48,7 @@
             renderAlarms();
             
             timeInput.value = '';
+            document.getElementById('alarmTimeDisplay').textContent = 'Set alarm time';
             labelInput.value = '';
             recurringInput.checked = false;
         }
@@ -62,8 +63,12 @@
                     <h3>Edit Alarm</h3>
                     <div style="text-align: left; margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Time</label>
-                        <input type="time" id="editAlarmTime" value="${alarm.time}" class="login-input" style="margin: 0 0 15px 0;" />
-                        
+                        <div id="editAlarmTimeDisplay" class="add-task-time-btn" style="margin:0 0 15px 0;"
+                            onclick="showTimePicker(document.getElementById('editAlarmTimeHidden').value, v=>{document.getElementById('editAlarmTimeHidden').value=v;document.getElementById('editAlarmTimeDisplay').textContent=formatTime(v)||'Set time';})">
+                            ${alarm.time ? formatTime(alarm.time) : 'Set time'}
+                        </div>
+                        <input type="hidden" id="editAlarmTimeHidden" value="${alarm.time}" />
+
                         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Label</label>
                         <input type="text" id="editAlarmLabel" value="${escapeHtml(alarm.label)}" class="login-input" style="margin: 0 0 15px 0;" />
                         
@@ -89,7 +94,7 @@
             const alarm = alarms.find(a => a.id === id);
             if (!alarm) return;
             
-            alarm.time = document.getElementById('editAlarmTime').value;
+            alarm.time = document.getElementById('editAlarmTimeHidden').value;
             alarm.label = document.getElementById('editAlarmLabel').value;
             alarm.recurring = document.getElementById('editAlarmRecurring').checked;
             

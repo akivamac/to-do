@@ -613,7 +613,11 @@
                     <div style="margin-bottom: 20px;">
                         <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-start;">
                             <div style="flex: 1; min-width: 150px;">
-                                <input type="time" id="alarmTime" class="login-input" style="margin: 0;" />
+                                <div id="alarmTimeDisplay" class="add-task-time-btn"
+                                    onclick="showTimePicker(document.getElementById('alarmTimeHidden').value, v=>{document.getElementById('alarmTimeHidden').value=v;document.getElementById('alarmTimeDisplay').textContent=formatTime(v)||'Set alarm time';})">
+                                    Set alarm time
+                                </div>
+                                <input type="hidden" id="alarmTimeHidden" />
                             </div>
                             <div style="flex: 2; min-width: 200px;">
                                 <input type="text" id="alarmLabel" class="login-input" style="margin: 0;" placeholder="Alarm label (optional)" />

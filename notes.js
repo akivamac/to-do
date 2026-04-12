@@ -53,8 +53,20 @@
                         el.replaceWith(...Array.from(el.childNodes));
                         found = true;
                     } else {
-                        // Strip ALL attributes from allowed tags — notes only need formatting
-                        Array.from(el.attributes).forEach(attr => el.removeAttribute(attr.name));
+                        // Strip all attributes from allowed tags, except preserve list-style-type on ol elements
+                        Array.from(el.attributes).forEach(attr => {
+                            if (el.tagName.toLowerCase() === 'ol' && attr.name === 'style') {
+                                // Only keep list-style-type — strip everything else from the style string
+                                const match = attr.value.match(/list-style-type\s*:\s*[^;]+/);
+                                if (match) {
+                                    el.setAttribute('style', match[0]);
+                                } else {
+                                    el.removeAttribute('style');
+                                }
+                                return;
+                            }
+                            el.removeAttribute(attr.name);
+                        });
                     }
                 });
             }
@@ -210,7 +222,7 @@
                 html += '<tr>';
                 for (let c = 0; c < cols; c++) {
                     const tag = r === 0 ? 'th' : 'td';
-                    html += `<${tag} style="border:1px solid #ccc;padding:6px 10px;min-width:60px;" contenteditable="true">${r===0?'Header ':''}</th>`;
+                    html += `<${tag} style="border:1px solid #ccc;padding:6px 10px;min-width:60px;" contenteditable="true">${r===0?'Header ':''}</${tag}>`;
                 }
                 html += '</tr>';
             }
