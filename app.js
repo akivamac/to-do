@@ -49,7 +49,6 @@
         // ── Landing Page Functions ────────────────────────────────
         function showLandingPage() {
             document.getElementById('landingPage').classList.remove('hidden');
-            document.getElementById('initialChoice').classList.add('hidden');
             // Auto-detect OS
             detectAndSelectOS();
             // Load reviews if Backside is configured
@@ -140,11 +139,9 @@
         function checkShowLandingPage() {
             const isLoggedIn = localStorage.getItem('currentUser');
             const landingPage = document.getElementById('landingPage');
-            const initialChoice = document.getElementById('initialChoice');
 
-            if (!isLoggedIn && landingPage && initialChoice) {
+            if (!isLoggedIn && landingPage) {
                 landingPage.classList.remove('hidden');
-                initialChoice.classList.add('hidden');
                 detectAndSelectOS();
             } else if (isLoggedIn && landingPage) {
                 landingPage.classList.add('hidden');
@@ -160,7 +157,7 @@
 
         // Global Variables
         let currentUser = null;
-        let currentScreen = 'initialChoice';
+        let currentScreen = 'landingPage';
         let tasks = {};
         let hugGroups = [];
         let completedTasksCount = 0;
@@ -219,7 +216,7 @@
         function showScreen(screenId) {
             // Hide all screens
             const screens = [
-                'landingPage', 'initialChoice', 'passcodeGate', 'accountTypeSelection',
+                'landingPage', 'passcodeGate', 'accountTypeSelection',
                 'createPersonalAccount', 'loginPersonalAccount', 'groupSetup',
                 'createGroupAdmin', 'groupJoin', 'showGroupCredentials',
                 'welcomeScreen', 'mainApp'
@@ -770,7 +767,7 @@
                 projects           = [];
                 notes              = [];
                 currentNoteId      = null;
-                showScreen('initialChoice');
+                showScreen('landingPage');
             });
         }
 
