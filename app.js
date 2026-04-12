@@ -260,16 +260,17 @@
                     showScreen('mainApp');
                 }
             } else {
-                // Check for pending route from 404.html redirect (stored in global by initRouter)
-                const pendingRoute = typeof pendingRouterPath !== 'undefined' ? pendingRouterPath : null;
-                if (pendingRoute && pendingRoute.includes('/to-do/login')) {
+                // Use _startRoute flag set synchronously at page start
+                if (window._startRoute === 'login') {
                     showScreen('loginPersonalAccount');
-                } else if (pendingRoute && pendingRoute.includes('/to-do/sign-up')) {
+                    history.replaceState({}, '', '/to-do/login');
+                } else if (window._startRoute === 'signup') {
                     showScreen('createPersonalAccount');
+                    history.replaceState({}, '', '/to-do/sign-up');
                 } else {
                     showScreen('landingPage');
                 }
-                sessionStorage.removeItem('routerPath');
+                window._startRoute = null;
             }
         }
 
