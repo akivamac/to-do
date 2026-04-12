@@ -7,12 +7,9 @@
 </head>
 <body>
     <script>
-        // Store the current path in sessionStorage
         const path = window.location.pathname;
-        sessionStorage.setItem('routerPath', path);
-
-        // Redirect to index.html
-        window.location.replace(path.split('/').slice(0, -1).join('/') + '/index.html');
+        const route = path.replace('/to-do', '').replace('/', '') || '';
+        window.location.replace('/to-do/' + (route ? 'index.html?route=' + route : 'index.html'));
     </script>
 </body>
 </html>

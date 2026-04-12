@@ -947,20 +947,16 @@
     </style>
 
     <script>
-        const _path = sessionStorage.getItem('routerPath') || window.location.pathname;
-        sessionStorage.removeItem('routerPath');
+        const _route = new URLSearchParams(window.location.search).get('route');
+        if (_route) history.replaceState({}, '', '/to-do/' + _route);
+        if (_route === 'login') window._startRoute = 'login';
+        else if (_route === 'sign-up') window._startRoute = 'signup';
 
         window.addEventListener('popstate', () => {
             const p = window.location.pathname;
             if (p.includes('/login')) showSignIn();
             else if (p.includes('/sign-up')) showCreateAccount();
         });
-
-        if (_path.includes('/login')) {
-            window._startRoute = 'login';
-        } else if (_path.includes('/sign-up')) {
-            window._startRoute = 'signup';
-        }
     </script>
 </body>
 </html>
