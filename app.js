@@ -260,7 +260,15 @@
                     showScreen('mainApp');
                 }
             } else {
-                showScreen('landingPage');
+                // Check for pending route from 404.html redirect
+                const pendingRoute = sessionStorage.getItem('routerPath');
+                if (pendingRoute && pendingRoute.includes('/to-do/login')) {
+                    showScreen('loginPersonalAccount');
+                } else if (pendingRoute && pendingRoute.includes('/to-do/sign-up')) {
+                    showScreen('createPersonalAccount');
+                } else {
+                    showScreen('landingPage');
+                }
             }
         }
 
