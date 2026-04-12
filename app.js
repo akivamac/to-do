@@ -1124,6 +1124,91 @@
             });
         }
 
+        // ── Past Incomplete Tasks Modal ────────────────────────────
+        function showPastIncompleteTasks() {
+            const today = formatDate(new Date());
+            const pastIncomplete = {};
+
+            // Collect all incomplete tasks from previous days
+            Object.entries(tasks).forEach(([dateStr, dayTasks]) => {
+                if (dateStr < today && dayTasks.length > 0) {
+                    const incompleteTasks = dayTasks.filter(t => !t.completed);
+                    if (incompleteTasks.length > 0) {
+                        pastIncomplete[dateStr] = incompleteTasks;
+                    }
+                }
+            });
+
+            if (Object.keys(pastIncomplete).length === 0) {
+                showCustomAlert('No incomplete tasks from previous days! Great job! 🎉', '✅ All Caught Up');
+                return;
+            }
+
+            const modalDiv = document.createElement('div');
+            modalDiv.id = 'pastIncompleteModal';
+            modalDiv.innerHTML = `
+                <div class="alert-overlay" onclick="document.getElementById('pastIncompleteModal').remove()"></div>
+                <div class="custom-alert" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                    <h3 style="margin-top: 0; color: #5e8fb5;">📋 Unfinished from previous days</h3>
+            `;
+
+            // Sort dates in reverse (newest first, but all before today)
+            const sortedDates = Object.keys(pastIncomplete).sort().reverse();
+            sortedDates.forEach(dateStr => {
+                const date = new Date(dateStr);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                modalDiv.innerHTML += `<div style="margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 12px;">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 8px;">📅 ${dayName}</div>`;
+
+                pastIncomplete[dateStr].forEach((task, idx) => {
+                    const taskId = `pastTask_${dateStr}_${idx}`;
+                    modalDiv.innerHTML += `
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border-radius: 6px;">
+                            <input type="checkbox" id="${taskId}" onchange="completePastTask('${escapeHtml(dateStr)}', ${idx})">
+                            <span style="flex: 1; word-break: break-word; color: #555;">${escapeHtml(task.text)}</span>
+                            <button class="login-btn" style="padding: 4px 8px; font-size: 11px; margin: 0;" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'today')">Today</button>
+                            <button class="login-btn" style="padding: 4px 8px; font-size: 11px; margin: 0;" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'tomorrow')">Tomorrow</button>
+                        </div>`;
+                });
+                modalDiv.innerHTML += `</div>`;
+            });
+
+            modalDiv.innerHTML += `
+                    <div style="margin-top: 16px; text-align: center;">
+                        <button class="login-btn" onclick="document.getElementById('pastIncompleteModal').remove()" style="margin: 0;">Close</button>
+                    </div>
+                </div>`;
+
+            document.body.appendChild(modalDiv);
+        }
+
+        function completePastTask(dateStr, idx) {
+            if (tasks[dateStr] && tasks[dateStr][idx]) {
+                tasks[dateStr][idx].completed = true;
+                saveUserData();
+                // Refresh the modal
+                document.getElementById('pastIncompleteModal').remove();
+                showPastIncompleteTasks();
+            }
+        }
+
+        function reschedulePastTask(dateStr, idx, target) {
+            if (!tasks[dateStr] || !tasks[dateStr][idx]) return;
+            const task = tasks[dateStr][idx];
+
+            // Remove from old date
+            tasks[dateStr].splice(idx, 1);
+
+            // Add to new date
+            const newDate = target === 'today' ? formatDate(new Date()) : formatDate(new Date(Date.now() + 86400000));
+            if (!tasks[newDate]) tasks[newDate] = [];
+            tasks[newDate].push(task);
+
+            saveUserData();
+            // Refresh the modal
+            document.getElementById('pastIncompleteModal').remove();
+            showPastIncompleteTasks();
+        }
 
         // ── Hints Banner (once per session) ─────────────────────────
         function showHintsBanner() {
