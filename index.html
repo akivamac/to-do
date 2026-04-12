@@ -709,6 +709,14 @@
                     <button class="login-btn" onclick="generateInviteLink()">Generate Invite Link</button>
                 </div>
 
+                <!-- Clear Data Section -->
+                <div class="admin-card">
+                    <h3>🗑️ Clear Data & Cache</h3>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 14px;">If the app is running slowly or using too much storage, you can clear all cached data and start fresh. You'll need to sign in again.</p>
+                    <button class="login-btn" onclick="clearAllData()" style="background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);">Clear All Data</button>
+                    <div id="clearDataMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Data cleared! Reloading...</div>
+                </div>
+
                 <!-- Group Admin Section -->
                 <div id="groupAdminSection" class="hidden">
                     <div class="admin-card">

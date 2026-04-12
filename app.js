@@ -1468,6 +1468,52 @@
             document.getElementById('updateBanner').classList.remove('show');
         }
 
+        // ── Clear Data & Cache ────────────────────────────────────
+
+        async function clearAllData() {
+            if (!confirm('⚠️ This will clear all cached data, offline storage, and service worker cache. You will need to sign in again. Continue?')) {
+                return;
+            }
+
+            try {
+                // Clear localStorage
+                localStorage.clear();
+
+                // Clear sessionStorage
+                sessionStorage.clear();
+
+                // Unregister service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+
+                // Clear cache storage
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                    }
+                }
+
+                // Show message
+                const msgEl = document.getElementById('clearDataMessage');
+                if (msgEl) {
+                    msgEl.style.display = 'block';
+                }
+
+                // Reload after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } catch (e) {
+                showCustomAlert('Error clearing data: ' + e.message);
+                console.error(e);
+            }
+        }
+
         // ── Error Logging ──────────────────────────────────────────
 
         async function logError(errorMessage, context = '') {
