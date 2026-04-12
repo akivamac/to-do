@@ -1514,6 +1514,189 @@
             }
         }
 
+        // ── Shared Lists Management ────────────────────────────────
+
+        let lists = [];
+        let currentListId = null;
+        let listsPollingInterval = null;
+
+        async function loadLists() {
+            if (!bsIsConfigured()) return;
+            try {
+                const notes = await bsFetchNotes();
+                lists = notes.filter(n => n.tags && n.tags.includes('peaceful-list')).sort((a, b) => {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+                renderLists();
+            } catch (e) {
+                console.error('Error loading lists:', e);
+            }
+        }
+
+        function renderLists() {
+            const listsList = document.getElementById('listsList');
+            if (!listsList) return;
+
+            if (lists.length === 0) {
+                listsList.innerHTML = '<p style="color: #999; grid-column: 1/-1; text-align: center; padding: 20px;">No lists yet. Create one to get started!</p>';
+                return;
+            }
+
+            listsList.innerHTML = lists.map(list => `
+                <div onclick="openListDetail('${list.id}')" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;">
+                    <h4 style="color: #5e8fb5; margin: 0 0 8px 0;">${list.title || 'Untitled'}</h4>
+                    <p style="color: #999; margin: 0; font-size: 12px;">Tap to edit</p>
+                </div>
+            `).join('');
+        }
+
+        async function createList() {
+            const nameInput = document.getElementById('newListName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            if (!bsIsConfigured()) {
+                showCustomAlert('Lists require Backside to be configured.');
+                return;
+            }
+
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                await bsCreateNote({
+                    title: name,
+                    body: '', // Empty list starts with no items
+                    tags: ['peaceful-list'],
+                    encrypted: true,
+                    metadata: { contact_id: localStorage.getItem('currentContactId'), created_by: currentUser.username }
+                });
+                nameInput.value = '';
+                await loadLists();
+            } catch (e) {
+                showCustomAlert('Error creating list');
+                console.error(e);
+            }
+        }
+
+        function openListDetail(listId) {
+            const list = lists.find(l => l.id === listId);
+            if (!list) return;
+
+            currentListId = listId;
+            document.getElementById('listsListView').classList.add('hidden');
+            document.getElementById('listsDetailView').classList.remove('hidden');
+            document.getElementById('listDetailTitle').textContent = list.title || 'List';
+            document.getElementById('listItemInput').value = '';
+            document.getElementById('listItemInput').focus();
+
+            renderListItems(list);
+
+            // Start polling while list is open
+            if (listsPollingInterval) clearInterval(listsPollingInterval);
+            listsPollingInterval = setInterval(() => {
+                loadLists().then(() => {
+                    const updated = lists.find(l => l.id === listId);
+                    if (updated) renderListItems(updated);
+                });
+            }, 5000);
+        }
+
+        function renderListItems(list) {
+            const itemsList = document.getElementById('listItemsList');
+            if (!itemsList) return;
+
+            const items = parseListItems(list.body || '');
+            itemsList.innerHTML = items.map((item, idx) => `
+                <div style="display: flex; align-items: center; padding: 8px; background: ${item.checked ? '#f5f5f5' : 'white'}; border-radius: 4px; margin-bottom: 8px;">
+                    <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleListItem('${currentListId}', ${idx})" style="width: 18px; height: 18px; cursor: pointer; margin-right: 10px;" />
+                    <span style="flex: 1; ${item.checked ? 'text-decoration: line-through; color: #999;' : 'color: #333;'}">${item.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function parseListItems(body) {
+            const items = [];
+            const lines = body.split('\n');
+            lines.forEach(line => {
+                const checkboxMatch = line.match(/^- \[([ xX])\] (.+)$/);
+                if (checkboxMatch) {
+                    items.push({
+                        checked: checkboxMatch[1].toLowerCase() === 'x',
+                        text: checkboxMatch[2]
+                    });
+                }
+            });
+            return items;
+        }
+
+        function itemsToMarkdown(items) {
+            return items.map(item => `- [${item.checked ? 'x' : ' '}] ${item.text}`).join('\n');
+        }
+
+        async function addListItem() {
+            const input = document.getElementById('listItemInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const list = lists.find(l => l.id === currentListId);
+            if (!list) return;
+
+            const items = parseListItems(list.body || '');
+            items.push({ checked: false, text });
+
+            try {
+                await bsUpdateNote(currentListId, { body: itemsToMarkdown(items) });
+                input.value = '';
+                await loadLists();
+                const updated = lists.find(l => l.id === currentListId);
+                if (updated) renderListItems(updated);
+            } catch (e) {
+                showCustomAlert('Error adding item');
+                console.error(e);
+            }
+        }
+
+        async function toggleListItem(listId, index) {
+            const list = lists.find(l => l.id === listId);
+            if (!list) return;
+
+            const items = parseListItems(list.body || '');
+            if (index < items.length) {
+                items[index].checked = !items[index].checked;
+                try {
+                    await bsUpdateNote(listId, { body: itemsToMarkdown(items) });
+                    await loadLists();
+                    const updated = lists.find(l => l.id === listId);
+                    if (updated) renderListItems(updated);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        async function clearListChecked() {
+            const list = lists.find(l => l.id === currentListId);
+            if (!list) return;
+
+            const items = parseListItems(list.body || '').filter(item => !item.checked);
+
+            try {
+                await bsUpdateNote(currentListId, { body: itemsToMarkdown(items) });
+                await loadLists();
+                const updated = lists.find(l => l.id === currentListId);
+                if (updated) renderListItems(updated);
+            } catch (e) {
+                showCustomAlert('Error clearing items');
+                console.error(e);
+            }
+        }
+
+        function closeListDetail() {
+            if (listsPollingInterval) clearInterval(listsPollingInterval);
+            currentListId = null;
+            document.getElementById('listsDetailView').classList.add('hidden');
+            document.getElementById('listsListView').classList.remove('hidden');
+        }
+
         // ── Error Logging ──────────────────────────────────────────
 
         async function logError(errorMessage, context = '') {

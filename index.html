@@ -407,6 +407,7 @@
                 <button class="nav-item active" onclick="showTab('today')">Today</button>
                 <button class="nav-item" onclick="showTab('days')">Days</button>
                 <button class="nav-item" onclick="showTab('projects')">Projects</button>
+                <button class="nav-item" onclick="showTab('lists')">Lists</button>
                 <button class="nav-item" onclick="showTab('notes')">Notes</button>
                 <button class="nav-item" onclick="showTab('hugs')">Points</button>
                 <button class="nav-item" onclick="showTab('alarms')">Alarms</button>
@@ -474,6 +475,34 @@
                             <button class="login-btn" onclick="addTaskToProject()" style="margin: 0; padding: 14px 20px;">Add</button>
                         </div>
                         <div id="projectTasksList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lists Tab -->
+            <div id="listsTab" class="hidden">
+                <div id="listsListView">
+                    <div class="admin-card">
+                        <h3>📋 Shared Lists</h3>
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <input type="text" id="newListName" class="login-input" style="margin: 0; flex: 1;" placeholder="New list name (e.g. Groceries)..." />
+                            <button class="login-btn" onclick="createList()" style="margin: 0; padding: 14px 24px;">Create</button>
+                        </div>
+                        <div id="listsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;"></div>
+                    </div>
+                </div>
+                <div id="listsDetailView" class="hidden">
+                    <div class="admin-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="closeListDetail()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
+                            <h3 id="listDetailTitle" style="margin: 0; color: #5e8fb5; flex: 1;"></h3>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="listItemInput" class="login-input" style="margin: 0; flex: 1;" placeholder="Add item..." />
+                            <button class="login-btn" onclick="addListItem()" style="margin: 0; padding: 12px 20px;">Add</button>
+                        </div>
+                        <div id="listItemsList" style="margin-bottom: 15px;"></div>
+                        <button class="login-btn" onclick="clearListChecked()" style="background: #66bb6a;">Clear Checked</button>
                     </div>
                 </div>
             </div>
