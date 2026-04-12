@@ -419,8 +419,8 @@
                     }
                     await loadAndShowApp();
                 } catch(err) {
-                    errorDiv.textContent = 'Connection error — please try again.';
-                    console.error(err);
+                    console.error('Login error:', err);
+                    errorDiv.textContent = 'Connection error — check your API key in backside.js or try again.';
                 }
                 return;
             }
