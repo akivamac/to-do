@@ -661,40 +661,45 @@
         /* Days Grid */
         .days-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
         }
 
         .day-card {
             background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            min-width: 120px;
+            text-align: center;
         }
 
         .day-card:hover {
             border-color: #5e8fb5;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            background: #f9fafb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .day-date {
-            font-size: 14px;
+            font-size: 11px;
             color: #999;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .day-name {
-            font-size: 20px;
+            font-size: 14px;
             font-weight: 600;
             color: #5e8fb5;
             margin-bottom: 10px;
         }
 
         .task-count {
-            font-size: 14px;
+            font-size: 11px;
             color: #666;
         }
 
@@ -1017,7 +1022,8 @@
             .task-text { font-size: 14px; }
 
             .days-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 8px;
             }
 
             .account-item {

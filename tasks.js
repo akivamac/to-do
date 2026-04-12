@@ -457,24 +457,16 @@
             const grid = document.getElementById('daysGrid');
             grid.innerHTML = '';
 
-            // On small screens show ±2 days around today (5 total: -2,-1,0,+1,+2)
-            // On larger screens show next 90 days
-            const isSmall = window.matchMedia('(max-width:600px)').matches;
+            // Show ±2 days around today + next 90 days. Day cards are compact to fit more.
+            // On mobile, cards are scrollable horizontally rather than hidden.
             const today = new Date();
 
             const entries = [];
-            if (isSmall) {
-                for (let i = -2; i <= 2; i++) {
-                    const d = new Date(today);
-                    d.setDate(today.getDate() + i);
-                    entries.push({ offset: i, date: d });
-                }
-            } else {
-                for (let i = 1; i < 91; i++) {
-                    const d = new Date(today);
-                    d.setDate(today.getDate() + i);
-                    entries.push({ offset: i, date: d });
-                }
+            // Include past 2 days + today + next 87 days = 90 days total
+            for (let i = -2; i < 88; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() + i);
+                entries.push({ offset: i, date: d });
             }
 
             entries.forEach(({ offset, date }) => {
