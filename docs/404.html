@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peaceful Tasks - Redirecting</title>
+</head>
+<body>
+    <script>
+        // Store the current path in sessionStorage
+        const path = window.location.pathname;
+        sessionStorage.setItem('routerPath', path);
+
+        // Redirect to index.html
+        window.location.replace(path.split('/').slice(0, -1).join('/') + '/index.html');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5e8fb5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Peaceful Tasks">
+
+    <!-- SEO Meta Tags -->
+    <title>Peaceful Tasks - Secure End-to-End Encrypted To-Do App</title>
+    <meta name="description" content="Peaceful Tasks is a secure, end-to-end encrypted to-do app designed for calm productivity. Organize tasks, collaborate with family, earn rewards, and enjoy a peaceful interface.">
+    <meta name="keywords" content="to-do app, task manager, encrypted, secure, productivity, family sharing, end-to-end encryption, peaceful">
+    <meta name="author" content="Akiva Mac">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://akivamac.github.io/to-do/">
+    <meta property="og:title" content="Peaceful Tasks - Secure To-Do App">
+    <meta property="og:description" content="A calm, secure, end-to-end encrypted to-do app where productivity meets peace.">
+    <meta property="og:image" content="https://akivamac.github.io/to-do/icon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Peaceful Tasks - Secure To-Do App">
+    <meta name="twitter:description" content="A calm, secure, end-to-end encrypted to-do app where productivity meets peace.">
+    <meta name="twitter:image" content="https://akivamac.github.io/to-do/icon-512.png">
+
+    <!-- Canonical URL -->
+    <meta property="og:url" content="https://akivamac.github.io/to-do/">
+    <link rel="canonical" href="https://akivamac.github.io/to-do/">
+
+    <!-- Additional Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Install Banner -->
+    <div id="installBanner" class="install-banner">
+        <p>📱 Install Peaceful Tasks as an app for quick access!</p>
+        <button onclick="installApp()">Install App</button>
+        <button onclick="dismissInstall()" style="background: transparent; color: white; border: 2px solid white;">Maybe Later</button>
+    </div>
+
+    <!-- Hug Toast -->
+    <div id="hugToast" class="hug-toast">
+        <div class="hug-toast-content">
+            🎉 You earned a point! 🤗
+        </div>
+    </div>
+
+    <!-- Update Banner -->
+    <div id="updateBanner" class="update-banner">
+        🎉 A new version is available!
+        <button onclick="updateApp()">Update Now</button>
+        <button onclick="dismissUpdate()">Got it!</button>
+    </div>
+
+    <!-- Welcome Landing Page -->
+    <div id="landingPage" class="container">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+            <!-- Hero Section -->
+            <section style="text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%); border-radius: 12px; margin-bottom: 40px;">
+                <h1 style="font-size: 42px; color: #333; margin: 0 0 10px 0; font-weight: 700;">Welcome to Peaceful Tasks</h1>
+                <p style="font-size: 18px; color: #666; margin: 0 0 20px 0;">Where peace meets productivity</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="login-btn" onclick="showSignIn()" style="padding: 15px 40px; font-size: 16px; background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);">Sign In</button>
+                    <button class="login-btn" onclick="showCreateAccount()" style="padding: 15px 40px; font-size: 16px;">Sign Up</button>
+                </div>
+                <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    <p style="color: #856404; margin: 0; font-weight: 600; font-size: 14px;">⚠️ Coming Soon</p>
+                    <p style="color: #856404; margin: 8px 0 0 0; font-size: 13px; line-height: 1.5;">This app may not work or save info properly. You can explore and get to know it, but don't expect it to work perfectly. Hopefully launching this week! Please check back.</p>
+                </div>
+            </section>
+
+            <!-- Calm Moment Callout -->
+            <!-- NOTE: The "10+ times a day" statistic is illustrative and should be verified before launch -->
+            <section style="background: #f0f5f7; padding: 30px 20px; border-radius: 12px; margin-bottom: 60px; text-align: center;">
+                <p style="color: #5a7c8a; font-size: 15px; line-height: 1.7; margin: 0; font-style: italic;">Studies suggest the average person checks their to-do list more than 10 times a day. We think every one of those moments should feel calm.</p>
+            </section>
+
+            <!-- Features Section -->
+            <section style="margin-bottom: 60px;">
+                <h2 style="font-size: 28px; color: #333; text-align: center; margin-bottom: 40px;">What you get</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <!-- Feature 1: Security -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Security - End-to-end encryption">🔐</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Security</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">End-to-end encryption on everything. Your data is encrypted before it ever leaves your device.</p>
+                    </div>
+                    <!-- Feature 2: Organization -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Organization - Projects and task management">📁</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Organization</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Projects and movable tasks so you decide exactly where everything lives on your list.</p>
+                    </div>
+                    <!-- Feature 3: Collaboration -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Collaboration - Family and group sharing">👥</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Collaboration</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Group and family accounts built in. Everyone stays in sync.</p>
+                    </div>
+                    <!-- Feature 4: More Features -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="More Features - Rewards, alarms, timers">⭐</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">More features</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">A full points and rewards system, plus alarms, timers, and a stopwatch built right in.</p>
+                    </div>
+                    <!-- Feature 5: Stress-free by design -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="Stress-free by design">🌸</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Stress-free by design</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Stressful words in your task names? We'll quietly suggest a calmer way to phrase it. No pressure — just a gentle nudge toward a more peaceful mindset.</p>
+                    </div>
+                    <!-- Feature 6: No overwhelm -->
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="font-size: 40px; margin-bottom: 12px;" title="No overwhelm">😌</div>
+                        <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">No overwhelm</h3>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">No endless dashboards, no notification floods, no guilt. Just your tasks, clearly laid out, at your own pace.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Get the App Section -->
+            <section style="background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 40px; margin-bottom: 60px;">
+                <h2 style="font-size: 28px; color: #333; margin-top: 0; margin-bottom: 20px;">Get the App</h2>
+                <p style="color: #666; margin: 0 0 24px 0; font-size: 14px; line-height: 1.6;">We don't offer App Store access, but you can install Peaceful Tasks directly from here. Once installed, it works offline and launches from your home screen like a native app. On Android you may see a prompt to allow installation from unknown sources — just follow the popup that appears and you'll be all set.</p>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">Select your device:</label>
+                    <select id="osSelector" class="login-input" style="margin: 0; max-width: 300px;" onchange="updateInstallInstructions(this.value)">
+                        <option value="">Choose your device...</option>
+                        <option value="android">Android</option>
+                        <option value="ios">iOS</option>
+                        <option value="macos">macOS</option>
+                        <option value="windows">Windows</option>
+                        <option value="linux">Linux</option>
+                    </select>
+                </div>
+
+                <div id="installInstructions" style="background: #f5f5f5; border-radius: 8px; padding: 20px; display: none;">
+                    <!-- Android Instructions -->
+                    <div id="androidInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on Android</h3>
+                        <p style="color: #666; margin: 12px 0;">Chrome or Firefox will show an install prompt. Just tap <strong>"Install"</strong> when you see it.</p>
+                        <p style="color: #666; margin: 12px 0;">If you don't see a prompt, or it's already installed:</p>
+                        <ol style="color: #666; padding-left: 20px; margin: 12px 0;">
+                            <li>Tap the menu (three dots) in your browser</li>
+                            <li>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
+                        </ol>
+                        <button class="login-btn" onclick="triggerInstallPrompt()" style="margin-top: 12px; padding: 12px 24px;">Install Peaceful Tasks</button>
+                    </div>
+                    <!-- iOS Instructions -->
+                    <div id="iosInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on iOS</h3>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Open this page in <strong>Safari</strong></li>
+                            <li>Tap the <strong>Share</strong> button (box with arrow)</li>
+                            <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                            <li>Confirm with <strong>"Add"</strong></li>
+                        </ol>
+                        <p style="color: #999; margin-top: 16px; font-size: 13px;">Peaceful Tasks will now appear on your home screen like a regular app!</p>
+                    </div>
+                    <!-- macOS Instructions -->
+                    <div id="macosInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on macOS</h3>
+                        <p style="color: #666; margin: 0 0 12px 0;">Use <strong>Chrome</strong>, <strong>Edge</strong>, or <strong>Brave</strong> for the best experience:</p>
+                        <ol style="color: #666; padding-left: 20px; margin: 0 0 16px 0;">
+                            <li>Open <a href="https://akivamac.github.io/to-do/" target="_blank" style="color:#5e8fb5;">akivamac.github.io/to-do</a> in Chrome, Edge, or Brave</li>
+                            <li>Look for the <strong>install icon</strong> (a monitor with a down arrow) on the right side of the address bar</li>
+                            <li>Click it, then click <strong>"Install"</strong> in the popup</li>
+                            <li>Peaceful Tasks will appear in your Applications folder and Dock</li>
+                        </ol>
+                        <p style="color: #666; margin: 0 0 12px 0;">Don't see the install icon? Try:</p>
+                        <ol style="color: #666; padding-left: 20px; margin: 0 0 16px 0;">
+                            <li>Click the three-dot menu (⋮) in Chrome or Edge</li>
+                            <li>Select <strong>"Cast, save, and share"</strong> → <strong>"Install page as app"</strong></li>
+                        </ol>
+                        <p style="color: #666; margin: 0 0 12px 0;">Or save the app file directly to use offline:</p>
+                        <a href="index.html" download="peaceful-tasks.html" style="display:inline-block;background:#64b5f6;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;margin-top:4px;">Download App File</a>
+                    </div>
+                    <!-- Windows Instructions -->
+                    <div id="windowsInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on Windows</h3>
+                        <p style="color: #666; margin: 12px 0;">Use <strong>Chrome</strong>, <strong>Edge</strong>, or <strong>Brave</strong>:</p>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Look for the <strong>install icon</strong> in the address bar (right side)</li>
+                            <li>Click it and confirm</li>
+                        </ol>
+                        <p style="color: #666; margin: 12px 0;">Or save locally:</p>
+                        <a href="index.html" style="display: inline-block; background: #64b5f6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 8px;">Download index.html</a>
+                    </div>
+                    <!-- Linux Instructions -->
+                    <div id="linuxInstructions" style="display: none;">
+                        <h3 style="color: #333; margin-top: 0;">Install on Linux</h3>
+                        <p style="color: #666; margin: 12px 0;">Use <strong>Chrome</strong>, <strong>Chromium</strong>, or <strong>Brave</strong>:</p>
+                        <ol style="color: #666; padding-left: 20px;">
+                            <li>Look for the <strong>install icon</strong> in the address bar (right side)</li>
+                            <li>Click it and confirm</li>
+                        </ol>
+                        <p style="color: #666; margin: 12px 0;">Or save locally:</p>
+                        <a href="index.html" style="display: inline-block; background: #64b5f6; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 8px;">Download index.html</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section style="margin-bottom: 60px;">
+                <h2 style="font-size: 28px; color: #333; text-align: center; margin-bottom: 40px;">What people are saying</h2>
+                <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <p style="color: #999; margin: 0; font-size: 14px;">Be the first to leave a review!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="text-align: center; padding: 20px; border-top: 1px solid #eee;">
+                <div style="margin-bottom: 16px;">
+                    <a href="#" onclick="showLegalModal('terms'); return false;" style="color: #5e8fb5; text-decoration: none; margin: 0 8px; font-size: 13px;">Terms</a>
+                    <span style="color: #ddd;">·</span>
+                    <a href="#" onclick="showLegalModal('privacy'); return false;" style="color: #5e8fb5; text-decoration: none; margin: 0 8px; font-size: 13px;">Privacy</a>
+                    <span style="color: #ddd;">·</span>
+                    <a href="#" onclick="showLegalModal('security'); return false;" style="color: #5e8fb5; text-decoration: none; margin: 0 8px; font-size: 13px;">Security</a>
+                </div>
+                <p style="color: #999; font-size: 12px; margin: 0;">Peaceful Tasks • Built with 🌸 for calm productivity</p>
+            </footer>
+        </div>
+    </div>
+
+
+    <!-- Passcode Gate -->
+    <div id="passcodeGate" class="container hidden">
+        <div class="login-screen">
+            <h1>🔑 Choose Your Password</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Create a password you'll use to sign in</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #999;">Save this password - you'll need it every time you sign in!</p>
+            <input type="password" id="passcodeInput" class="login-input" placeholder="Enter password" autocomplete="current-password" name="passcode" />
+            <button class="login-btn" onclick="checkPasscode()">Continue</button>
+            <button class="login-btn back-btn" onclick="showLandingPage()">Back</button>
+            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 10px; font-size: 14px; padding: 10px 20px;">📲 Install App</button>
+            <div id="passcodeError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Account Type Selection -->
+    <div id="accountTypeSelection" class="container hidden">
+        <div class="login-screen">
+            <h1>👤 New Account Setup</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">What type of account do you want to create?</p>
+            <p style="margin-bottom: 30px; font-size: 14px; color: #999;">Personal = just for you | Group/Family = share tasks with others</p>
+            <button class="login-btn" onclick="selectAccountType('personal')">
+                <div style="font-size: 18px; margin-bottom: 5px;">Personal Account</div>
+                <div style="font-size: 12px; opacity: 0.8;">For individual use only</div>
+            </button>
+            <button class="login-btn" onclick="selectAccountType('group')">
+                <div style="font-size: 18px; margin-bottom: 5px;">Group/Family Account</div>
+                <div style="font-size: 12px; opacity: 0.8;">Share tasks with family or team</div>
+            </button>
+            <button class="login-btn back-btn" onclick="backToPasscodeGate()">Back</button>
+            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 10px; font-size: 14px; padding: 10px 20px;">📲 Install App</button>
+        </div>
+    </div>
+
+    <!-- Create Personal Account -->
+    <div id="createPersonalAccount" class="container hidden">
+        <div class="login-screen">
+            <h1>👤 Create Personal Account</h1>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">Set up your personal task management account</p>
+            <div id="inviteHint" style="display:none;background:#e8f5e9;color:#2e7d32;border-radius:8px;padding:10px 16px;margin:0 auto 16px;max-width:400px;font-size:14px;"></div>
+            <div style="background:#fff8e1;border-left:3px solid #ffc107;border-radius:8px;padding:12px 16px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:13px;color:#555;">
+                💡 Tip: use your password manager to generate a long random password — it's more secure than 2FA and you never have to think about it.
+            </div>
+            <form onsubmit="event.preventDefault(); createPersonalAccount();" autocomplete="on" style="width:100%;max-width:400px;margin:0 auto;">
+                <input type="text" id="personalUsername" name="username" autocomplete="username"
+                    class="login-input" placeholder="Choose a username (e.g., alex_smith)" />
+                <input type="password" id="personalPassword" name="new-password" autocomplete="new-password"
+                    class="login-input" placeholder="Choose a password" />
+                <input type="password" id="personalConfirmPassword" name="confirm-password" autocomplete="new-password"
+                    class="login-input" placeholder="Confirm password" />
+                <button type="submit" class="login-btn" style="width:calc(100% - 20px);">Create My Account</button>
+            </form>
+            <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
+            <div id="personalAccountError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Login to Personal Account -->
+    <div id="loginPersonalAccount" class="container hidden">
+        <div class="login-screen">
+            <h1>🔓 Sign In</h1>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">Enter your username and password to access your account</p>
+            <form onsubmit="event.preventDefault(); loginPersonalAccount();" autocomplete="on" style="width:100%;max-width:400px;margin:0 auto;">
+                <input type="text" id="loginUsername" name="username" autocomplete="username"
+                    class="login-input" placeholder="Username" />
+                <input type="password" id="loginPassword" name="password" autocomplete="current-password"
+                    class="login-input" placeholder="Password" />
+                <button type="submit" class="login-btn" style="width:calc(100% - 20px);">Sign In</button>
+            </form>
+            <button class="login-btn back-btn" onclick="showLandingPage()">Back</button>
+            <div id="loginAccountError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Group Setup -->
+    <div id="groupSetup" class="container hidden">
+        <div class="login-screen">
+            <h1>👥 Group/Family Setup</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Are you creating a new group or joining an existing one?</p>
+            <p style="margin-bottom: 30px; font-size: 14px; color: #999;">The admin manages the group and can invite others</p>
+            <button class="login-btn" onclick="setupGroupAdmin()">
+                <div style="font-size: 18px; margin-bottom: 5px;">I'm Creating a New Group</div>
+                <div style="font-size: 12px; opacity: 0.8;">I'll be the admin and invite others</div>
+            </button>
+            <button class="login-btn" onclick="showGroupJoin()">
+                <div style="font-size: 18px; margin-bottom: 5px;">I'm Joining an Existing Group</div>
+                <div style="font-size: 12px; opacity: 0.8;">Someone invited me to their group</div>
+            </button>
+            <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
+        </div>
+    </div>
+
+    <!-- Create Group Admin -->
+    <div id="createGroupAdmin" class="container hidden">
+        <div class="login-screen">
+            <h1>👑 Create Group Admin Account</h1>
+            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">This will be your group's main account</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #999;">You'll get a group password to share with members</p>
+            <input type="text" id="groupAdminUsername" class="login-input" placeholder="Group username (e.g., smith_family)" />
+            <input type="password" id="groupAdminPassword" class="login-input" placeholder="Your admin password" />
+            <input type="password" id="groupAdminConfirm" class="login-input" placeholder="Confirm password" />
+            <button class="login-btn" onclick="createGroupAdmin()">Create Group</button>
+            <button class="login-btn back-btn" onclick="backToGroupSetup()">Back</button>
+            <div id="groupAdminError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Group Join -->
+    <div id="groupJoin" class="container hidden">
+        <div class="login-screen">
+            <h1>🤝 Join a Group</h1>
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">📋 You'll need from your admin:</p>
+                <ul style="text-align: left; color: #1976d2; font-size: 14px; padding-left: 20px;">
+                    <li>GROUP username (shared by everyone)</li>
+                    <li>GROUP password (shared by everyone)</li>
+                    <li>YOUR personal username (if they created one for you)</li>
+                </ul>
+            </div>
+            <input type="text" id="groupJoinUsername" class="login-input" placeholder="GROUP username (everyone uses this)" />
+            <input type="password" id="groupJoinPassword" class="login-input" placeholder="GROUP password (everyone uses this)" />
+            <input type="text" id="yourNameInGroup" class="login-input" placeholder="YOUR username (your admin gave you this)" />
+            <button class="login-btn" onclick="joinGroup()">Join Group</button>
+            <button class="login-btn back-btn" onclick="backToGroupSetup()">Back</button>
+            <div id="groupJoinError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Show Group Credentials (after creation) -->
+    <div id="showGroupCredentials" class="container hidden">
+        <div class="login-screen">
+            <h1>✅ Group Created Successfully!</h1>
+            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Share these with people who want to join your group:</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #ff9800; font-weight: 600;">⚠️ Save these somewhere safe!</p>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <strong style="display: block; margin-bottom: 5px; color: #666;">Group Username:</strong>
+                <div class="copyable-credential">
+                    <span id="createdGroupUsername">username</span>
+                    <button class="copy-btn" onclick="copyCredential('createdGroupUsername', this)">Copy</button>
+                </div>
+            </div>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <strong style="display: block; margin-bottom: 5px; color: #666;">Group Password:</strong>
+                <div class="copyable-credential">
+                    <span id="createdGroupPassword">password</span>
+                    <button class="copy-btn" onclick="copyCredential('createdGroupPassword', this)">Copy</button>
+                </div>
+            </div>
+            
+            <p style="margin-bottom: 20px; font-size: 13px; color: #999;">Members can use these to join, or you can create accounts for them in Settings → Invite User</p>
+            <button class="login-btn" onclick="finishGroupCreation()">Continue to My Tasks</button>
+        </div>
+    </div>
+
+    <!-- Welcome Screen / Name Entry -->
+    <div id="welcomeScreen" class="login-screen hidden">
+        <h1>Welcome!</h1>
+        <p>What should we call you?</p>
+        <input type="text" id="nameInput" class="login-input" placeholder="Enter your name" />
+        <button class="login-btn" onclick="startApp()">Continue</button>
+        <div class="login-error" id="nameError"></div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="container hidden">
+        <div class="app-header">
+            <div class="header-buttons">
+                <button class="header-btn logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <div class="nav">
+                <button class="nav-item active" onclick="showTab('today')">Today</button>
+                <button class="nav-item" onclick="showTab('days')">Days</button>
+                <button class="nav-item" onclick="showTab('projects')">Projects</button>
+                <button class="nav-item" onclick="showTab('lists')">Lists</button>
+                <button class="nav-item" onclick="showTab('notes')">Notes</button>
+                <button class="nav-item" onclick="showTab('hugs')">Points</button>
+                <button class="nav-item" onclick="showTab('alarms')">Alarms</button>
+                <button class="nav-item" onclick="showTab('settings')">Settings</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Today Tab -->
+            <div id="todayTab">
+                <div class="date-display" id="dateDisplay"></div>
+
+                <div class="add-task">
+                    <div class="add-task-inputs">
+                        <div style="display: flex; gap: 8px; align-items: center; flex: 1;">
+                            <input type="text" id="taskInput" placeholder="Add a new task..."
+                                oninput="showPeacefulSuggestion('taskInput','taskSuggestion')" style="flex: 1;" />
+                            <button id="voiceMicButton" onclick="startVoiceInput()" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px; display: none;" title="Voice input">🎤</button>
+                            <div id="voiceListeningIndicator" style="display: none; font-size: 12px; color: #666; animation: pulse 1.5s infinite;">🔴 Listening...</div>
+                        </div>
+                        <div id="taskTimeDisplay" class="add-task-time-btn"
+                            onclick="showTimePicker(document.getElementById('taskTime').value, v=>{document.getElementById('taskTime').value=v;document.getElementById('taskTimeDisplay').textContent=formatTime(v)||'Set time';})">
+                            Set time
+                        </div>
+                        <input type="hidden" id="taskTime" />
+                        <select id="taskAssign" class="login-input" style="margin: 0; padding: 14px;">
+                            <option value="">Assign to...</option>
+                        </select>
+                        <select id="taskProject" class="login-input" style="margin: 0; padding: 14px;">
+                            <option value="">No Project</option>
+                        </select>
+                    </div>
+                    <div id="taskSuggestion" style="display:none;background:#e8f5e9;border-radius:6px;padding:6px 12px;font-size:12px;color:#2e7d32;margin-bottom:8px;"></div>
+                    <button class="add-task-btn" onclick="addTask()">Add Task</button>
+                </div>
+
+                <div id="todayProgressWrap"></div>
+                <div class="task-list" id="taskList"></div>
+            </div>
+
+            <!-- Days Tab -->
+            <div id="daysTab" class="hidden">
+                <div style="padding: 16px 0; text-align: center;">
+                    <button class="login-btn" onclick="showPastIncompleteTasks()" style="padding: 12px 24px; font-size: 14px;">
+                        📋 Show incomplete tasks from past days
+                    </button>
+                </div>
+                <div class="days-grid" id="daysGrid"></div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projectsTab" class="hidden">
+                <div class="admin-card">
+                    <h3>📁 Projects</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="newProjectName" class="login-input" style="margin: 0; flex: 1;" placeholder="New project name..." />
+                        <button class="login-btn" onclick="addProject()" style="margin: 0; padding: 14px 24px;">Add</button>
+                    </div>
+                    <div id="projectsList"></div>
+                </div>
+                <div id="projectTasksView" class="hidden">
+                    <div class="admin-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="closeProjectTasks()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
+                            <h3 id="projectTasksTitle" style="margin: 0; color: #5e8fb5;"></h3>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="projectTaskInput" class="login-input" style="margin: 0; flex: 1;" placeholder="Add a task to this project..." />
+                            <button class="login-btn" onclick="addTaskToProject()" style="margin: 0; padding: 14px 20px;">Add</button>
+                        </div>
+                        <div id="projectTasksList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lists Tab -->
+            <div id="listsTab" class="hidden">
+                <div id="listsListView">
+                    <div class="admin-card">
+                        <h3>📋 Shared Lists</h3>
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <input type="text" id="newListName" class="login-input" style="margin: 0; flex: 1;" placeholder="New list name (e.g. Groceries)..." />
+                            <button class="login-btn" onclick="createList()" style="margin: 0; padding: 14px 24px;">Create</button>
+                        </div>
+                        <div id="listsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;"></div>
+                    </div>
+                </div>
+                <div id="listsDetailView" class="hidden">
+                    <div class="admin-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="closeListDetail()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
+                            <h3 id="listDetailTitle" style="margin: 0; color: #5e8fb5; flex: 1;"></h3>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="listItemInput" class="login-input" style="margin: 0; flex: 1;" placeholder="Add item..." />
+                            <button class="login-btn" onclick="addListItem()" style="margin: 0; padding: 12px 20px;">Add</button>
+                        </div>
+                        <div id="listItemsList" style="margin-bottom: 15px;"></div>
+                        <button class="login-btn" onclick="clearListChecked()" style="background: #66bb6a;">Clear Checked</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="notesTab" class="hidden">
+                <div id="notesListView">
+                    <div class="admin-card">
+                        <h3>📝 Notes</h3>
+                        <button class="login-btn" onclick="createNote()" style="margin-bottom: 20px; padding: 12px 24px;">+ New Note</button>
+                        <div id="notesList"></div>
+                    </div>
+                </div>
+                <div id="noteEditorView" class="hidden">
+                    <div class="admin-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                            <button onclick="closeNoteEditor()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
+                            <input type="text" id="noteTitleInput" class="login-input" style="margin: 0; flex: 1; font-weight: bold; min-width:120px;" placeholder="Note title..." oninput="saveCurrentNote()" />
+                            <button onclick="downloadCurrentNote()" title="Download as .md" style="background: #e3f2fd; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #1976d2;">⬇ .md</button>
+                            <button onclick="deleteCurrentNote()" style="background: #ffebee; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #e53935;">Delete</button>
+                        </div>
+                        <div class="note-toolbar">
+                            <!-- Text Style Group -->
+                            <button onclick="noteFormat('bold')" title="Bold (Ctrl+B)" class="tb-btn tb-full-label"><strong>Bold</strong></button>
+                            <button onclick="noteFormat('italic')" title="Italic (Ctrl+I)" class="tb-btn tb-full-label"><em>Italic</em></button>
+                            <button onclick="noteFormat('strikeThrough')" title="Strikethrough" class="tb-btn tb-full-label"><s>Strike</s></button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Headings Group (Dropdown) -->
+                            <select id="headingSelector" class="tb-dropdown" onchange="noteFormatHeading(this.value); this.value='';" title="Heading styles">
+                                <option value="">Paragraph</option>
+                                <option value="h1">Title (H1)</option>
+                                <option value="h2">Heading 1 (H2)</option>
+                                <option value="h3">Heading 2 (H3)</option>
+                                <option value="h4">Heading 3 (H4)</option>
+                            </select>
+                            <span class="tb-divider"></span>
+
+                            <!-- Font Size Group (Dropdown) -->
+                            <select id="fontSizeSelector" class="tb-dropdown" onchange="noteSetFontSize(this.value); this.value='';" title="Font size">
+                                <option value="">Normal Size</option>
+                                <option value="small">Small</option>
+                                <option value="medium">Normal</option>
+                                <option value="large">Large</option>
+                                <option value="huge">Huge</option>
+                            </select>
+                            <span class="tb-divider"></span>
+
+                            <!-- Alignment Group -->
+                            <button onclick="noteAlign('left')" title="Align left" class="tb-btn">⬅ Left</button>
+                            <button onclick="noteAlign('center')" title="Align center" class="tb-btn">⬛ Center</button>
+                            <button onclick="noteAlign('right')" title="Align right" class="tb-btn">➡ Right</button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Lists Group -->
+                            <button onclick="noteFormat('insertUnorderedList')" title="Bullet List" class="tb-btn tb-full-label">• Bullet List</button>
+                            <button onclick="noteFormat('insertOrderedList')" title="Numbered List" class="tb-btn tb-full-label">1. Numbered List</button>
+                            <button onclick="noteInsertAlphaList()" title="Alphabetical List" class="tb-btn tb-full-label">a. Alpha List</button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Insert Group -->
+                            <button onclick="noteInsertLink()" title="Insert Link" class="tb-btn tb-full-label">🔗 Link</button>
+                            <button onclick="noteInsertTable()" title="Insert Table" class="tb-btn tb-full-label">⊞ Table</button>
+                            <button onclick="noteInsertHR()" title="Horizontal Divider" class="tb-btn tb-full-label">— Divider</button>
+                            <span class="tb-divider"></span>
+
+                            <!-- Preview Toggle -->
+                            <button onclick="toggleNotePreview()" title="Toggle preview" class="tb-btn tb-full-label" id="previewToggleBtn">👁 Preview</button>
+                        </div>
+                        <div style="display:flex;gap:12px;min-height:300px;">
+                            <div id="noteEditor" contenteditable="true" oninput="saveCurrentNote()"
+                                style="flex:1;min-height:300px;border:1px solid #ddd;border-radius:10px;padding:16px;
+                                font-size:15px;line-height:1.6;outline:none;background:#fafafa;
+                                overflow-y:auto;word-break:break-word;"></div>
+                            <div id="notePreviewPane" style="display:none;flex:1;min-height:300px;border:1px solid #e0e0e0;
+                                border-radius:10px;padding:16px;overflow-y:auto;background:white;font-size:15px;line-height:1.6;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hugs Tab -->
+            <div id="hugsTab" class="hidden">
+                <div class="hug-header">
+                    <div class="hug-count" id="totalHugs" oncontextmenu="openAdminAccess(event)" onmousedown="startLongPress(event)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event)" ontouchend="cancelLongPress()">0</div>
+                    <div class="hug-label">Available Points</div>
+                </div>
+                
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 8px;">
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 8px;">💡 How Points Work</div>
+                    <ul style="color: #e65100; font-size: 14px; padding-left: 20px; margin: 0;">
+                        <li>Complete 5 tasks → Earn 100 points</li>
+                        <li>Points expire after 30 days</li>
+                        <li>Use points however you want (rewards, treats, etc.)</li>
+                    </ul>
+                </div>
+                
+                <div id="hugGroups"></div>
+            </div>
+
+            <!-- Alarms/Timers Tab -->
+            <div id="alarmsTab" class="hidden">
+                <div class="admin-card">
+                    <h3>⏰ Alarms</h3>
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-start;">
+                            <div style="flex: 1; min-width: 150px;">
+                                <div id="alarmTimeDisplay" class="add-task-time-btn"
+                                    onclick="showTimePicker(document.getElementById('alarmTimeHidden').value, v=>{document.getElementById('alarmTimeHidden').value=v;document.getElementById('alarmTimeDisplay').textContent=formatTime(v)||'Set alarm time';})">
+                                    Set alarm time
+                                </div>
+                                <input type="hidden" id="alarmTimeHidden" />
+                            </div>
+                            <div style="flex: 2; min-width: 200px;">
+                                <input type="text" id="alarmLabel" class="login-input" style="margin: 0;" placeholder="Alarm label (optional)" />
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="alarmRecurring" style="width: 20px; height: 20px; cursor: pointer;" />
+                                <label for="alarmRecurring" style="font-size: 14px; color: #666; cursor: pointer;">Daily</label>
+                            </div>
+                            <button class="login-btn" onclick="addAlarm()" style="margin: 0; padding: 14px 30px;">Add Alarm</button>
+                        </div>
+                        <div id="alarmsList"></div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h3>⏱️ Timer</h3>
+                    <div style="text-align: center;">
+                        <div style="font-size: 64px; font-weight: bold; color: #5e8fb5; margin: 20px 0;" id="timerDisplay">00:00:00</div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 100px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Hours</label>
+                                <input type="number" id="timerHours" min="0" max="23" value="0" class="login-input" style="margin: 0; text-align: center;" />
+                            </div>
+                            <div style="flex: 1; min-width: 100px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Minutes</label>
+                                <input type="number" id="timerMinutes" min="0" max="59" value="0" class="login-input" style="margin: 0; text-align: center;" />
+                            </div>
+                            <div style="flex: 1; min-width: 100px;">
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Seconds</label>
+                                <input type="number" id="timerSeconds" min="0" max="59" value="0" class="login-input" style="margin: 0; text-align: center;" />
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button class="login-btn" onclick="startTimer()" id="startTimerBtn">Start Timer</button>
+                            <button class="login-btn" onclick="pauseTimer()" id="pauseTimerBtn" style="background: linear-gradient(135deg, #ffb74d 0%, #ffa726 100%); display: none;">Pause</button>
+                            <button class="login-btn" onclick="resetTimer()" id="resetTimerBtn" style="background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);">Reset</button>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <input type="text" id="timerLabel" class="login-input" placeholder="Timer label (optional)" style="max-width: 300px; margin: 0 auto;" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h3>⏲️ Stopwatch</h3>
+                    <div style="text-align: center;">
+                        <div style="font-size: 64px; font-weight: bold; color: #5e8fb5; margin: 20px 0;" id="stopwatchDisplay">00:00:00</div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button class="login-btn" onclick="startStopwatch()" id="startStopwatchBtn">Start</button>
+                            <button class="login-btn" onclick="pauseStopwatch()" id="pauseStopwatchBtn" style="background: linear-gradient(135deg, #ffb74d 0%, #ffa726 100%); display: none;">Pause</button>
+                            <button class="login-btn" onclick="resetStopwatch()" style="background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="hidden">
+                <div class="admin-card">
+                    <h3>📱 Install App</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Install Peaceful Tasks on your device for quick access</p>
+                    <button class="login-btn" onclick="installAppFromButton()" id="settingsInstallBtn">
+                        <div style="font-size: 16px;">📲 Install as App</div>
+                    </button>
+                    <p id="settingsInstallMessage" style="margin-top: 10px; color: #999; font-size: 14px; display: none;">App is already installed or not available on this device</p>
+                </div>
+
+                <div class="admin-card">
+                    <h3>👤 Your Profile</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name</label>
+                        <input type="text" id="settingsDisplayName" class="login-input" style="margin: 0;" placeholder="Your display name" />
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Username</label>
+                        <div class="copyable-credential">
+                            <span id="settingsUsername">username</span>
+                            <button class="copy-btn" onclick="copyCredential('settingsUsername', this)">Copy</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Change Password</label>
+                        <input type="password" id="settingsNewPassword" class="login-input" style="margin: 0;" placeholder="New password (leave blank to keep current)" />
+                    </div>
+                    <button class="login-btn" onclick="saveSettings()">Save Changes</button>
+                    <div id="settingsSaveMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Settings saved!</div>
+                </div>
+
+                <!-- Leave a Review Section -->
+                <div class="admin-card">
+                    <h3>⭐ Leave a Review</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Tell us what you think about Peaceful Tasks</p>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #666;">Your Rating</label>
+                        <div style="display: flex; gap: 8px; font-size: 28px;">
+                            <button onclick="selectReviewRating(1)" id="rating1" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(2)" id="rating2" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(3)" id="rating3" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(4)" id="rating4" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                            <button onclick="selectReviewRating(5)" id="rating5" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Tell us what you think</label>
+                        <textarea id="reviewText" class="login-input" style="margin: 0; min-height: 100px; padding: 12px;" placeholder="Share your thoughts about Peaceful Tasks..."></textarea>
+                    </div>
+                    <button class="login-btn" onclick="submitReview()">Submit Review</button>
+                    <div id="reviewMessage" style="margin-top: 10px; color: #66bb6a; display: none;">Thanks for your review!</div>
+                </div>
+
+                <!-- Submit a Feature Request Section -->
+                <div class="admin-card">
+                    <h3>💡 Submit a Feature Request</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Have an idea to make Peaceful Tasks better?</p>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">What would you like to see?</label>
+                        <textarea id="featureRequestText" class="login-input" style="margin: 0; min-height: 100px; padding: 12px;" placeholder="Describe your feature idea..."></textarea>
+                    </div>
+                    <button class="login-btn" onclick="submitFeatureRequest()">Send Request</button>
+                    <div id="featureRequestMessage" style="margin-top: 10px; color: #66bb6a; display: none;">Request received — thank you!</div>
+                </div>
+
+                <!-- Invite by Link -->
+                <div class="admin-card">
+                    <h3>🔗 Invite Someone</h3>
+                    <p style="margin-bottom:15px;color:#666;font-size:14px;">Generate a one-time invite link to share with anyone you want to join.</p>
+                    <button class="login-btn" onclick="generateInviteLink()">Generate Invite Link</button>
+                </div>
+
+                <!-- Clear Data Section -->
+                <div class="admin-card">
+                    <h3>🗑️ Clear Data & Cache</h3>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 14px;">If the app is running slowly or using too much storage, you can clear all cached data and start fresh. You'll need to sign in again.</p>
+                    <button class="login-btn" onclick="clearAllData()" style="background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);">Clear All Data</button>
+                    <div id="clearDataMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Data cleared! Reloading...</div>
+                </div>
+
+                <!-- Group Admin Section -->
+                <div id="groupAdminSection" class="hidden">
+                    <div class="admin-card">
+                        <h3>🔑 Group Credentials</h3>
+                        <p style="margin-bottom: 15px; color: #666;">Main group login credentials (share with members)</p>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Group Username</label>
+                            <div class="copyable-credential">
+                                <span id="groupUsername">username</span>
+                                <button class="copy-btn" onclick="copyCredential('groupUsername', this)">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Group Password</label>
+                            <div class="copyable-credential">
+                                <span id="groupPassword">password</span>
+                                <button class="copy-btn" onclick="copyCredential('groupPassword', this)">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>👥 Group Management</h3>
+                        <p style="margin-bottom: 20px; color: #666;">Manage invited users</p>
+                        
+                        <button class="login-btn" onclick="showInviteUserModal()">+ Invite User</button>
+                        
+                        <div id="groupMembersList" style="margin-top: 20px;"></div>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>🔐 System Admin Dashboard</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">View and manage all accounts in the system</p>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Admin Password</label>
+                            <input type="password" id="adminDashboardPassword" class="login-input" style="margin: 0;" placeholder="Enter admin password (default: hug2025)" />
+                        </div>
+                        <button class="login-btn" onclick="accessAdminDashboard()">Access Dashboard</button>
+                        <div id="adminDashboardError" style="margin-top: 10px; color: #e57373; display: none;"></div>
+                        
+                        <div id="adminDashboardContent" style="margin-top: 20px; display: none;">
+                            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                <h4 style="color: #5e8fb5; margin-bottom: 15px;">All System Accounts</h4>
+                                <div id="allAccountsList"></div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Change Admin Password</label>
+                                <input type="password" id="newAdminPassword" class="login-input" style="margin: 0;" placeholder="New admin password" />
+                            </div>
+                            <button class="login-btn" onclick="changeAdminPassword()" style="margin-top: 10px;">Update Admin Password</button>
+                            <div id="adminPasswordMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Admin password updated!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Day Modal -->
+    <div id="editDayModal" class="modal hidden" onclick="closeEditDayIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 700px;">
+            <button class="modal-close" onclick="closeEditDay()">×</button>
+            <div class="edit-day-header">
+                <h2 id="editDayTitle"></h2>
+                <p id="editDaySubtitle"></p>
+            </div>
+            
+            <div class="add-task">
+                <div class="add-task-inputs">
+                    <input type="text" id="editDayTaskInput" placeholder="Add a task..." />
+                    <input type="time" id="editDayTaskTime" />
+                    <select id="editDayTaskAssign" class="login-input" style="margin: 0; padding: 14px;">
+                        <option value="">Assign to...</option>
+                    </select>
+                    <select id="editDayTaskProject" class="login-input" style="margin: 0; padding: 14px;">
+                        <option value="">No project</option>
+                    </select>
+                </div>
+                <button class="add-task-btn" onclick="addTaskToEditDay()">Add Task</button>
+            </div>
+
+            <div class="task-list" id="editDayTaskList"></div>
+        </div>
+    </div>
+
+    <!-- Invite User Modal -->
+    <div id="inviteUserModal" class="modal hidden" onclick="closeInviteUserIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeInviteUser()">×</button>
+            <h2>Invite New User</h2>
+            <p style="color: #666; margin-bottom: 20px;">Create a new account for someone to join your group</p>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Username</label>
+                <input type="text" id="inviteUsername" class="login-input" style="margin: 0;" placeholder="Choose a username" />
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Password</label>
+                <input type="password" id="invitePassword" class="login-input" style="margin: 0;" placeholder="Choose a password" />
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name (optional)</label>
+                <input type="text" id="inviteDisplayName" class="login-input" style="margin: 0;" placeholder="Their display name" />
+            </div>
+
+            <button class="login-btn" onclick="createInvitedUser()">Create User</button>
+            <div id="inviteError" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- Admin Access Modal -->
+    <div id="adminAccessModal" class="modal hidden" onclick="closeAdminAccessIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px;">
+            <button class="modal-close" onclick="closeAdminAccess()">×</button>
+            <h2 id="adminAccessTitle">Admin Access</h2>
+            <div id="adminAccessContent"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="container hidden">
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <button class="login-btn back-btn" onclick="exitAdminPanel()" style="margin-bottom: 20px;">← Back</button>
+            <h1>Feature Requests</h1>
+            <div id="featureRequestsList"></div>
+        </div>
+    </div>
+
+    <!-- Structured Data (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Peaceful Tasks",
+      "description": "A secure, end-to-end encrypted to-do app designed for calm productivity",
+      "url": "https://akivamac.github.io/to-do/",
+      "applicationCategory": "ProductivityApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "operatingSystem": "Web, Android, iOS",
+      "author": {
+        "@type": "Person",
+        "name": "Akiva Mac"
+      },
+      "image": "https://akivamac.github.io/to-do/icon-512.png",
+      "screenshot": "https://akivamac.github.io/to-do/icon-512.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      }
+    }
+    </script>
+
+    <!-- marked.js for Markdown preview in note editor (CDN, no build step) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="app.js"></script>
+    <script src="tasks.js"></script>
+    <script src="alarms.js"></script>
+    <script src="projects.js"></script>
+    <script src="notes.js"></script>
+    <!-- backside.js loaded last so it can reference functions defined in the files above -->
+    <script src="backside.js"></script>
+
+    <!-- Prevent flicker on page load -->
+    <style>
+        #passcodeGate, #accountTypeSelection, #createPersonalAccount, #loginPersonalAccount,
+        #groupSetup, #createGroupAdmin, #groupJoin, #showGroupCredentials,
+        #welcomeScreen, #mainApp, #adminPanel {
+            display: none;
+        }
+    </style>
+
+    <script>
+        // Router initialization - handle URL routing via 404.html bridge
+        function initRouter() {
+            // Ensure DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initRouter);
+                return;
+            }
+
+            // Get stored path from 404.html redirect, or use current pathname
+            let routePath = sessionStorage.getItem('routerPath');
+            if (routePath) {
+                sessionStorage.removeItem('routerPath');
+            } else {
+                routePath = window.location.pathname;
+            }
+
+            // Always handle routing (prevents blank page)
+            try {
+                handleRouting(routePath);
+            } catch (e) {
+                console.error('Routing error:', e);
+                // Fallback: show landing page
+                showLandingPage();
+            }
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', () => {
+                handleRouting(window.location.pathname);
+            });
+        }
+
+        function handleRouting(path) {
+            const isLoggedIn = !!localStorage.getItem('currentUser');
+
+            if (path.includes('/to-do/app') || path === '/to-do/') {
+                if (isLoggedIn) {
+                    if (path.includes('/to-do/app')) {
+                        loadAndShowApp();
+                    } else {
+                        // Redirect / to /app if logged in
+                        navigateTo('/to-do/app');
+                    }
+                } else {
+                    // Not logged in, show landing page
+                    showLandingPage();
+                    navigateTo('/to-do/');
+                }
+            } else if (path.includes('/to-do/login')) {
+                if (isLoggedIn) {
+                    navigateTo('/to-do/app');
+                } else {
+                    showSignIn();
+                    navigateTo('/to-do/login');
+                }
+            } else if (path.includes('/to-do/sign-up')) {
+                if (isLoggedIn) {
+                    navigateTo('/to-do/app');
+                } else {
+                    showCreateAccount();
+                    navigateTo('/to-do/sign-up');
+                }
+            } else {
+                // Default: show landing page for unmatched routes
+                if (isLoggedIn) {
+                    navigateTo('/to-do/app');
+                    loadAndShowApp();
+                } else {
+                    showLandingPage();
+                    navigateTo('/to-do/');
+                }
+            }
+        }
+
+        function navigateTo(path) {
+            // Update URL using history.pushState without page reload
+            history.pushState(null, '', path);
+        }
+
+        // Wrap existing navigation functions to also update URL
+        const originalShowSignIn = showSignIn;
+        showSignIn = function() {
+            originalShowSignIn.call(this);
+            navigateTo('/to-do/login');
+        };
+
+        const originalShowCreateAccount = showCreateAccount;
+        showCreateAccount = function() {
+            originalShowCreateAccount.call(this);
+            navigateTo('/to-do/sign-up');
+        };
+
+
+        const originalLogout = logout;
+        logout = function() {
+            originalLogout.call(this);
+            navigateTo('/to-do/');
+            showLandingPage();
+        };
+
+        // Initialize router when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRouter);
+        } else {
+            initRouter();
+        }
+    </script>
+</body>
+</html>
