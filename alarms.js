@@ -3,10 +3,25 @@
         let timerInterval = null;
         let timerSeconds = 0;
         let timerRunning = false;
-        let stopwatchInterval = null;
-        let stopwatchSeconds = 0;
-        let stopwatchRunning = false;
         let alarmCheckInterval = null;
+
+        // Unlock AudioContext on first user interaction (required on Android/iOS)
+        let _audioCtxUnlocked = false;
+        function _unlockAudio() {
+            if (_audioCtxUnlocked) return;
+            _audioCtxUnlocked = true;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            ctx.resume();
+        }
+        document.addEventListener('touchstart', _unlockAudio, { once: true });
+        document.addEventListener('click', _unlockAudio, { once: true });
+
+        let _alarmSoundSignal = null;
 
         function loadAlarms() {
             const saved = localStorage.getItem('alarms');
@@ -128,6 +143,7 @@
             id = parseInt(id);
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
+                if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); _alarmSoundSignal = null; }
                 alarm.ringing = false;
                 alarm.active = false;
                 if (alarm.recurring) {
@@ -175,55 +191,30 @@
             });
         }
 
-        function playAlarmSound() {
-            // Create beep sound
+        function playAlarmSound(stopSignal) {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-            
-            // Repeat 3 times
-            setTimeout(() => {
-                const osc2 = audioContext.createOscillator();
-                const gain2 = audioContext.createGain();
-                osc2.connect(gain2);
-                gain2.connect(audioContext.destination);
-                osc2.frequency.value = 800;
-                gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                osc2.start(audioContext.currentTime);
-                osc2.stop(audioContext.currentTime + 0.5);
-            }, 600);
-            
-            setTimeout(() => {
-                const osc3 = audioContext.createOscillator();
-                const gain3 = audioContext.createGain();
-                osc3.connect(gain3);
-                gain3.connect(audioContext.destination);
-                osc3.frequency.value = 800;
-                gain3.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gain3.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                osc3.start(audioContext.currentTime);
-                osc3.stop(audioContext.currentTime + 0.5);
-            }, 1200);
+            audioContext.resume().then(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            });
+            if (stopSignal && !stopSignal.stopped) {
+                stopSignal._timer = setTimeout(() => playAlarmSound(stopSignal), 700);
+            }
         }
 
         function showAlarmNotification(alarm) {
-            // Play sound multiple times
-            playAlarmSound();
-            setTimeout(playAlarmSound, 1000);
-            setTimeout(playAlarmSound, 2000);
+            // Play sound with looping signal
+            if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); }
+            _alarmSoundSignal = { stopped: false };
+            playAlarmSound(_alarmSoundSignal);
             
             // Browser notification - works even when in other apps
             if ('Notification' in window && Notification.permission === 'granted') {
@@ -322,10 +313,10 @@
                     updateTimerDisplay();
                 } else {
                     pauseTimer();
-                    playAlarmSound();
-                    setTimeout(playAlarmSound, 1000);
-                    setTimeout(playAlarmSound, 2000);
-                    
+                    if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); }
+                    _alarmSoundSignal = { stopped: false };
+                    playAlarmSound(_alarmSoundSignal);
+
                     const label = document.getElementById('timerLabel').value || 'Timer';
                     
                     // Browser notification - works even in other apps
@@ -375,40 +366,6 @@
             const seconds = timerSeconds % 60;
             
             document.getElementById('timerDisplay').textContent = 
-                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        // Stopwatch functions
-        function startStopwatch() {
-            stopwatchRunning = true;
-            document.getElementById('startStopwatchBtn').style.display = 'none';
-            document.getElementById('pauseStopwatchBtn').style.display = 'inline-block';
-            
-            stopwatchInterval = setInterval(() => {
-                stopwatchSeconds++;
-                updateStopwatchDisplay();
-            }, 1000);
-        }
-
-        function pauseStopwatch() {
-            stopwatchRunning = false;
-            clearInterval(stopwatchInterval);
-            document.getElementById('startStopwatchBtn').style.display = 'inline-block';
-            document.getElementById('pauseStopwatchBtn').style.display = 'none';
-        }
-
-        function resetStopwatch() {
-            pauseStopwatch();
-            stopwatchSeconds = 0;
-            updateStopwatchDisplay();
-        }
-
-        function updateStopwatchDisplay() {
-            const hours = Math.floor(stopwatchSeconds / 3600);
-            const minutes = Math.floor((stopwatchSeconds % 3600) / 60);
-            const seconds = stopwatchSeconds % 60;
-            
-            document.getElementById('stopwatchDisplay').textContent = 
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 

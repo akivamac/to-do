@@ -4,15 +4,22 @@
             box-sizing: border-box;
         }
 
+        /* ── BUILD STANDARD: No unintended viewport scroll ──────────────
+           The app must fit within the viewport on all devices with zero
+           unintended overflow. DO NOT add overflow:auto/scroll to html or
+           body. Only .main-content and explicitly scrollable containers
+           may scroll internally. ──────────────────────────────────────── */
+
         html {
             height: 100%;
+            overflow: hidden;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e0f2f7 0%, #fce4ec 100%);
-            min-height: 100%;
-            overflow: auto;
+            height: 100%;
+            overflow: hidden;
             padding: 0;
         }
 
@@ -21,6 +28,21 @@
             margin: 0 auto;
             background: white;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* Landing page is not a .container — must scroll independently */
+        #landingPage {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* ── Alarms tab: prevent unnecessary scroll ─────────────────── */
+        #alarmsTab {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         #mainApp {

@@ -174,7 +174,7 @@ git push
 - `#adminPanel` - Admin dashboard for group management
 
 ### Data Sync & Encryption (backside.js)
-- **API Configuration**: Backside API key in backside.js (bsk_live_VDbFLbqDghOMmDSdg79HGh4wzFA2NFozB3Q0LjDiKoc)
+- **API Configuration**: Backside API key in backside.js (bsk_live_REDACTED)
 - **E2E Encryption**: AES-256-GCM with PBKDF2 key derivation
 - **Data Structure**:
   - Tasks stored as encrypted notes in Backside
@@ -248,7 +248,7 @@ python -m http.server 8000  # or any local server
 ### Backend/Cloud
 - **Backside BaaS**: Cloud data sync, user management, E2E encryption
   - API Endpoint: backside.js (line 1)
-  - API Key: `bsk_live_VDbFLbqDghOMmDSdg79HGh4wzFA2NFozB3Q0LjDiKoc`
+  - API Key: `bsk_live_REDACTED`
   - Features: Notes storage, user auth, encryption/decryption
   - Data Sync: Real-time with 5-second polling
 

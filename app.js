@@ -1269,6 +1269,14 @@
         function closeCustomAlert() {
             const modal = document.getElementById('customAlertModal');
             if (modal) modal.remove();
+            // Stop any looping alarm/timer sound.
+            // _alarmSoundSignal is defined in alarms.js which loads after app.js —
+            // the typeof guard is intentional and must stay.
+            if (typeof _alarmSoundSignal !== 'undefined' && _alarmSoundSignal) {
+                _alarmSoundSignal.stopped = true;
+                clearTimeout(_alarmSoundSignal._timer);
+                _alarmSoundSignal = null;
+            }
         }
 
         function showCustomConfirm(title, message, onConfirm) {
