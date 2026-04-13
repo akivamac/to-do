@@ -191,23 +191,43 @@
             const suggestion = getPeacefulSuggestion(input.value);
             if (suggestion) {
                 box.innerHTML = `💚 Calmer wording: <em>"${escapeHtml(suggestion)}"</em>
-                    <button onclick="acceptSuggestion('${inputId}','${escapeHtml(suggestion).replace(/'/g,"\\'")}')"
+                    <button class="peaceful-accept-btn"
+                        data-input-id="${escapeHtml(inputId)}"
+                        data-suggestion="${escapeHtml(suggestion)}"
+                        data-box-id="${escapeHtml(suggestionId)}"
                         style="margin-left:8px;background:#66bb6a;color:white;border:none;border-radius:6px;
                         padding:2px 10px;cursor:pointer;font-size:12px;">Use this</button>
-                    <button onclick="document.getElementById('${suggestionId}').style.display='none'"
+                    <button class="peaceful-dismiss-btn"
+                        data-box-id="${escapeHtml(suggestionId)}"
                         style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
                 box.style.display = 'block';
+
+                // Event delegation for buttons
+                const acceptBtn = box.querySelector('.peaceful-accept-btn');
+                const dismissBtn = box.querySelector('.peaceful-dismiss-btn');
+
+                if (acceptBtn) {
+                    acceptBtn.onclick = () => {
+                        const iId = acceptBtn.dataset.inputId;
+                        const suggestion = acceptBtn.dataset.suggestion;
+                        const bId = acceptBtn.dataset.boxId;
+                        const inp = document.getElementById(iId);
+                        if (inp) inp.value = suggestion;
+                        const b = document.getElementById(bId);
+                        if (b) b.style.display = 'none';
+                    };
+                }
+
+                if (dismissBtn) {
+                    dismissBtn.onclick = () => {
+                        const bId = dismissBtn.dataset.boxId;
+                        const b = document.getElementById(bId);
+                        if (b) b.style.display = 'none';
+                    };
+                }
             } else {
                 box.style.display = 'none';
             }
-        }
-
-        function acceptSuggestion(inputId, value) {
-            const input = document.getElementById(inputId);
-            if (input) input.value = value;
-            const suggestionId = inputId.replace('Input','Suggestion').replace('Text','Suggestion');
-            const box = document.getElementById(suggestionId);
-            if (box) box.style.display = 'none';
         }
 
         // ── Double-click tooltip (once per session) ──────────────────
@@ -226,7 +246,7 @@
         }
 
         function populateAssignDropdowns() {
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
             const currentAccount = accounts[actualUsername];
             
@@ -440,7 +460,7 @@
             const dateStr = isEditDay ? currentEditDay : formatDate(new Date());
             const task = tasks[dateStr][index];
 
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const currentAccount = accounts[(currentUser || '').split('::')[0]];
             let memberOptions = '<option value="">No one</option>';
             if (currentAccount?.type === 'group') {
@@ -819,7 +839,7 @@
             const now = new Date();
             hugGroups = hugGroups.filter(g => new Date(g.expiresAt) > now);
             
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const spentHugs = accounts[currentUser]?.data?.spentHugs || 0;
             
             const totalEarned = hugGroups.reduce((sum, g) => sum + g.count, 0);

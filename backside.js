@@ -423,16 +423,14 @@ async function loadAndShowApp() {
 }
 
 function countCompleted() {
-    let n = 0;
-    Object.values(tasks).forEach(day => day.forEach(t => { if (t.hasBeenCompleted) n++; }));
-    return n;
+    return Object.values(tasks).flatMap(day => day).filter(t => t.hasBeenCompleted).length;
 }
 
 // ── Migration modal ───────────────────────────────────────────
 
 function checkMigrationNeeded() {
     if (localStorage.getItem('_pt_migrated')) return;
-    const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+    const accounts = getAccounts();
     const username = localStorage.getItem('currentUser');
     if (!username) return;
     const userData = accounts[username]?.data;

@@ -163,7 +163,7 @@
             const currentMinute = now.getHours() * 60 + now.getMinutes();
 
             alarms.forEach(alarm => {
-                const alarmMinute = parseInt(alarm.time.split(':')[0]) * 60 + parseInt(alarm.time.split(':')[1]);
+                const alarmMinute = timeToMinutes(alarm.time);
 
                 // Check if alarm should ring
                 if (alarm.active && alarm.time === currentTime && !alarm.ringing) {
@@ -174,7 +174,7 @@
                     playAlarmSound();
                     showAlarmNotification(alarm);
                 }
-                
+
                 // Reset ringing status if time has passed and alarm is recurring
                 if (alarm.ringing && alarm.recurring && currentMinute !== alarmMinute) {
                     alarm.ringing = false;

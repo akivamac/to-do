@@ -195,6 +195,23 @@
             return div.innerHTML;
         }
 
+        // Helper: Get accounts object from localStorage
+        function getAccounts() {
+            return getAccounts();
+        }
+
+        // Helper: Set display property on element
+        function setDisplay(elementId, display) {
+            const el = document.getElementById(elementId);
+            if (el) el.style.display = display;
+        }
+
+        // Helper: Parse time string (HH:MM) to minutes
+        function timeToMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
+
         // Global Variables
         let currentUser = null;
         let currentScreen = 'landingPage';
@@ -354,7 +371,7 @@
 
         function testModeLogin() {
             const testUser = 'test_user';
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             if (!accounts[testUser]) {
                 accounts[testUser] = {
                     password: 'test', type: 'personal',
@@ -381,7 +398,7 @@
             }
             
             // Check if this is an existing account
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const matchingAccount = Object.entries(accounts).find(([user, data]) => 
                 data.password === passcode
             );
@@ -459,7 +476,7 @@
             }
 
             // --- Fallback: localStorage signup ---
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             if (accounts[username]) {
                 errorDiv.textContent = 'Username already exists';
                 return;
@@ -513,7 +530,7 @@
             }
 
             // --- Fallback: localStorage login ---
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const account = accounts[username];
             if (!account || account.password !== password) {
                 errorDiv.textContent = 'Invalid username or password';
@@ -554,7 +571,7 @@
                 return;
             }
             
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             
             if (accounts[username]) {
                 errorDiv.textContent = 'Username already exists';
@@ -605,7 +622,7 @@
                 return;
             }
             
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const groupAccount = accounts[groupUsername];
             
             if (!groupAccount || groupAccount.password !== groupPassword) {
@@ -677,7 +694,7 @@
                 return;
             }
 
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const groupAccount = accounts[groupUsername];
             const subAccount = groupAccount.subAccounts.find(sub => sub.username === subUsername);
 
@@ -725,7 +742,7 @@
 
         function deleteAccount(username) {
             showCustomConfirm('Delete Account', `Are you sure you want to delete ${escapeHtml(username)}? This cannot be undone.`, () => {
-                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                const accounts = getAccounts();
                 delete accounts[username];
                 localStorage.setItem('todoAccounts', JSON.stringify(accounts));
                 loadAllAccounts();
@@ -737,7 +754,7 @@
             if (!currentUser) return;
             
             try {
-                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                const accounts = getAccounts();
 
                 // Check if this is a sub-account
                 if (currentUser.includes('::')) {
@@ -786,7 +803,7 @@
             if (!currentUser) return;
             
             try {
-                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                const accounts = getAccounts();
                 
                 // Check if this is a sub-account
                 if (currentUser.includes('::')) {
@@ -933,7 +950,7 @@
 
         // Settings
         function loadSettings() {
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
             const currentAccount = accounts[actualUsername];
             
@@ -1009,7 +1026,7 @@
                 return;
             }
 
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const displayName = document.getElementById('settingsDisplayName').value.trim();
             const newPassword = document.getElementById('settingsNewPassword').value.trim();
             const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
@@ -1080,7 +1097,7 @@
         }
 
         function loadAllAccounts() {
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const accountsList = document.getElementById('allAccountsList');
             
             if (Object.keys(accounts).length === 0) {
@@ -1146,7 +1163,7 @@
 
         function deleteAccountFromDashboard(username) {
             showCustomConfirm('Delete Account', `Are you sure you want to delete ${escapeHtml(username)}? This cannot be undone.`, () => {
-                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                const accounts = getAccounts();
                 delete accounts[username];
                 localStorage.setItem('todoAccounts', JSON.stringify(accounts));
                 loadAllAccounts();
@@ -1154,7 +1171,7 @@
         }
 
         function loadGroupMembers() {
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const currentAccount = accounts[currentUser];
             const membersList = document.getElementById('groupMembersList');
             
@@ -1210,7 +1227,7 @@
                 return;
             }
             
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const currentAccount = accounts[currentUser];
             
             // Initialize subAccounts if it doesn't exist
@@ -1241,7 +1258,7 @@
 
         function removeGroupMember(index) {
             showCustomConfirm('Remove Member', 'Are you sure you want to remove this member?', () => {
-                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+                const accounts = getAccounts();
                 const currentAccount = accounts[currentUser];
                 currentAccount.subAccounts.splice(index, 1);
                 localStorage.setItem('todoAccounts', JSON.stringify(accounts));
