@@ -391,6 +391,12 @@ function testModeLogin() {
 // Passcode Check
 function checkPasscode() {
     try {
+        // If Backside is configured, bypass password gate and use username+password login
+        if (bsIsConfigured()) {
+            showSignIn();
+            return;
+        }
+
         const passcode = document.getElementById('passcodeInput').value.trim();
         const errorDiv = document.getElementById('passcodeError');
 
@@ -399,7 +405,7 @@ function checkPasscode() {
             return;
         }
 
-        // Check if this is an existing account
+        // Check if this is an existing account (localStorage only when Backside not configured)
         const accounts = getAccounts();
         const matchingAccount = Object.entries(accounts).find(([user, data]) =>
             data.password === passcode
