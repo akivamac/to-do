@@ -197,7 +197,8 @@ function escapeHtml(str) {
 
 // Helper: Get accounts object from localStorage
 function getAccounts() {
-    return getAccounts();
+    const data = localStorage.getItem('todoAccounts');
+    return data ? JSON.parse(data) : {};
 }
 
 // Helper: Set display property on element
