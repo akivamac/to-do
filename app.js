@@ -389,47 +389,52 @@ function testModeLogin() {
 
 // Passcode Check
 function checkPasscode() {
-    const passcode = document.getElementById('passcodeInput').value.trim();
-    const errorDiv = document.getElementById('passcodeError');
-    
-    if (!passcode) {
-        errorDiv.textContent = 'Please enter a password';
-        return;
-    }
-    
-    // Check if this is an existing account
-    const accounts = getAccounts();
-    const matchingAccount = Object.entries(accounts).find(([user, data]) => 
-        data.password === passcode
-    );
-    
-    if (matchingAccount) {
-        // Existing account - check if personal or group
-        const [username, accountData] = matchingAccount;
-        
-        if (accountData.type === 'personal') {
-            // Personal account - log them in
-            currentUser = username;
-            localStorage.setItem('currentUser', currentUser);
-            localStorage.setItem('currentAccountType', 'personal');
-            loadUserData();
-            showScreen('mainApp');
-        } else if (accountData.type === 'group') {
-            // Group account - log them in
-            currentUser = username;
-            localStorage.setItem('currentUser', currentUser);
-            localStorage.setItem('currentAccountType', 'group');
-            loadUserData();
-            showScreen('mainApp');
+    try {
+        const passcode = document.getElementById('passcodeInput').value.trim();
+        const errorDiv = document.getElementById('passcodeError');
+
+        if (!passcode) {
+            errorDiv.textContent = 'Please enter a password';
+            return;
         }
-    } else {
-        // New password - ask what type of account
-        // Store the password temporarily
-        sessionStorage.setItem('pendingPassword', passcode);
-        showScreen('accountTypeSelection');
+
+        // Check if this is an existing account
+        const accounts = getAccounts();
+        const matchingAccount = Object.entries(accounts).find(([user, data]) =>
+            data.password === passcode
+        );
+
+        if (matchingAccount) {
+            // Existing account - check if personal or group
+            const [username, accountData] = matchingAccount;
+
+            if (accountData.type === 'personal') {
+                // Personal account - log them in
+                currentUser = username;
+                localStorage.setItem('currentUser', currentUser);
+                localStorage.setItem('currentAccountType', 'personal');
+                loadUserData();
+                showScreen('mainApp');
+            } else if (accountData.type === 'group') {
+                // Group account - log them in
+                currentUser = username;
+                localStorage.setItem('currentUser', currentUser);
+                localStorage.setItem('currentAccountType', 'group');
+                loadUserData();
+                showScreen('mainApp');
+            }
+        } else {
+            // New password - ask what type of account
+            // Store the password temporarily
+            sessionStorage.setItem('pendingPassword', passcode);
+            showScreen('accountTypeSelection');
+        }
+
+        errorDiv.textContent = '';
+    } catch(e) {
+        console.error('checkPasscode error:', e);
+        document.getElementById('passcodeError').textContent = 'Error: ' + e.message;
     }
-    
-    errorDiv.textContent = '';
 }
 
 // Account Type Selection
