@@ -764,7 +764,12 @@ function deleteAccount(username) {
 // Data Management - Group tasks are SHARED among all members
 function saveUserData() {
     if (!currentUser) return;
-    
+
+    // Skip localStorage save when Backside is configured (data is synced via Backside APIs)
+    if (bsIsConfigured()) {
+        return;
+    }
+
     try {
         const accounts = getAccounts();
 
