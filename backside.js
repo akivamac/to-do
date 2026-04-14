@@ -101,16 +101,30 @@ async function decryptField(val) {
 async function bsRequest(method, path, body) {
     const opts = {
         method,
-        headers: { 'Content-Type': 'application/json', 'x-api-key': BACKSIDE_API_KEY }
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + BACKSIDE_API_KEY
+        }
     };
     if (body !== undefined) opts.body = JSON.stringify(body);
-    const res = await fetch(BACKSIDE_BASE + path, opts);
-    if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        throw new Error(`Backside ${method} ${path} → ${res.status}: ${txt}`);
+
+    try {
+        const res = await fetch(BACKSIDE_BASE + path, opts);
+        if (!res.ok) {
+            const txt = await res.text().catch(() => '');
+            throw new Error(`Backside ${method} ${path} → ${res.status}: ${txt}`);
+        }
+        const txt = await res.text();
+        return txt ? JSON.parse(txt) : {};
+    } catch (err) {
+        console.error('Backside request failed:', {
+            method,
+            path,
+            error: err.message,
+            apiKeyPrefix: BACKSIDE_API_KEY.substring(0, 20) + '...'
+        });
+        throw err;
     }
-    const txt = await res.text();
-    return txt ? JSON.parse(txt) : {};
 }
 
 function bsList(res) {
