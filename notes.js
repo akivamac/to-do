@@ -129,7 +129,11 @@
             clearTimeout(noteSyncTimer);
             noteSyncTimer = setTimeout(() => {
                 syncData();
-                if (bsIsConfigured()) bsSyncNote(note).catch(e => console.warn('Note sync:', e));
+                if (bsIsConfigured()) {
+                    bsSyncNote(note)
+                        .then(() => showApiError && showApiError('✓ Note synced to Backside'))
+                        .catch(e => showApiError && showApiError('✗ Could not sync note: ' + e.message));
+                }
             }, 1500);
         }
 

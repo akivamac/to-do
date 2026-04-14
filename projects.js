@@ -67,7 +67,11 @@
             input.value = '';
             saveUserData();
             syncData();
-            if (bsIsConfigured()) bsSyncProject(project).catch(e => showApiError('Project sync: ' + e.message));
+            if (bsIsConfigured()) {
+                bsSyncProject(project)
+                    .then(() => showApiError('✓ Project synced to Backside'))
+                    .catch(e => showApiError('✗ Could not sync project: ' + e.message));
+            }
             renderProjects();
             populateProjectDropdown();
         }

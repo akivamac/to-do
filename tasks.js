@@ -417,7 +417,9 @@
             syncData();
 
             if (bsIsConfigured()) {
-                bsSyncTask(task, today).catch(e => showApiError('Could not sync task: ' + e.message));
+                bsSyncTask(task, today)
+                    .then(() => showApiError('✓ Task synced to Backside'))
+                    .catch(e => showApiError('✗ Could not sync task: ' + e.message));
             }
 
             input.value = '';
