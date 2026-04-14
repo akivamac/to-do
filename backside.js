@@ -10,7 +10,7 @@
 // unreadable. This is a known limitation.
 // ============================================================
 
-const BACKSIDE_API_KEY = 'bsk_live_9ltgLIBiiTTGbEjw6oFQNEGUQtpTaW8H9dRvZctftXw';
+const BACKSIDE_API_KEY = 'bsk_live_uRFFhXplfKAMpCvHPYKsS2RnC2kzGJtWVsj04E6Calf';
 const BACKSIDE_BASE    = 'https://api.backside.app/api/v1';
 
 // In-memory session crypto key — derived from password at login,
