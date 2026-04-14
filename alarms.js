@@ -273,7 +273,7 @@
 
                 div.innerHTML = `
                     <div class="alarm-info">
-                        <div class="alarm-time">${escapeHtml(alarm.time)}</div>
+                        <div class="alarm-time">${formatTime(alarm.time)}</div>
                         <div class="alarm-label">${escapeHtml(alarm.label)}${alarm.recurring ? ' 🔄' : ''}</div>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">

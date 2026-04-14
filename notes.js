@@ -40,7 +40,7 @@
         // Allowlist-based sanitizer: only permit known-safe tags, no attributes
         function sanitizeNoteHtml(html) {
             // No span: without style attr it's a no-op. Scripts in detached DOM don't execute in modern browsers.
-            const ALLOWED_TAGS = new Set(['b','strong','i','em','u','ul','ol','li','p','br','div','h1','h2','h3']);
+            const ALLOWED_TAGS = new Set(['b','strong','i','em','u','ul','ol','li','p','br','div','h1','h2','h3','table','thead','tbody','tr','th','td','hr']);
             const temp = document.createElement('div');
             temp.innerHTML = html;
             // Loop until no disallowed tags remain (handles nested unknowns that get
@@ -53,17 +53,18 @@
                         el.replaceWith(...Array.from(el.childNodes));
                         found = true;
                     } else {
-                        // Strip all attributes from allowed tags, except preserve list-style-type on ol elements
+                        // Strip all attributes from allowed tags, with two exceptions:
+                        // 1. ol: preserve list-style-type only
+                        // 2. table/th/td: preserve style (needed for borders, padding, min-width)
+                        const tag = el.tagName.toLowerCase();
                         Array.from(el.attributes).forEach(attr => {
-                            if (el.tagName.toLowerCase() === 'ol' && attr.name === 'style') {
-                                // Only keep list-style-type — strip everything else from the style string
+                            if (tag === 'ol' && attr.name === 'style') {
                                 const match = attr.value.match(/list-style-type\s*:\s*[^;]+/);
-                                if (match) {
-                                    el.setAttribute('style', match[0]);
-                                } else {
-                                    el.removeAttribute('style');
-                                }
+                                if (match) { el.setAttribute('style', match[0]); } else { el.removeAttribute('style'); }
                                 return;
+                            }
+                            if ((tag === 'table' || tag === 'th' || tag === 'td') && attr.name === 'style') {
+                                return; // keep table cell styles (borders, padding)
                             }
                             el.removeAttribute(attr.name);
                         });

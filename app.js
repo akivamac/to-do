@@ -1699,13 +1699,12 @@ async function createList() {
     }
 
     try {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
         await bsCreateNote({
             title: name,
             body: '', // Empty list starts with no items
             tags: ['peaceful-list'],
             encrypted: true,
-            metadata: { contact_id: localStorage.getItem('currentContactId'), created_by: currentUser.username }
+            metadata: { contact_id: localStorage.getItem('currentContactId'), created_by: localStorage.getItem('currentUser') || '' }
         });
         nameInput.value = '';
         await loadLists();
@@ -1941,7 +1940,6 @@ async function checkForAssignmentNotifications() {
 
     try {
         const tasks = await bsFetchTasks();
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
         const notifiedTasks = JSON.parse(localStorage.getItem('notifiedTaskIds') || '{}');
         const nowMinus24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
@@ -2052,8 +2050,7 @@ async function submitReview() {
         return;
     }
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const username = currentUser.displayName || currentUser.username || 'Anonymous';
+    const username = localStorage.getItem('currentUser') || 'Anonymous';
 
     try {
         await bsCreateNote({
@@ -2094,8 +2091,7 @@ async function submitFeatureRequest() {
         return;
     }
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const username = currentUser.displayName || currentUser.username || 'Anonymous';
+    const username = localStorage.getItem('currentUser') || 'Anonymous';
 
     try {
         await bsCreateNote({
