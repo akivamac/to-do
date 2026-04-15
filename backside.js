@@ -45,7 +45,7 @@ async function deriveCryptoKey(password, saltB64) {
         { name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' },
         km,
         { name: 'AES-GCM', length: 256 },
-        true,  // extractable so we can persist in sessionStorage for same-tab refreshes
+        false, // not extractable — key lives in memory only, never written to storage
         ['encrypt', 'decrypt']
     );
 }
@@ -54,22 +54,6 @@ async function generateSalt() {
     const b = new Uint8Array(16);
     crypto.getRandomValues(b);
     return btoa(String.fromCharCode(...b));
-}
-
-// ── Session key persistence (sessionStorage, not localStorage) ──
-
-async function persistCryptoKey(key) {
-    const raw = await crypto.subtle.exportKey('raw', key);
-    sessionStorage.setItem('_pt_ck', btoa(String.fromCharCode(...new Uint8Array(raw))));
-}
-
-async function restoreCryptoKey() {
-    const b64 = sessionStorage.getItem('_pt_ck');
-    if (!b64) return null;
-    try {
-        const raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-        return await crypto.subtle.importKey('raw', raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-    } catch { return null; }
 }
 
 // ── AES-256-GCM Encrypt / Decrypt ────────────────────────────
@@ -168,7 +152,6 @@ async function bsLogin(username, password) {
     );
     if (!match) return null;
     sessionCryptoKey = await deriveCryptoKey(password, match.metadata.crypto_salt);
-    await persistCryptoKey(sessionCryptoKey);
     currentBsContact = match;
     localStorage.setItem('currentContactId', match.id);
     return match;
@@ -192,7 +175,6 @@ async function bsSignup(username, password, role = 'member') {
     });
     const contact = res.data || res;
     sessionCryptoKey = await deriveCryptoKey(password, salt);
-    await persistCryptoKey(sessionCryptoKey);
     currentBsContact = contact;
     localStorage.setItem('currentContactId', contact.id);
     return contact;
@@ -399,11 +381,6 @@ async function loadAndShowApp() {
     showLoadingSpinner();
 
     try {
-        // Try to restore crypto key from sessionStorage (same-tab refreshes)
-        if (!sessionCryptoKey) {
-            sessionCryptoKey = await restoreCryptoKey();
-        }
-
         if (bsIsConfigured()) {
             // Check migration first (once, before Backside fetch)
             checkMigrationNeeded();

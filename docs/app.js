@@ -248,13 +248,11 @@
             if (savedUser) {
                 currentUser = savedUser;
                 if (bsIsConfigured()) {
-                    // Try to restore crypto key from sessionStorage
-                    sessionCryptoKey = await restoreCryptoKey().catch(() => null);
                     if (!sessionCryptoKey) {
-                        // Key not available — need password again
+                        // Key not in memory — user must sign in again
                         showScreen('loginPersonalAccount');
                         const err = document.getElementById('loginAccountError');
-                        if (err) err.textContent = 'Session expired — please sign in again to decrypt your data.';
+                        if (err) err.textContent = 'Please sign in again to access your data.';
                         return;
                     }
                     // Check trial
@@ -363,8 +361,9 @@
                 errorDiv.textContent = 'Username already exists';
                 return;
             }
+            const passwordHash = await sha256hex(password);
             accounts[username] = {
-                password, type: 'personal',
+                password: passwordHash, type: 'personal',
                 data: { tasks: {}, pointGroups: [], completedTasksCount: 0, spentPoints: 0 },
                 createdAt: new Date().toISOString()
             };
@@ -406,7 +405,7 @@
                     await loadAndShowApp();
                 } catch(err) {
                     console.error('Login error:', err);
-                    errorDiv.textContent = 'Connection error — check your API key in backside.js or try again.';
+                    errorDiv.textContent = 'Connection error — please try again.';
                 }
                 return;
             }
@@ -414,7 +413,13 @@
             // --- Fallback: localStorage login ---
             const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
             const account = accounts[username];
-            if (!account || account.password !== password) {
+            const attemptHash = await sha256hex(password);
+            // Migration shim: if stored password is plaintext (legacy), hash it now
+            if (account && account.password === password) {
+                account.password = attemptHash;
+                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+            }
+            if (!account || account.password !== attemptHash) {
                 errorDiv.textContent = 'Invalid username or password';
                 return;
             }
@@ -551,7 +556,6 @@
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('currentAccountType');
                 localStorage.removeItem('currentUserDisplayName');
-                sessionStorage.removeItem('_pt_ck');
                 sessionCryptoKey   = null;
                 currentBsContact   = null;
                 currentUser        = null;
@@ -1188,7 +1192,7 @@
             itemsList.innerHTML = items.map((item, idx) => `
                 <div style="display: flex; align-items: center; padding: 8px; background: ${item.checked ? '#f5f5f5' : 'white'}; border-radius: 4px; margin-bottom: 8px;">
                     <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleListItem('${currentListId}', ${idx})" style="width: 18px; height: 18px; cursor: pointer; margin-right: 10px;" />
-                    <span style="flex: 1; ${item.checked ? 'text-decoration: line-through; color: #999;' : 'color: #333;'}">${item.text}</span>
+                    <span style="flex: 1; ${item.checked ? 'text-decoration: line-through; color: #999;' : 'color: #333;'}">${escapeHtml(item.text)}</span>
                 </div>
             `).join('');
         }
