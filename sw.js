@@ -1,3 +1,5 @@
+// ── Cache version — BUMP THIS STRING whenever you deploy breaking changes
+// (e.g. 'peaceful-tasks-v3') so existing users get a fresh cache on next load.
 const CACHE_NAME = 'peaceful-tasks-v2';
 const ASSETS = [
     '/to-do/',
@@ -16,7 +18,11 @@ const ASSETS = [
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+        caches.open(CACHE_NAME).then(cache =>
+            Promise.allSettled(ASSETS.map(url => cache.add(url).catch(err => {
+                console.warn('SW: failed to cache', url, err);
+            })))
+        )
     );
     self.skipWaiting();
 });

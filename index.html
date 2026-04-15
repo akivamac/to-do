@@ -47,7 +47,7 @@
     <div id="installBanner" class="install-banner">
         <p>📱 Install Peaceful Tasks as an app for quick access!</p>
         <button onclick="installApp()">Install App</button>
-        <button onclick="dismissInstall()" style="background: transparent; color: white; border: 2px solid white;">Maybe Later</button>
+        <button onclick="dismissInstall()" style="background: transparent; color: white; border: 2px solid white;" aria-label="Dismiss install prompt">Maybe Later</button>
     </div>
 
     <!-- Hug Toast -->
@@ -60,8 +60,8 @@
     <!-- Update Banner -->
     <div id="updateBanner" class="update-banner">
         🎉 A new version is available!
-        <button onclick="updateApp()">Update Now</button>
-        <button onclick="dismissUpdate()">Got it!</button>
+        <button onclick="updateApp()" aria-label="Update the app now">Update Now</button>
+        <button onclick="dismissUpdate()" aria-label="Dismiss update notification">Got it!</button>
     </div>
 
     <!-- Welcome Landing Page -->
@@ -83,7 +83,6 @@
             </section>
 
             <!-- Calm Moment Callout -->
-            <!-- NOTE: The "10+ times a day" statistic is illustrative and should be verified before launch -->
             <section style="background: #f0f5f7; padding: 30px 20px; border-radius: 12px; margin-bottom: 60px; text-align: center;">
                 <p style="color: #5a7c8a; font-size: 15px; line-height: 1.7; margin: 0; font-style: italic;">Studies suggest the average person checks their to-do list more than 10 times a day. We think every one of those moments should feel calm.</p>
             </section>
@@ -284,7 +283,7 @@
     <div id="mainApp" class="container hidden">
         <div class="app-header">
             <div class="header-buttons">
-                <button class="header-btn logout-btn" onclick="logout()">Logout</button>
+                <button class="header-btn logout-btn" onclick="logout()" aria-label="Log out of Peaceful Tasks">Logout</button>
             </div>
             <div class="nav">
                 <button class="nav-item active" onclick="showTab('today')">Today</button>
@@ -308,7 +307,7 @@
                         <div style="display: flex; gap: 8px; align-items: center; flex: 1;">
                             <input type="text" id="taskInput" placeholder="Add a new task..."
                                 oninput="showPeacefulSuggestion('taskInput','taskSuggestion')" style="flex: 1;" />
-                            <button id="voiceMicButton" onclick="startVoiceInput()" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px; display: none;" title="Voice input">🎤</button>
+                            <button id="voiceMicButton" onclick="startVoiceInput()" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px; display: none;" title="Voice input" aria-label="Voice input">🎤</button>
                             <div id="voiceListeningIndicator" style="display: none; font-size: 12px; color: #666; animation: pulse 1.5s infinite;">🔴 Listening...</div>
                         </div>
                         <div id="taskTimeDisplay" class="add-task-time-btn"
@@ -403,8 +402,8 @@
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                             <button onclick="closeNoteEditor()" style="background: #e0e0e0; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px;">← Back</button>
                             <input type="text" id="noteTitleInput" class="login-input" style="margin: 0; flex: 1; font-weight: bold; min-width:120px;" placeholder="Note title..." oninput="saveCurrentNote()" />
-                            <button onclick="downloadCurrentNote()" title="Download as .md" style="background: #e3f2fd; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #1976d2;">⬇ .md</button>
-                            <button onclick="deleteCurrentNote()" style="background: #ffebee; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #e53935;">Delete</button>
+                            <button onclick="downloadCurrentNote()" title="Download as .md" aria-label="Download note as markdown" style="background: #e3f2fd; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #1976d2;">⬇ .md</button>
+                            <button onclick="deleteCurrentNote()" aria-label="Delete note" style="background: #ffebee; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 14px; color: #e53935;">Delete</button>
                         </div>
                         <div class="note-toolbar">
                             <!-- Text Style Group -->

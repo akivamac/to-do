@@ -697,15 +697,15 @@
                     if (proj) projectTagED = `<span style="font-size:11px;background:#e3f2fd;color:#5e8fb5;border-radius:4px;padding:2px 6px;margin-left:4px;">📁 ${escapeHtml(proj.name)}</span>`;
                 }
                 taskDiv.innerHTML = `
-                    <span class="drag-handle">☰</span>
+                    <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
                     <div class="task-content" style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                         <span class="task-text">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTagED}
                     </div>
-                    <button class="task-edit-btn" onclick="editTask(${index}, true)" title="Edit task">✏️</button>
-                    <button class="task-delete" onclick="deleteEditDayTask(${index})">Delete</button>
+                    <button class="task-edit-btn" onclick="editTask(${index}, true)" title="Edit task" aria-label="Edit task">✏️</button>
+                    <button class="task-delete" onclick="deleteEditDayTask(${index})" aria-label="Delete task">Delete</button>
                 `;
                 
                 taskList.appendChild(taskDiv);

@@ -279,7 +279,7 @@
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         ${alarm.ringing ? '<button class="login-btn" onclick="dismissAlarm(' + alarm.id + ')" style="padding: 8px 16px; margin: 0; font-size: 14px;">Dismiss</button>' : ''}
                         <button class="edit-btn" onclick="editAlarm(${alarm.id})" style="padding: 8px 16px; font-size: 14px;">Edit</button>
-                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})"></div>
+                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})" role="switch" aria-checked="${visuallyActive ? 'true' : 'false'}" aria-label="Toggle alarm" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter')toggleAlarm(${alarm.id})"></div>
                         <button class="delete-btn" onclick="deleteAlarm(${alarm.id})">Delete</button>
                     </div>
                 `;
