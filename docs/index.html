@@ -75,6 +75,7 @@
                     <button class="login-btn" onclick="showSignIn()" style="padding: 15px 40px; font-size: 16px; background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);">Sign In</button>
                     <button class="login-btn" onclick="showCreateAccount()" style="padding: 15px 40px; font-size: 16px;">Sign Up</button>
                 </div>
+                <p style="font-size: 13px; color: #888; margin: 16px 0 0 0;">Joining someone's family account? Use the invite link they sent you — it will bring you straight to sign up.</p>
                 <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
                     <p style="color: #856404; margin: 0; font-weight: 600; font-size: 14px;">⚠️ Coming Soon</p>
                     <p style="color: #856404; margin: 8px 0 0 0; font-size: 13px; line-height: 1.5;">This app may not work or save info properly. You can explore and get to know it, but don't expect it to work perfectly. Hopefully launching this week! Please check back.</p>
@@ -107,7 +108,7 @@
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <div style="font-size: 40px; margin-bottom: 12px;" title="Collaboration - Family and group sharing">👥</div>
                         <h3 style="color: #5e8fb5; margin: 0 0 12px 0; font-size: 18px;">Collaboration</h3>
-                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Group and family accounts built in. Everyone stays in sync.</p>
+                        <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">Family accounts built in. Admins can invite others with a single shareable link — no separate app or signup code needed.</p>
                     </div>
                     <!-- Feature 4: More Features -->
                     <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
@@ -239,38 +240,6 @@
 
 
     <!-- Passcode Gate -->
-    <div id="passcodeGate" class="container hidden">
-        <div class="login-screen">
-            <h1>🔑 Choose Your Password</h1>
-            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Create a password you'll use to sign in</p>
-            <p style="margin-bottom: 20px; font-size: 14px; color: #999;">Save this password - you'll need it every time you sign in!</p>
-            <input type="password" id="passcodeInput" class="login-input" placeholder="Enter password" autocomplete="current-password" name="passcode" />
-            <button class="login-btn" onclick="checkPasscode()">Continue</button>
-            <button class="login-btn back-btn" onclick="showLandingPage()">Back</button>
-            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 10px; font-size: 14px; padding: 10px 20px;">📲 Install App</button>
-            <div id="passcodeError" class="login-error"></div>
-        </div>
-    </div>
-
-    <!-- Account Type Selection -->
-    <div id="accountTypeSelection" class="container hidden">
-        <div class="login-screen">
-            <h1>👤 New Account Setup</h1>
-            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">What type of account do you want to create?</p>
-            <p style="margin-bottom: 30px; font-size: 14px; color: #999;">Personal = just for you | Group/Family = share tasks with others</p>
-            <button class="login-btn" onclick="selectAccountType('personal')">
-                <div style="font-size: 18px; margin-bottom: 5px;">Personal Account</div>
-                <div style="font-size: 12px; opacity: 0.8;">For individual use only</div>
-            </button>
-            <button class="login-btn" onclick="selectAccountType('group')">
-                <div style="font-size: 18px; margin-bottom: 5px;">Group/Family Account</div>
-                <div style="font-size: 12px; opacity: 0.8;">Share tasks with family or team</div>
-            </button>
-            <button class="login-btn back-btn" onclick="backToPasscodeGate()">Back</button>
-            <button class="login-btn" onclick="installAppFromButton()" style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); margin-top: 10px; font-size: 14px; padding: 10px 20px;">📲 Install App</button>
-        </div>
-    </div>
-
     <!-- Create Personal Account -->
     <div id="createPersonalAccount" class="container hidden">
         <div class="login-screen">
@@ -289,7 +258,7 @@
                     class="login-input" placeholder="Confirm password" />
                 <button type="submit" class="login-btn" style="width:calc(100% - 20px);">Create My Account</button>
             </form>
-            <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
+            <button class="login-btn back-btn" onclick="showScreen('loginPersonalAccount'); history.pushState(null,'','/to-do/login')">← Back to Sign In</button>
             <div id="personalAccountError" class="login-error"></div>
         </div>
     </div>
@@ -306,100 +275,9 @@
                     class="login-input" placeholder="Password" />
                 <button type="submit" class="login-btn" style="width:calc(100% - 20px);">Sign In</button>
             </form>
-            <button class="login-btn back-btn" onclick="showLandingPage()">Back</button>
+            <button class="login-btn back-btn" onclick="showLandingPage()">← Back to Home</button>
             <div id="loginAccountError" class="login-error"></div>
         </div>
-    </div>
-
-    <!-- Group Setup -->
-    <div id="groupSetup" class="container hidden">
-        <div class="login-screen">
-            <h1>👥 Group/Family Setup</h1>
-            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Are you creating a new group or joining an existing one?</p>
-            <p style="margin-bottom: 30px; font-size: 14px; color: #999;">The admin manages the group and can invite others</p>
-            <button class="login-btn" onclick="setupGroupAdmin()">
-                <div style="font-size: 18px; margin-bottom: 5px;">I'm Creating a New Group</div>
-                <div style="font-size: 12px; opacity: 0.8;">I'll be the admin and invite others</div>
-            </button>
-            <button class="login-btn" onclick="showGroupJoin()">
-                <div style="font-size: 18px; margin-bottom: 5px;">I'm Joining an Existing Group</div>
-                <div style="font-size: 12px; opacity: 0.8;">Someone invited me to their group</div>
-            </button>
-            <button class="login-btn back-btn" onclick="backToAccountTypeSelection()">Back</button>
-        </div>
-    </div>
-
-    <!-- Create Group Admin -->
-    <div id="createGroupAdmin" class="container hidden">
-        <div class="login-screen">
-            <h1>👑 Create Group Admin Account</h1>
-            <p style="margin-bottom: 10px; font-size: 14px; color: #666;">This will be your group's main account</p>
-            <p style="margin-bottom: 20px; font-size: 14px; color: #999;">You'll get a group password to share with members</p>
-            <input type="text" id="groupAdminUsername" class="login-input" placeholder="Group username (e.g., smith_family)" />
-            <input type="password" id="groupAdminPassword" class="login-input" placeholder="Your admin password" />
-            <input type="password" id="groupAdminConfirm" class="login-input" placeholder="Confirm password" />
-            <button class="login-btn" onclick="createGroupAdmin()">Create Group</button>
-            <button class="login-btn back-btn" onclick="backToGroupSetup()">Back</button>
-            <div id="groupAdminError" class="login-error"></div>
-        </div>
-    </div>
-
-    <!-- Group Join -->
-    <div id="groupJoin" class="container hidden">
-        <div class="login-screen">
-            <h1>🤝 Join a Group</h1>
-            <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <p style="font-weight: 600; color: #1976d2; margin-bottom: 10px;">📋 You'll need from your admin:</p>
-                <ul style="text-align: left; color: #1976d2; font-size: 14px; padding-left: 20px;">
-                    <li>GROUP username (shared by everyone)</li>
-                    <li>GROUP password (shared by everyone)</li>
-                    <li>YOUR personal username (if they created one for you)</li>
-                </ul>
-            </div>
-            <input type="text" id="groupJoinUsername" class="login-input" placeholder="GROUP username (everyone uses this)" />
-            <input type="password" id="groupJoinPassword" class="login-input" placeholder="GROUP password (everyone uses this)" />
-            <input type="text" id="yourNameInGroup" class="login-input" placeholder="YOUR username (your admin gave you this)" />
-            <button class="login-btn" onclick="joinGroup()">Join Group</button>
-            <button class="login-btn back-btn" onclick="backToGroupSetup()">Back</button>
-            <div id="groupJoinError" class="login-error"></div>
-        </div>
-    </div>
-
-    <!-- Show Group Credentials (after creation) -->
-    <div id="showGroupCredentials" class="container hidden">
-        <div class="login-screen">
-            <h1>✅ Group Created Successfully!</h1>
-            <p style="margin-bottom: 10px; font-size: 16px; color: #666;">Share these with people who want to join your group:</p>
-            <p style="margin-bottom: 20px; font-size: 14px; color: #ff9800; font-weight: 600;">⚠️ Save these somewhere safe!</p>
-            
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <strong style="display: block; margin-bottom: 5px; color: #666;">Group Username:</strong>
-                <div class="copyable-credential">
-                    <span id="createdGroupUsername">username</span>
-                    <button class="copy-btn" onclick="copyCredential('createdGroupUsername', this)">Copy</button>
-                </div>
-            </div>
-            
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <strong style="display: block; margin-bottom: 5px; color: #666;">Group Password:</strong>
-                <div class="copyable-credential">
-                    <span id="createdGroupPassword">password</span>
-                    <button class="copy-btn" onclick="copyCredential('createdGroupPassword', this)">Copy</button>
-                </div>
-            </div>
-            
-            <p style="margin-bottom: 20px; font-size: 13px; color: #999;">Members can use these to join, or you can create accounts for them in Settings → Invite User</p>
-            <button class="login-btn" onclick="finishGroupCreation()">Continue to My Tasks</button>
-        </div>
-    </div>
-
-    <!-- Welcome Screen / Name Entry -->
-    <div id="welcomeScreen" class="login-screen hidden">
-        <h1>Welcome!</h1>
-        <p>What should we call you?</p>
-        <input type="text" id="nameInput" class="login-input" placeholder="Enter your name" />
-        <button class="login-btn" onclick="startApp()">Continue</button>
-        <div class="login-error" id="nameError"></div>
     </div>
 
     <!-- Main App -->
@@ -766,38 +644,6 @@
                 </div>
 
                 <!-- Group Admin Section -->
-                <div id="groupAdminSection" class="hidden">
-                    <div class="admin-card">
-                        <h3>🔑 Group Credentials</h3>
-                        <p style="margin-bottom: 15px; color: #666;">Main group login credentials (share with members)</p>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Group Username</label>
-                            <div class="copyable-credential">
-                                <span id="groupUsername">username</span>
-                                <button class="copy-btn" onclick="copyCredential('groupUsername', this)">Copy</button>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Group Password</label>
-                            <div class="copyable-credential">
-                                <span id="groupPassword">password</span>
-                                <button class="copy-btn" onclick="copyCredential('groupPassword', this)">Copy</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="admin-card">
-                        <h3>👥 Group Management</h3>
-                        <p style="margin-bottom: 20px; color: #666;">Manage invited users</p>
-                        
-                        <button class="login-btn" onclick="showInviteUserModal()">+ Invite User</button>
-                        
-                        <div id="groupMembersList" style="margin-top: 20px;"></div>
-                    </div>
-
-                </div>
             </div>
         </div>
     </div>
@@ -826,33 +672,6 @@
             </div>
 
             <div class="task-list" id="editDayTaskList"></div>
-        </div>
-    </div>
-
-    <!-- Invite User Modal -->
-    <div id="inviteUserModal" class="modal hidden" onclick="closeInviteUserIfOutside(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeInviteUser()">×</button>
-            <h2>Invite New User</h2>
-            <p style="color: #666; margin-bottom: 20px;">Create a new account for someone to join your group</p>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Username</label>
-                <input type="text" id="inviteUsername" class="login-input" style="margin: 0;" placeholder="Choose a username" />
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">New User's Password</label>
-                <input type="password" id="invitePassword" class="login-input" style="margin: 0;" placeholder="Choose a password" />
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name (optional)</label>
-                <input type="text" id="inviteDisplayName" class="login-input" style="margin: 0;" placeholder="Their display name" />
-            </div>
-
-            <button class="login-btn" onclick="createInvitedUser()">Create User</button>
-            <div id="inviteError" class="login-error"></div>
         </div>
     </div>
 

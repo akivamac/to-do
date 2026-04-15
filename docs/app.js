@@ -276,10 +276,9 @@
         function showScreen(screenId) {
             // Hide all screens
             const screens = [
-                'landingPage', 'passcodeGate', 'accountTypeSelection',
-                'createPersonalAccount', 'loginPersonalAccount', 'groupSetup',
-                'createGroupAdmin', 'groupJoin', 'showGroupCredentials',
-                'welcomeScreen', 'mainApp'
+                'landingPage',
+                'createPersonalAccount', 'loginPersonalAccount',
+                'mainApp'
             ];
 
             screens.forEach(id => {
@@ -313,11 +312,6 @@
         }
 
         // Navigation functions
-        function showPasscodeGate() {
-            showScreen('passcodeGate');
-            document.getElementById('passcodeInput').focus();
-        }
-
         function showSignIn() {
             // Go directly to login page
             showScreen('loginPersonalAccount');
@@ -325,84 +319,9 @@
         }
 
         function showCreateAccount() {
-            // Go to password creation
-            showScreen('passcodeGate');
-            document.getElementById('passcodeInput').focus();
-        }
-
-        function backToInitialChoice() {
-            showLandingPage();
-            document.getElementById('passcodeError').textContent = '';
-        }
-
-        function backToPasscodeGate() {
-            showScreen('passcodeGate');
-            document.getElementById('loginAccountError').textContent = '';
-        }
-
-        function backToAccountTypeSelection() {
-            showScreen('accountTypeSelection');
-            document.getElementById('personalAccountError').textContent = '';
-        }
-
-        function backToGroupSetup() {
-            showScreen('groupSetup');
-            document.getElementById('groupAdminError').textContent = '';
-        }
-
-        // Passcode Check
-        function checkPasscode() {
-            const passcode = document.getElementById('passcodeInput').value.trim();
-            const errorDiv = document.getElementById('passcodeError');
-            
-            if (!passcode) {
-                errorDiv.textContent = 'Please enter a password';
-                return;
-            }
-            
-            // Check if this is an existing account
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const matchingAccount = Object.entries(accounts).find(([user, data]) => 
-                data.password === passcode
-            );
-            
-            if (matchingAccount) {
-                // Existing account - check if personal or group
-                const [username, accountData] = matchingAccount;
-                
-                if (accountData.type === 'personal') {
-                    // Personal account - log them in
-                    currentUser = username;
-                    localStorage.setItem('currentUser', currentUser);
-                    localStorage.setItem('currentAccountType', 'personal');
-                    loadUserData();
-                    showScreen('mainApp');
-                } else if (accountData.type === 'group') {
-                    // Group account - log them in
-                    currentUser = username;
-                    localStorage.setItem('currentUser', currentUser);
-                    localStorage.setItem('currentAccountType', 'group');
-                    loadUserData();
-                    showScreen('mainApp');
-                }
-            } else {
-                // New password - ask what type of account
-                // Store the password temporarily
-                sessionStorage.setItem('pendingPassword', passcode);
-                showScreen('accountTypeSelection');
-            }
-            
-            errorDiv.textContent = '';
-        }
-
-        // Account Type Selection
-        function selectAccountType(type) {
-            if (type === 'personal') {
-                showScreen('createPersonalAccount');
-                document.getElementById('personalUsername').focus();
-            } else {
-                showScreen('groupSetup');
-            }
+            showScreen('createPersonalAccount');
+            history.pushState(null, '', '/to-do/sign-up');
+            document.getElementById('personalUsername').focus();
         }
 
         // Create Personal Account
@@ -506,184 +425,6 @@
             showScreen('mainApp');
         }
 
-        // Group Setup
-        function setupGroupAdmin() {
-            showScreen('createGroupAdmin');
-            document.getElementById('groupAdminUsername').focus();
-        }
-
-        function showGroupJoin() {
-            showScreen('groupJoin');
-            document.getElementById('groupJoinUsername').focus();
-        }
-
-        // Create Group Admin
-        function createGroupAdmin() {
-            const username = document.getElementById('groupAdminUsername').value.trim();
-            const password = document.getElementById('groupAdminPassword').value.trim();
-            const confirmPassword = document.getElementById('groupAdminConfirm').value.trim();
-            const errorDiv = document.getElementById('groupAdminError');
-            
-            if (!username || !password || !confirmPassword) {
-                errorDiv.textContent = 'Please fill in all fields';
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                errorDiv.textContent = 'Passwords do not match';
-                return;
-            }
-            
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            
-            if (accounts[username]) {
-                errorDiv.textContent = 'Username already exists';
-                return;
-            }
-            
-            // Create the group account
-            accounts[username] = {
-                password: password,
-                type: 'group',
-                isAdmin: true,
-                members: [username],
-                data: {
-                    tasks: {},
-                    pointGroups: [],
-                    completedTasksCount: 0,
-                    spentPoints: 0
-                },
-                createdAt: new Date().toISOString()
-            };
-            
-            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            
-            // Show credentials
-            document.getElementById('createdGroupUsername').textContent = username;
-            document.getElementById('createdGroupPassword').textContent = password;
-            showScreen('showGroupCredentials');
-        }
-
-        function finishGroupCreation() {
-            const username = document.getElementById('createdGroupUsername').textContent;
-            currentUser = username;
-            localStorage.setItem('currentUser', currentUser);
-            localStorage.setItem('currentAccountType', 'group');
-            loadUserData();
-            showScreen('mainApp');
-        }
-
-        // Join Group
-        function joinGroup() {
-            const groupUsername = document.getElementById('groupJoinUsername').value.trim();
-            const groupPassword = document.getElementById('groupJoinPassword').value.trim();
-            const yourName = document.getElementById('yourNameInGroup').value.trim();
-            const errorDiv = document.getElementById('groupJoinError');
-            
-            if (!groupUsername || !groupPassword) {
-                errorDiv.textContent = 'Please enter group username and password';
-                return;
-            }
-            
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const groupAccount = accounts[groupUsername];
-            
-            if (!groupAccount || groupAccount.password !== groupPassword) {
-                errorDiv.textContent = 'Invalid group username or password';
-                return;
-            }
-            
-            if (groupAccount.type !== 'group') {
-                errorDiv.textContent = 'This is not a group account';
-                return;
-            }
-            
-            // Check if this is a sub-account login (invited user)
-            if (yourName && groupAccount.subAccounts && groupAccount.subAccounts.length > 0) {
-                const subAccount = groupAccount.subAccounts.find(sub => sub.username === yourName);
-                if (subAccount) {
-                    // This is an invited user - need their personal password
-                    sessionStorage.setItem('pendingGroupUsername', groupUsername);
-                    sessionStorage.setItem('pendingSubUsername', yourName);
-                    showSubAccountPasswordPrompt(yourName);
-                    return;
-                }
-            }
-            
-            // If no username provided or not a sub-account, just join as regular member
-            if (!yourName) {
-                errorDiv.textContent = 'Please enter your username';
-                return;
-            }
-            
-            // Regular group member join
-            if (!groupAccount.members) {
-                groupAccount.members = [];
-            }
-            if (!groupAccount.members.includes(yourName)) {
-                groupAccount.members.push(yourName);
-                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            }
-            
-            currentUser = groupUsername;
-            localStorage.setItem('currentUser', currentUser);
-            localStorage.setItem('currentAccountType', 'group');
-            localStorage.setItem('currentUserDisplayName', yourName);
-            loadUserData();
-            showScreen('mainApp');
-        }
-
-        function showSubAccountPasswordPrompt(username) {
-            // Update the join screen to ask for password
-            const errorDiv = document.getElementById('groupJoinError');
-            errorDiv.innerHTML = `
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 15px;">
-                    <p style="color: #1976d2; margin-bottom: 10px;">Found account for ${username}!</p>
-                    <input type="password" id="subAccountPassword" class="login-input" placeholder="Enter your password" style="margin-bottom: 10px;" />
-                    <button class="login-btn" onclick="loginSubAccount()">Sign In</button>
-                </div>
-            `;
-            document.getElementById('subAccountPassword').focus();
-        }
-
-        function loginSubAccount() {
-            const groupUsername = sessionStorage.getItem('pendingGroupUsername');
-            const subUsername = sessionStorage.getItem('pendingSubUsername');
-            const password = document.getElementById('subAccountPassword').value.trim();
-            const errorDiv = document.getElementById('groupJoinError');
-
-            if (!password) {
-                showCustomAlert('Please enter your password');
-                return;
-            }
-
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const groupAccount = accounts[groupUsername];
-            const subAccount = groupAccount.subAccounts.find(sub => sub.username === subUsername);
-
-            if (subAccount.password !== password) {
-                showCustomAlert('Incorrect password');
-                return;
-            }
-
-            // Log them in
-            currentUser = groupUsername + '::' + subUsername; // Special format for sub-accounts
-            localStorage.setItem('currentUser', currentUser);
-            localStorage.setItem('currentAccountType', 'subaccount');
-            localStorage.setItem('currentUserDisplayName', subAccount.displayName);
-
-            // Load SHARED group data (not individual)
-            tasks = groupAccount.data.tasks || {};
-            pointGroups = groupAccount.data.pointGroups || [];
-            completedTasksCount = groupAccount.data.completedTasksCount || 0;
-            projects = groupAccount.data.projects || [];
-            notes = groupAccount.data.notes || [];
-
-            sessionStorage.removeItem('pendingGroupUsername');
-            sessionStorage.removeItem('pendingSubUsername');
-
-            showScreen('mainApp');
-        }
 
         // Copy Credential Function
         function copyCredential(elementId, button) {
@@ -822,7 +563,8 @@
                 lists              = [];
                 currentNoteId      = null;
                 currentListId      = null;
-                showScreen('landingPage');
+                showScreen('loginPersonalAccount');
+                history.pushState(null, '', '/to-do/login');
             });
         }
 
@@ -924,13 +666,7 @@
             }
             
             document.getElementById('settingsNewPassword').value = '';
-            
-            // Load group credentials if admin
-            if (currentAccount.type === 'group' && currentAccount.isAdmin) {
-                document.getElementById('groupUsername').textContent = actualUsername;
-                document.getElementById('groupPassword').textContent = currentAccount.password;
-            }
-            
+
             // Check if install button should be shown
             const settingsInstallBtn = document.getElementById('settingsInstallBtn');
             const settingsInstallMsg = document.getElementById('settingsInstallMessage');
@@ -954,15 +690,6 @@
                 // Available
                 if (settingsInstallBtn) settingsInstallBtn.style.display = 'block';
                 if (settingsInstallMsg) settingsInstallMsg.style.display = 'none';
-            }
-            
-            // Show/hide group admin section
-            const groupAdminSection = document.getElementById('groupAdminSection');
-            if (currentAccount.type === 'group' && currentAccount.isAdmin) {
-                groupAdminSection.classList.remove('hidden');
-                loadGroupMembers();
-            } else {
-                groupAdminSection.classList.add('hidden');
             }
         }
 
@@ -1004,101 +731,6 @@
         }
 
 
-        function loadGroupMembers() {
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const currentAccount = accounts[currentUser];
-            const membersList = document.getElementById('groupMembersList');
-            
-            if (!currentAccount || !currentAccount.subAccounts) {
-                membersList.innerHTML = '<p style="color: #999;">No members yet. Use the Invite User button to add members.</p>';
-                return;
-            }
-            
-            membersList.innerHTML = '<h4 style="margin-bottom: 15px; color: #5e8fb5;">Group Members</h4>';
-            
-            currentAccount.subAccounts.forEach((subAccount, index) => {
-                const memberDiv = document.createElement('div');
-                memberDiv.className = 'account-item';
-                memberDiv.innerHTML = `
-                    <div class="account-info">
-                        <strong>${subAccount.displayName || subAccount.username}</strong>
-                        <small>Username: ${subAccount.username}</small>
-                    </div>
-                    <div class="account-actions">
-                        <button class="delete-btn" onclick="removeGroupMember(${index})">Remove</button>
-                    </div>
-                `;
-                membersList.appendChild(memberDiv);
-            });
-        }
-
-        function showInviteUserModal() {
-            document.getElementById('inviteUserModal').classList.remove('hidden');
-            document.getElementById('inviteUsername').value = '';
-            document.getElementById('invitePassword').value = '';
-            document.getElementById('inviteDisplayName').value = '';
-            document.getElementById('inviteError').textContent = '';
-        }
-
-        function closeInviteUser() {
-            document.getElementById('inviteUserModal').classList.add('hidden');
-        }
-
-        function closeInviteUserIfOutside(event) {
-            if (event.target.id === 'inviteUserModal') {
-                closeInviteUser();
-            }
-        }
-
-        function createInvitedUser() {
-            const username = document.getElementById('inviteUsername').value.trim();
-            const password = document.getElementById('invitePassword').value.trim();
-            const displayName = document.getElementById('inviteDisplayName').value.trim();
-            const errorDiv = document.getElementById('inviteError');
-            
-            if (!username || !password) {
-                errorDiv.textContent = 'Please fill in username and password';
-                return;
-            }
-            
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-            const currentAccount = accounts[currentUser];
-            
-            // Initialize subAccounts if it doesn't exist
-            if (!currentAccount.subAccounts) {
-                currentAccount.subAccounts = [];
-            }
-            
-            // Check if username already exists
-            const usernameExists = currentAccount.subAccounts.some(sub => sub.username === username);
-            if (usernameExists) {
-                errorDiv.textContent = 'Username already exists in this group';
-                return;
-            }
-            
-            // Create new sub-account (no separate data - they share the group tasks)
-            currentAccount.subAccounts.push({
-                username: username,
-                password: password,
-                displayName: displayName || username,
-                createdAt: new Date().toISOString()
-            });
-            
-            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-            
-            closeInviteUser();
-            loadGroupMembers();
-        }
-
-        function removeGroupMember(index) {
-            showCustomConfirm('Remove Member', 'Are you sure you want to remove this member?', () => {
-                const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
-                const currentAccount = accounts[currentUser];
-                currentAccount.subAccounts.splice(index, 1);
-                localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-                loadGroupMembers();
-            });
-        }
 
         // Custom Alert
         function showCustomAlert(message, title = '⚠️ Alert', showOkButton = true) {
