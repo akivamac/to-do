@@ -51,8 +51,8 @@
     </div>
 
     <!-- Hug Toast -->
-    <div id="hugToast" class="hug-toast">
-        <div class="hug-toast-content">
+    <div id="pointsToast" class="points-toast">
+        <div class="points-toast-content">
             🎉 You earned a point! 🤗
         </div>
     </div>
@@ -415,7 +415,7 @@
                 <button class="nav-item" onclick="showTab('projects')">Projects</button>
                 <button class="nav-item" onclick="showTab('lists')">Lists</button>
                 <button class="nav-item" onclick="showTab('notes')">Notes</button>
-                <button class="nav-item" onclick="showTab('hugs')">Points</button>
+                <button class="nav-item" onclick="showTab('points')">Points</button>
                 <button class="nav-item" onclick="showTab('alarms')">Alarms</button>
                 <button class="nav-item" onclick="showTab('settings')">Settings</button>
             </div>
@@ -590,10 +590,10 @@
             </div>
 
             <!-- Hugs Tab -->
-            <div id="hugsTab" class="hidden">
-                <div class="hug-header">
-                    <div class="hug-count" id="totalHugs" oncontextmenu="openAdminAccess(event)" onmousedown="startLongPress(event)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event)" ontouchend="cancelLongPress()">0</div>
-                    <div class="hug-label">Available Points</div>
+            <div id="pointsTab" class="hidden">
+                <div class="points-header">
+                    <div class="points-count" id="totalPoints" oncontextmenu="openAdminAccess(event)" onmousedown="startLongPress(event)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event)" ontouchend="cancelLongPress()">0</div>
+                    <div class="points-label">Available Points</div>
                 </div>
                 
                 <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 8px;">
@@ -605,7 +605,7 @@
                     </ul>
                 </div>
                 
-                <div id="hugGroups"></div>
+                <div id="pointGroups"></div>
             </div>
 
             <!-- Alarms/Timers Tab -->
@@ -780,30 +780,6 @@
                         <div id="groupMembersList" style="margin-top: 20px;"></div>
                     </div>
 
-                    <div class="admin-card">
-                        <h3>🔐 System Admin Dashboard</h3>
-                        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">View and manage all accounts in the system</p>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Admin Password</label>
-                            <input type="password" id="adminDashboardPassword" class="login-input" style="margin: 0;" placeholder="Enter admin password (default: hug2025)" />
-                        </div>
-                        <button class="login-btn" onclick="accessAdminDashboard()">Access Dashboard</button>
-                        <div id="adminDashboardError" style="margin-top: 10px; color: #e57373; display: none;"></div>
-                        
-                        <div id="adminDashboardContent" style="margin-top: 20px; display: none;">
-                            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                                <h4 style="color: #5e8fb5; margin-bottom: 15px;">All System Accounts</h4>
-                                <div id="allAccountsList"></div>
-                            </div>
-                            
-                            <div style="margin-top: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Change Admin Password</label>
-                                <input type="password" id="newAdminPassword" class="login-input" style="margin: 0;" placeholder="New admin password" />
-                            </div>
-                            <button class="login-btn" onclick="changeAdminPassword()" style="margin-top: 10px;">Update Admin Password</button>
-                            <div id="adminPasswordMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Admin password updated!</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

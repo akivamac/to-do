@@ -219,10 +219,10 @@ git push
 ### Two Admin Systems (Don't Confuse Them)
 1. **Group Admin (Settings tab)**: For group account owners to manage sub-accounts/members. Gated by being the group admin flag. Uses localStorage. Accessible via Settings → Group Admin Section.
 2. **Developer Admin Panel** (`#adminPanel`): Shows feature requests and error reports from Backside. Accessed by right-clicking the app logo (desktop) or long-pressing it (mobile). Password is SHA-256 hashed and stored in the contact's Backside metadata.
-3. **System Admin Dashboard** (inside Settings → Group Admin Section): Shows all localStorage accounts. Gated by `adminPassword` in localStorage (default `hug2025`, hardcoded fallback in source and visible in HTML placeholder). This is the least secure of the three — it reveals all local account data.
+3. **System Admin Dashboard** (inside Settings → Group Admin Section): Shows all localStorage accounts. Gated by `adminPassword` in localStorage (default `removed_ADMIN_PASSWORD`, hardcoded fallback in source and visible in HTML placeholder). This is the least secure of the three — it reveals all local account data.
 
 ### Notifications System
-- **Toast Notifications**: `showToastNotification(message)` reuses the `#hugToast` element for all toasts
+- **Toast Notifications**: `showToastNotification(message)` reuses the `#pointsToast` element for all toasts
 - **API Error Banner**: `showApiError(msg)` prepends a dismissible red banner to `#mainApp`
 - **Browser Notifications**: Uses Browser Notifications API
   - Requires user permission (`requestBrowserNotificationPermission()`)
@@ -273,8 +273,8 @@ git push
 
 ### Hugs / Points System
 - `completedTasksCount` tracks total completions (global in app.js)
-- Every 5 completions triggers `checkHugReward()` which adds a "hug group" entry
-- `renderHugs()` displays earned points in the Hugs tab
+- Every 5 completions triggers `checkPointReward()` which adds a "point group" entry
+- `renderPoints()` displays earned points in the Hugs tab
 - Points are gamification only — no external effect
 
 ### Task Rollover
@@ -358,7 +358,7 @@ Otherwise users on the old SW will get stale cached files. The old SW deletes ol
    - Countdown timer
 
 5. **Points / Hugs**
-   - Earn 100 "hugs" per 5 tasks completed
+   - Earn 100 "points" per 5 tasks completed
    - Visual celebration toasts
    - Displayed in Hugs tab
 
@@ -477,12 +477,12 @@ isTrialExpired(currentBsContact)
 - **Landing page won't scroll** (FIXED): Changed body overflow to `auto` and container to normal flow
 - **Coming Soon notice flickers** (FIXED): Added `display: none !important` CSS to hide during init
 - **Password changes disabled** (BY DESIGN): Changing password would re-derive a different AES key, making all encrypted data unreadable. User is warned if they try.
-- **Admin password `hug2025` is hardcoded**: Visible in app.js constant, the HTML placeholder text, and localStorage fallback. Do not rely on this for real security.
+- **Admin password `removed_ADMIN_PASSWORD` is hardcoded**: Visible in app.js constant, the HTML placeholder text, and localStorage fallback. Do not rely on this for real security.
 
 ### Security Posture (Be Aware)
 - **Backside API key is public**: It's hardcoded in `backside.js` which is in a public GitHub repo. The Backside project's data access controls are the primary protection.
 - **localStorage passwords are plaintext**: The non-Backside local fallback stores passwords unencrypted. This is a known limitation of the legacy mode.
-- **Admin dashboard password**: The "System Admin Dashboard" in Settings has a hardcoded default (`hug2025`) shown as placeholder text in the UI. It only gates a view of localStorage data on the same device — not a real security boundary.
+- **Admin dashboard password**: The "System Admin Dashboard" in Settings has a hardcoded default (`removed_ADMIN_PASSWORD`) shown as placeholder text in the UI. It only gates a view of localStorage data on the same device — not a real security boundary.
 
 ### Tools & Resources
 - **Browser DevTools**: F12 or Ctrl+Shift+I

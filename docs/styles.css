@@ -142,7 +142,7 @@
         }
 
         /* Hug Toast */
-        .hug-toast {
+        .points-toast {
             position: fixed;
             top: 20px;
             right: 20px;
@@ -156,7 +156,7 @@
             max-width: 300px;
         }
 
-        .hug-toast.show {
+        .points-toast.show {
             display: block;
         }
 
@@ -171,7 +171,7 @@
             }
         }
 
-        .hug-toast-content {
+        .points-toast-content {
             color: #e65100;
             font-size: 18px;
             font-weight: 600;
@@ -731,7 +731,7 @@
         }
 
         /* Hugs Tab */
-        .hug-header {
+        .points-header {
             text-align: center;
             padding: 30px 20px;
             background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
@@ -740,18 +740,18 @@
             color: #e65100;
         }
 
-        .hug-count {
+        .points-count {
             font-size: 64px;
             font-weight: bold;
             margin: 10px 0;
         }
 
-        .hug-label {
+        .points-label {
             font-size: 20px;
             font-weight: 500;
         }
 
-        .hug-group {
+        .points-group {
             background: white;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
@@ -762,24 +762,24 @@
             align-items: center;
         }
 
-        .hug-group-info {
+        .points-group-info {
             flex: 1;
         }
 
-        .hug-group-date {
+        .points-group-date {
             font-size: 16px;
             font-weight: 600;
             color: #333;
             margin-bottom: 5px;
         }
 
-        .hug-group-count {
+        .points-group-count {
             font-size: 18px;
             color: #ffb300;
             font-weight: 500;
         }
 
-        .hug-group-expires {
+        .points-group-expires {
             font-size: 14px;
             color: #666;
             text-align: right;

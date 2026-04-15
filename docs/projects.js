@@ -162,7 +162,7 @@
             if (!wasCompleted && task.completed && !task.hasBeenCompleted) {
                 task.hasBeenCompleted = true;
                 completedTasksCount++;
-                checkHugReward();
+                checkPointReward();
             }
             saveUserData();
             syncData();

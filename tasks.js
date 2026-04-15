@@ -437,7 +437,7 @@
             if (!wasCompleted && task.completed && !task.hasBeenCompleted) {
                 task.hasBeenCompleted = true;
                 completedTasksCount++;
-                checkHugReward();
+                checkPointReward();
             }
 
             renderTodayTasks();
@@ -774,7 +774,7 @@
                 if (!task.hasBeenCompleted) {
                     task.hasBeenCompleted = true;
                     completedTasksCount++;
-                    checkHugReward();
+                    checkPointReward();
                 }
             }
             
@@ -798,7 +798,7 @@
         }
 
         // Hugs System
-        function checkHugReward() {
+        function checkPointReward() {
             // Award 100 points for every 5 completed tasks
             if (completedTasksCount % 5 !== 0) {
                 return; // Only award points every 5 tasks
@@ -809,12 +809,12 @@
             expiresAt.setDate(expiresAt.getDate() + 30);
             
             const weekStart = getWeekStart(now);
-            let existingGroup = hugGroups.find(g => formatDate(new Date(g.date)) === formatDate(weekStart));
+            let existingGroup = pointGroups.find(g => formatDate(new Date(g.date)) === formatDate(weekStart));
             
             if (existingGroup) {
                 existingGroup.count += 100;
             } else {
-                hugGroups.push({
+                pointGroups.push({
                     date: weekStart.toISOString(),
                     count: 100,
                     expiresAt: expiresAt.toISOString()
@@ -823,12 +823,12 @@
             
             saveUserData();
             syncData();
-            showHugToast();
+            showPointsToast();
         }
 
-        function showHugToast() {
-            const toast = document.getElementById('hugToast');
-            const toastContent = toast.querySelector('.hug-toast-content');
+        function showPointsToast() {
+            const toast = document.getElementById('pointsToast');
+            const toastContent = toast.querySelector('.points-toast-content');
             toastContent.textContent = '🎉 Earned 100 points! (5 tasks completed) 🎉';
             toast.classList.add('show');
             
@@ -837,40 +837,40 @@
             }, 3000);
         }
 
-        function renderHugs() {
+        function renderPoints() {
             const now = new Date();
-            hugGroups = hugGroups.filter(g => new Date(g.expiresAt) > now);
+            pointGroups = pointGroups.filter(g => new Date(g.expiresAt) > now);
             
             const accounts = getAccounts();
-            const spentHugs = accounts[currentUser]?.data?.spentHugs || 0;
+            const spentPoints = accounts[currentUser]?.data?.spentPoints || 0;
             
-            const totalEarned = hugGroups.reduce((sum, g) => sum + g.count, 0);
-            const totalAvailable = totalEarned - spentHugs;
-            document.getElementById('totalHugs').textContent = totalAvailable;
+            const totalEarned = pointGroups.reduce((sum, g) => sum + g.count, 0);
+            const totalAvailable = totalEarned - spentPoints;
+            document.getElementById('totalPoints').textContent = totalAvailable;
             
-            const container = document.getElementById('hugGroups');
+            const container = document.getElementById('pointGroups');
             container.innerHTML = '';
             
-            if (hugGroups.length === 0) {
+            if (pointGroups.length === 0) {
                 container.innerHTML = '<div class="empty-state">Complete tasks to earn points! 🎉</div>';
                 return;
             }
             
-            hugGroups.sort((a, b) => new Date(b.date) - new Date(a.date));
+            pointGroups.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            hugGroups.forEach(group => {
+            pointGroups.forEach(group => {
                 const date = new Date(group.date);
                 const expiresAt = new Date(group.expiresAt);
                 const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
                 
                 const div = document.createElement('div');
-                div.className = 'hug-group';
+                div.className = 'points-group';
                 div.innerHTML = `
-                    <div class="hug-group-info">
-                        <div class="hug-group-date">Week of ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
-                        <div class="hug-group-count">${group.count} point${group.count !== 1 ? 's' : ''} 🎉</div>
+                    <div class="points-group-info">
+                        <div class="points-group-date">Week of ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
+                        <div class="points-group-count">${group.count} point${group.count !== 1 ? 's' : ''} 🎉</div>
                     </div>
-                    <div class="hug-group-expires">${daysLeft} day${daysLeft !== 1 ? 's' : ''} left</div>
+                    <div class="points-group-expires">${daysLeft} day${daysLeft !== 1 ? 's' : ''} left</div>
                 `;
                 container.appendChild(div);
             });

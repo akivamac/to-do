@@ -431,7 +431,7 @@ async function loadAndShowApp() {
     }
 
     renderTodayTasks();
-    renderHugs();
+    renderPoints();
     populateProjectDropdown();
     updateDateDisplay();
 }

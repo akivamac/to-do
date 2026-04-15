@@ -217,7 +217,7 @@ function timeToMinutes(timeStr) {
 let currentUser = null;
 let currentScreen = 'landingPage';
 let tasks = {};
-let hugGroups = [];
+let pointGroups = [];
 let completedTasksCount = 0;
 let projects = [];
 let notes = [];
@@ -225,8 +225,6 @@ let currentNoteId = null;
 let currentView = 'today';
 let currentEditDay = null;
 let currentProjectId = null;
-let isAdminMode = false;
-const ADMIN_PASSWORD = 'hug2025';
 const ANTI_CHEAT_TIME = 1000;
 
 // localStorage key constants
@@ -249,6 +247,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadInitialState() {
+    // Migration: rename hug→points localStorage keys (added cleanup pass April 2026)
+    if (localStorage.getItem('spentHugs') !== null) {
+        localStorage.setItem('spentPoints', localStorage.getItem('spentHugs'));
+        localStorage.removeItem('spentHugs');
+    }
+    if (localStorage.getItem('hugGroups') !== null) {
+        localStorage.setItem('pointGroups', localStorage.getItem('hugGroups'));
+        localStorage.removeItem('hugGroups');
+    }
+
     loadAlarms();
 
     // Handle invite link before anything else
@@ -326,7 +334,7 @@ function showScreen(screenId) {
         updateDateDisplay();
         populateProjectDropdown();
         renderTodayTasks();
-        renderHugs();
+        renderPoints();
         showTab('today');
         showHintsBanner();
     }
@@ -376,7 +384,7 @@ function testModeLogin() {
     if (!accounts[testUser]) {
         accounts[testUser] = {
             password: 'test', type: 'personal',
-            data: { tasks: {}, hugGroups: [], completedTasksCount: 0, spentHugs: 0 },
+            data: { tasks: {}, pointGroups: [], completedTasksCount: 0, spentPoints: 0 },
             createdAt: new Date().toISOString()
         };
         localStorage.setItem('todoAccounts', JSON.stringify(accounts));
@@ -495,7 +503,7 @@ async function createPersonalAccount() {
     }
     accounts[username] = {
         password, type: 'personal',
-        data: { tasks: {}, hugGroups: [], completedTasksCount: 0, spentHugs: 0 },
+        data: { tasks: {}, pointGroups: [], completedTasksCount: 0, spentPoints: 0 },
         createdAt: new Date().toISOString()
     };
     localStorage.setItem('todoAccounts', JSON.stringify(accounts));
@@ -598,9 +606,9 @@ function createGroupAdmin() {
         members: [username],
         data: {
             tasks: {},
-            hugGroups: [],
+            pointGroups: [],
             completedTasksCount: 0,
-            spentHugs: 0
+            spentPoints: 0
         },
         createdAt: new Date().toISOString()
     };
@@ -723,7 +731,7 @@ function loginSubAccount() {
 
     // Load SHARED group data (not individual)
     tasks = groupAccount.data.tasks || {};
-    hugGroups = groupAccount.data.hugGroups || [];
+    pointGroups = groupAccount.data.pointGroups || [];
     completedTasksCount = groupAccount.data.completedTasksCount || 0;
     projects = groupAccount.data.projects || [];
     notes = groupAccount.data.notes || [];
@@ -752,15 +760,6 @@ function copyCredential(elementId, button) {
     });
 }
 
-function deleteAccount(username) {
-    showCustomConfirm('Delete Account', `Are you sure you want to delete ${escapeHtml(username)}? This cannot be undone.`, () => {
-        const accounts = getAccounts();
-        delete accounts[username];
-        localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-        loadAllAccounts();
-    });
-}
-
 // Data Management - Group tasks are SHARED among all members
 function saveUserData() {
     if (!currentUser) return;
@@ -785,9 +784,9 @@ function saveUserData() {
 
             groupAccount.data = {
                 tasks: tasks,
-                hugGroups: hugGroups,
+                pointGroups: pointGroups,
                 completedTasksCount: completedTasksCount,
-                spentHugs: groupAccount.data?.spentHugs || 0,
+                spentPoints: groupAccount.data?.spentPoints || 0,
                 projects: projects,
                 notes: notes
             };
@@ -801,9 +800,9 @@ function saveUserData() {
 
             accounts[currentUser].data = {
                 tasks: tasks,
-                hugGroups: hugGroups,
+                pointGroups: pointGroups,
                 completedTasksCount: completedTasksCount,
-                spentHugs: accounts[currentUser].data?.spentHugs || 0,
+                spentPoints: accounts[currentUser].data?.spentPoints || 0,
                 projects: projects,
                 notes: notes
             };
@@ -830,7 +829,7 @@ function loadUserData() {
             if (groupAccount && groupAccount.data) {
                 // Load GROUP data (shared across all members)
                 tasks = groupAccount.data.tasks || {};
-                hugGroups = groupAccount.data.hugGroups || [];
+                pointGroups = groupAccount.data.pointGroups || [];
                 completedTasksCount = groupAccount.data.completedTasksCount || 0;
                 projects = groupAccount.data.projects || [];
                 notes = groupAccount.data.notes || [];
@@ -841,7 +840,7 @@ function loadUserData() {
             const userData = accounts[currentUser];
             if (userData && userData.data) {
                 tasks = userData.data.tasks || {};
-                hugGroups = userData.data.hugGroups || [];
+                pointGroups = userData.data.pointGroups || [];
                 completedTasksCount = userData.data.completedTasksCount || 0;
                 projects = userData.data.projects || [];
                 notes = userData.data.notes || [];
@@ -851,7 +850,7 @@ function loadUserData() {
 
         // Initialize empty data if not found
         tasks = {};
-        hugGroups = [];
+        pointGroups = [];
         completedTasksCount = 0;
         projects = [];
         notes = [];
@@ -878,7 +877,7 @@ function logout() {
         currentBsContact   = null;
         currentUser        = null;
         tasks              = {};
-        hugGroups          = [];
+        pointGroups          = [];
         completedTasksCount= 0;
         projects           = [];
         notes              = [];
@@ -913,7 +912,7 @@ function showTab(tabName) {
     document.getElementById('projectsTab').classList.add('hidden');
     document.getElementById('listsTab').classList.add('hidden');
     document.getElementById('notesTab').classList.add('hidden');
-    document.getElementById('hugsTab').classList.add('hidden');
+    document.getElementById('pointsTab').classList.add('hidden');
     document.getElementById('alarmsTab').classList.add('hidden');
     document.getElementById('settingsTab').classList.add('hidden');
 
@@ -936,9 +935,9 @@ function showTab(tabName) {
     } else if (tabName === 'notes') {
         document.getElementById('notesTab').classList.remove('hidden');
         renderNotes();
-    } else if (tabName === 'hugs') {
-        document.getElementById('hugsTab').classList.remove('hidden');
-        renderHugs();
+    } else if (tabName === 'points') {
+        document.getElementById('pointsTab').classList.remove('hidden');
+        renderPoints();
     } else if (tabName === 'alarms') {
         document.getElementById('alarmsTab').classList.remove('hidden');
         renderAlarms();
@@ -1069,123 +1068,6 @@ function saveSettings() {
     document.getElementById('settingsNewPassword').value = '';
 }
 
-function changeAdminPassword() {
-    const newPassword = document.getElementById('newAdminPassword').value.trim();
-
-    if (!newPassword) {
-        showCustomAlert('Please enter a new admin password');
-        return;
-    }
-    
-    localStorage.setItem('adminPassword', newPassword);
-    
-    // Show success message
-    const message = document.getElementById('adminPasswordMessage');
-    message.style.display = 'block';
-    setTimeout(() => {
-        message.style.display = 'none';
-    }, 3000);
-    
-    // Clear field
-    document.getElementById('newAdminPassword').value = '';
-}
-
-function accessAdminDashboard() {
-    const password = document.getElementById('adminDashboardPassword').value.trim();
-    const errorDiv = document.getElementById('adminDashboardError');
-    const storedAdminPassword = localStorage.getItem('adminPassword') || 'hug2025';
-    
-    if (!password) {
-        errorDiv.textContent = 'Please enter the admin password';
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    if (password !== storedAdminPassword) {
-        errorDiv.textContent = 'Incorrect admin password';
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    // Password correct - show dashboard
-    errorDiv.style.display = 'none';
-    document.getElementById('adminDashboardContent').style.display = 'block';
-    loadAllAccounts();
-}
-
-function loadAllAccounts() {
-    const accounts = getAccounts();
-    const accountsList = document.getElementById('allAccountsList');
-    
-    if (Object.keys(accounts).length === 0) {
-        accountsList.innerHTML = '<p style="color: #999; padding: 10px;">No accounts found</p>';
-        return;
-    }
-    
-    accountsList.innerHTML = '';
-    
-    Object.entries(accounts).forEach(([username, data]) => {
-        const accountDiv = document.createElement('div');
-        accountDiv.className = 'account-item';
-        accountDiv.style.marginBottom = '15px';
-
-        const totalHugs = (data.data?.hugGroups || []).reduce((sum, g) => sum + g.count, 0);
-        const spentHugs = data.data?.spentHugs || 0;
-        const availableHugs = totalHugs - spentHugs;
-
-        const members = data.type === 'group' && data.members && data.members.length > 0 ?
-            `<br><small style="display: block; margin-top: 5px;"><strong>Group Members:</strong> ${data.members.map(escapeHtml).join(', ')}</small>` : '';
-
-        const subAccountsInfo = data.subAccounts && data.subAccounts.length > 0 ?
-            `<br><small style="display: block; margin-top: 5px;"><strong>Invited Users:</strong></small>` +
-            data.subAccounts.map(s => `<br><small style="margin-left: 20px;">• ${escapeHtml(s.displayName || s.username)} (${escapeHtml(s.username)})</small>`).join('') : '';
-
-        const isAdmin = data.isAdmin ? '<br><small style="color: #9575cd; font-weight: 600;">👑 Group Admin</small>' : '';
-
-        const taskCount = data.data && data.data.tasks ? Object.values(data.data.tasks).reduce((sum, dayTasks) => sum + dayTasks.length, 0) : 0;
-        const completedCount = data.data && data.data.tasks ? Object.values(data.data.tasks).reduce((sum, dayTasks) => sum + dayTasks.filter(t => t.completed).length, 0) : 0;
-
-        const safeUsername = escapeHtml(username);
-
-        accountDiv.innerHTML = `
-            <div class="account-info">
-                <strong>${safeUsername}</strong>
-                <small>${data.type === 'group' ? '👥 Group' : '👤 Personal'} Account | ${availableHugs} points | ${taskCount} tasks (${completedCount} completed)${isAdmin}${members}${subAccountsInfo}</small>
-
-                <div class="copyable-credential" style="margin-top: 10px;">
-                    <span>${safeUsername}</span>
-                </div>
-            </div>
-            <div class="account-actions">
-                <button class="delete-btn">Delete</button>
-            </div>
-        `;
-
-        accountDiv.querySelector('.delete-btn').addEventListener('click', () => deleteAccountFromDashboard(username));
-        accountsList.appendChild(accountDiv);
-    });
-}
-
-function copyAdminCredential(text, button) {
-    navigator.clipboard.writeText(text).then(() => {
-        const originalText = button.textContent;
-        button.textContent = '✓';
-        button.classList.add('copied');
-        setTimeout(() => {
-            button.textContent = originalText;
-            button.classList.remove('copied');
-        }, 2000);
-    });
-}
-
-function deleteAccountFromDashboard(username) {
-    showCustomConfirm('Delete Account', `Are you sure you want to delete ${escapeHtml(username)}? This cannot be undone.`, () => {
-        const accounts = getAccounts();
-        delete accounts[username];
-        localStorage.setItem('todoAccounts', JSON.stringify(accounts));
-        loadAllAccounts();
-    });
-}
 
 function loadGroupMembers() {
     const accounts = getAccounts();
@@ -1976,10 +1858,10 @@ async function checkForAssignmentNotifications() {
 }
 
 function showToastNotification(message) {
-    const toast = document.getElementById('hugToast');
+    const toast = document.getElementById('pointsToast');
     if (!toast) return;
 
-    const toastContent = toast.querySelector('.hug-toast-content');
+    const toastContent = toast.querySelector('.points-toast-content');
     if (toastContent) {
         toastContent.textContent = message;
     }
