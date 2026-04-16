@@ -664,13 +664,19 @@ function syncData() {
 
 // Test Mode — skip login for demo
 function testModeLogin() {
-    currentUser = 'Demo User';
-    localStorage.setItem('currentUser', currentUser);
-    localStorage.setItem('currentAccountType', 'personal');
-    localStorage.setItem('currentUserDisplayName', 'Demo');
-    showScreen('mainApp');
-    const event = new Event('currentUserChanged');
-    document.dispatchEvent(event);
+    console.log('testModeLogin called');
+    try {
+        currentUser = 'Demo User';
+        localStorage.setItem('currentUser', currentUser);
+        localStorage.setItem('currentAccountType', 'personal');
+        localStorage.setItem('currentUserDisplayName', 'Demo');
+        showScreen('mainApp');
+        const event = new Event('currentUserChanged');
+        document.dispatchEvent(event);
+        console.log('testModeLogin completed');
+    } catch (err) {
+        console.error('testModeLogin error:', err);
+    }
 }
 
 // Logout — uses custom confirm modal (never browser confirm())
