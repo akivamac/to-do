@@ -340,18 +340,18 @@
                 let projectTag = '';
                 if (task.project) {
                     const proj = projects.find(p => String(p.id) === String(task.project));
-                    if (proj) projectTag = `<span style="font-size:11px;background:#e3f2fd;color:#5e8fb5;border-radius:4px;padding:2px 6px;margin-left:4px;">📁 ${escapeHtml(proj.name)}</span>`;
+                    if (proj) projectTag = `<span class="task-project-tag">📁 ${escapeHtml(proj.name)}</span>`;
                 }
                 let rolloverTag = '';
                 if (task.rolledFrom) {
-                    rolloverTag = `<span style="font-size:11px;color:#bbb;margin-left:4px;" title="Rolled over from ${escapeHtml(task.rolledFrom)}">↩</span>`;
+                    rolloverTag = `<span class="task-rollover-tag" title="Rolled over from ${escapeHtml(task.rolledFrom)}">↩</span>`;
                 }
 
                 taskDiv.innerHTML = `
                     <span class="drag-handle">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
-                    <div class="task-content" style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <span class="task-text" style="${task.rolledFrom ? 'color:#aaa;' : ''}">${escapeHtml(task.text)}</span>
+                    <div class="task-content-flex">
+                        <span class="task-text ${task.rolledFrom ? 'task-text-faded' : ''}">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTag}${rolloverTag}
                     </div>
@@ -457,39 +457,36 @@
             modalDiv.id = 'editTaskModal';
             modalDiv.innerHTML = `
                 <div class="alert-overlay" onclick="closeEditTaskModal()"></div>
-                <div class="custom-alert" onclick="event.stopPropagation()" style="max-width:440px;">
+                <div class="custom-alert edit-modal-max-width" onclick="event.stopPropagation()">
                     <h3>Edit Task</h3>
-                    <div style="text-align:left;margin-bottom:20px;">
-                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Task</label>
-                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input"
-                            style="margin:0 0 4px 0;"
+                    <div class="edit-form-wrapper">
+                        <label class="edit-label">Task</label>
+                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input edit-input-margin"
                             oninput="showPeacefulSuggestion('editTaskText','editTaskSuggestion')" />
-                        <div id="editTaskSuggestion" style="display:none;background:#e8f5e9;border-radius:6px;
-                            padding:6px 10px;font-size:12px;color:#2e7d32;margin-bottom:10px;"></div>
+                        <div id="editTaskSuggestion" class="edit-suggestion-box"></div>
 
-                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Time</label>
-                        <div style="display:flex;gap:8px;align-items:center;margin-bottom:15px;">
-                            <input type="text" id="editTaskTimeDisplay" readonly class="login-input" style="margin:0;flex:1;cursor:pointer;"
+                        <label class="edit-label">Time</label>
+                        <div class="time-input-wrapper">
+                            <input type="text" id="editTaskTimeDisplay" readonly class="login-input time-input-display"
                                 placeholder="No time" value="${task.time ? formatTime(task.time) : ''}"
                                 onclick="showTimePicker(document.getElementById('editTaskTimeHidden').value, v=>{document.getElementById('editTaskTimeHidden').value=v;document.getElementById('editTaskTimeDisplay').value=formatTime(v);})" />
                             <input type="hidden" id="editTaskTimeHidden" value="${task.time||''}" />
-                            <button type="button" onclick="document.getElementById('editTaskTimeHidden').value='';document.getElementById('editTaskTimeDisplay').value='';"
-                                style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;">Clear</button>
+                            <button type="button" class="time-clear-button" onclick="document.getElementById('editTaskTimeHidden').value='';document.getElementById('editTaskTimeDisplay').value='';">Clear</button>
                         </div>
 
-                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Project</label>
-                        <select id="editTaskProject" class="login-input" style="margin:0 0 15px 0;">
+                        <label class="edit-label">Project</label>
+                        <select id="editTaskProject" class="login-input edit-select-margin-large">
                             ${projectOptions}
                         </select>
 
-                        <label style="display:block;margin-bottom:5px;font-weight:600;color:#666;">Assigned To</label>
-                        <select id="editTaskAssigned" class="login-input" style="margin:0;">
+                        <label class="edit-label">Assigned To</label>
+                        <select id="editTaskAssigned" class="login-input edit-select-margin-zero">
                             ${memberOptions}
                         </select>
                     </div>
-                    <div style="display:flex;gap:10px;justify-content:center;">
-                        <button class="login-btn" onclick="saveEditTask(${index}, ${isEditDay})" style="margin:0;">Save</button>
-                        <button class="login-btn back-btn" onclick="closeEditTaskModal()" style="margin:0;">Cancel</button>
+                    <div class="modal-button-wrapper">
+                        <button class="login-btn modal-button-margin" onclick="saveEditTask(${index}, ${isEditDay})">Save</button>
+                        <button class="login-btn back-btn modal-button-margin" onclick="closeEditTaskModal()">Cancel</button>
                     </div>
                 </div>`;
             document.body.appendChild(modalDiv);
@@ -690,12 +687,12 @@
                 let projectTagED = '';
                 if (task.project) {
                     const proj = projects.find(p => String(p.id) === String(task.project));
-                    if (proj) projectTagED = `<span style="font-size:11px;background:#e3f2fd;color:#5e8fb5;border-radius:4px;padding:2px 6px;margin-left:4px;">📁 ${escapeHtml(proj.name)}</span>`;
+                    if (proj) projectTagED = `<span class="task-project-tag">📁 ${escapeHtml(proj.name)}</span>`;
                 }
                 taskDiv.innerHTML = `
                     <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
-                    <div class="task-content" style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <div class="task-content-flex">
                         <span class="task-text">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTagED}
