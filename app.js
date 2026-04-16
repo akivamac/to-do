@@ -662,6 +662,17 @@ function syncData() {
     saveUserData();
 }
 
+// Test Mode — skip login for demo
+function testModeLogin() {
+    currentUser = 'Demo User';
+    localStorage.setItem('currentUser', currentUser);
+    localStorage.setItem('currentAccountType', 'personal');
+    localStorage.setItem('currentUserDisplayName', 'Demo');
+    showScreen('mainApp');
+    const event = new Event('currentUserChanged');
+    document.dispatchEvent(event);
+}
+
 // Logout — uses custom confirm modal (never browser confirm())
 function logout() {
     showCustomConfirm('Log Out', 'Are you sure you want to log out?', () => {
