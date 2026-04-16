@@ -137,7 +137,7 @@
 
                 <div class="device-selector-wrapper">
                     <label class="device-selector-label">Select your device:</label>
-                    <select id="osSelector" class="login-input" style="margin: 0; max-width: 300px;" onchange="updateInstallInstructions(this.value)">
+                    <select id="osSelector" class="login-input os-selector-input" onchange="updateInstallInstructions(this.value)">
                         <option value="">Choose your device...</option>
                         <option value="android">Android</option>
                         <option value="ios">iOS</option>
@@ -339,9 +339,9 @@
             <div id="projectsTab" class="hidden">
                 <div class="admin-card">
                     <h3>📁 Projects</h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <input type="text" id="newProjectName" class="login-input" style="margin: 0; flex: 1;" placeholder="New project name..." />
-                        <button class="login-btn" onclick="addProject()" style="margin: 0; padding: 14px 24px;">Add</button>
+                    <div class="flex-row-container">
+                        <input type="text" id="newProjectName" class="login-input flex-input-item" placeholder="New project name..." />
+                        <button class="login-btn flex-button-item" onclick="addProject()">Add</button>
                     </div>
                     <div id="projectsList"></div>
                 </div>
@@ -365,11 +365,11 @@
                 <div id="listsListView">
                     <div class="admin-card">
                         <h3>📋 Shared Lists</h3>
-                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                            <input type="text" id="newListName" class="login-input" style="margin: 0; flex: 1;" placeholder="New list name (e.g. Groceries)..." />
-                            <button class="login-btn" onclick="createList()" style="margin: 0; padding: 14px 24px;">Create</button>
+                        <div class="flex-row-container">
+                            <input type="text" id="newListName" class="login-input flex-input-item" placeholder="New list name (e.g. Groceries)..." />
+                            <button class="login-btn flex-button-item" onclick="createList()">Create</button>
                         </div>
-                        <div id="listsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;"></div>
+                        <div id="listsList" class="lists-grid-container"></div>
                     </div>
                 </div>
                 <div id="listsDetailView" class="hidden">

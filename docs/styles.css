@@ -1595,3 +1595,32 @@
             font-size: 12px;
             color: #888;
         }
+
+        /* CSP Phase 2: Semantic classes for remaining inline styles */
+
+        .os-selector-input {
+            margin: 0;
+            max-width: 300px;
+        }
+
+        .flex-row-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .flex-input-item {
+            margin: 0;
+            flex: 1;
+        }
+
+        .flex-button-item {
+            margin: 0;
+            padding: 14px 24px;
+        }
+
+        .lists-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
