@@ -713,18 +713,6 @@
     <script src="notes.js"></script>
     <!-- backside.js loaded last so it can reference functions defined in the files above -->
     <script src="backside.js"></script>
-
-    <script>
-        const _route = new URLSearchParams(window.location.search).get('route');
-        if (_route) history.replaceState({}, '', '/to-do/' + _route);
-        if (_route === 'login') window._startRoute = 'login';
-        else if (_route === 'sign-up') window._startRoute = 'signup';
-
-        window.addEventListener('popstate', () => {
-            const p = window.location.pathname;
-            if (p.includes('/login')) showSignIn();
-            else if (p.includes('/sign-up')) showCreateAccount();
-        });
-    </script>
+    <script src="router.js"></script>
 </body>
 </html>
