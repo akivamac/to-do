@@ -1097,6 +1097,393 @@
             to   { transform: rotate(360deg); }
         }
 
+
+        /* ── Modal content styles (CSP Phase 2 - app.js) ─────────── */
+        .modal-wide-scroll {
+            max-width: 520px;
+            max-height: 75vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .modal-modal-scroll {
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-narrow {
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .modal-title {
+            margin-top: 0;
+            color: #5e8fb5;
+        }
+
+        .modal-body-text {
+            color: #555;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .modal-message-text {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .button-group-centered {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .button-group-flex {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .button-group-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-no-margin {
+            margin: 0;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 11px;
+            margin: 0;
+        }
+
+        .btn-small-admin {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-full-width {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .form-input-no-margin {
+            margin: 0;
+        }
+
+        .input-bottom-margin {
+            margin-bottom: 16px;
+        }
+
+        .input-prompt {
+            margin-bottom: 12px;
+        }
+
+        .input-time-picker {
+            margin: 0;
+            width: 70px;
+            text-align: center;
+        }
+
+        .input-invite-link {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .list-item-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            padding: 6px 8px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .list-item-flex {
+            flex: 1;
+            word-break: break-word;
+            color: #555;
+        }
+
+        .list-item-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .list-card-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .list-card-title {
+            color: #5e8fb5;
+            margin: 0 0 8px 0;
+        }
+
+        .list-card-meta {
+            color: #999;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .list-checkbox-row {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .list-checkbox-span {
+            flex: 1;
+        }
+
+        .time-picker-label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .time-picker-separator {
+            font-size: 24px;
+            font-weight: bold;
+            color: #5e8fb5;
+            padding-top: 16px;
+        }
+
+        .modal-section-divider {
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+
+        .modal-section-divider-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .modal-footer-centered {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .modal-footer-centered-top {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .alert-inactive-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .list-empty-state {
+            color: #999;
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .invite-link-small-text {
+            color: #888;
+        }
+
+        .hints-banner-list {
+            margin: 6px 0 0 16px;
+            padding: 0;
+        }
+
+        .hints-banner-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #66bb6a;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .date-display-time {
+            font-size: 15px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .confirm-message {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .session-warning-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .legal-modal-body {
+            color: #555;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .reviews-empty-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .reviews-empty-text {
+            color: #999;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .review-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .review-stars {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .review-text {
+            color: #333;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .review-author {
+            color: #999;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .admin-password-form {
+            margin-bottom: 15px;
+        }
+
+        .admin-form-text {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .error-reports-section {
+            margin-bottom: 40px;
+        }
+
+        .error-reports-title {
+            color: #e57373;
+            margin-bottom: 20px;
+        }
+
+        .error-report-item {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .error-report-body {
+            color: #c62828;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .error-report-date {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .feature-requests-title {
+            color: #5e8fb5;
+            margin-bottom: 20px;
+        }
+
+        .feature-requests-empty {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-request-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .feature-request-item-done {
+            background: #f5f5f5;
+            opacity: 0.6;
+        }
+
+        .feature-request-body {
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+        }
+
+        .feature-request-body-done {
+            color: #999;
+        }
+
+        .feature-request-body-open {
+            color: #333;
+        }
+
+        .feature-request-meta {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .feature-request-done-badge {
+            color: #66bb6a;
+            font-weight: 600;
+        }
         /* ── Inline style migrations (CSP Phase 2) ──────────────── */
         .peaceful-accept-btn {
             margin-left: 8px;
@@ -1513,6 +1900,10 @@
             min-width: 60px;
         }
 
+        .notes-alpha-list {
+            list-style-type: lower-alpha;
+        }
+
         /* ── Project Card Styles ──────────────────────────────────── */
         .project-card {
             background: white;
@@ -1571,6 +1962,7 @@
             height: 100%;
             border-radius: 8px;
             transition: width 0.3s;
+            width: var(--progress-width, 0%);
         }
 
         .progress-label {

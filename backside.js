@@ -508,7 +508,7 @@ function showApiError(msg) {
         const mainApp = document.getElementById('mainApp');
         if (mainApp) mainApp.prepend(banner);
     }
-    banner.innerHTML = `<span>⚠️ ${msg}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#c62828;">×</button>`;
+    banner.innerHTML = `<span>⚠️ ${msg}</span><button onclick="this.parentElement.remove()" class="api-error-close-btn">×</button>`;
 }
 
 // ── Paywall modal ─────────────────────────────────────────────
@@ -527,24 +527,22 @@ function showPaywallModal(contact) {
     el.id = 'paywallModal';
     el.innerHTML = `
         <div class="alert-overlay"></div>
-        <div class="custom-alert" style="max-width:420px;text-align:center;">
-            <h2 style="color:#5e8fb5;margin-bottom:10px;">🌸 Free Trial Ended</h2>
-            <p style="color:#666;margin-bottom:24px;font-size:14px;">Choose a plan to continue using Peaceful Tasks</p>
-            <div style="background:#f5f5f5;border-radius:12px;padding:16px;margin-bottom:12px;opacity:0.55;">
-                <div style="font-size:18px;font-weight:700;color:#999;">Free Trial</div>
-                <div style="color:#bbb;font-size:13px;">Expired</div>
+        <div class="custom-alert paywall-modal">
+            <h2 class="paywall-title">🌸 Free Trial Ended</h2>
+            <p class="paywall-intro">Choose a plan to continue using Peaceful Tasks</p>
+            <div class="paywall-plan-expired">
+                <div class="paywall-plan-expired-label">Free Trial</div>
+                <div class="paywall-plan-expired-status">Expired</div>
             </div>
-            <div style="background:#e3f2fd;border:2px solid #64b5f6;border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;"
+            <div class="paywall-plan-monthly"
                  onclick="showPaymentModal('monthly','$4 / month','${contactId}')">
-                <div style="font-size:18px;font-weight:700;color:#1565c0;">$4 / month</div>
+                <div class="paywall-plan-monthly-price">$4 / month</div>
             </div>
-            <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border:2px solid #66bb6a;border-radius:12px;
-                        padding:16px;margin-bottom:20px;cursor:pointer;position:relative;"
+            <div class="paywall-plan-yearly"
                  onclick="showPaymentModal('yearly','$30 / year','${contactId}')">
-                <span style="position:absolute;top:-10px;right:12px;background:#66bb6a;color:white;font-size:11px;
-                             padding:2px 10px;border-radius:12px;font-weight:600;">Best Value</span>
-                <div style="font-size:18px;font-weight:700;color:#2e7d32;">$30 / year</div>
-                <div style="font-size:12px;color:#388e3c;">Save $18 vs monthly</div>
+                <span class="paywall-plan-yearly-badge">Best Value</span>
+                <div class="paywall-plan-yearly-price">$30 / year</div>
+                <div class="paywall-plan-yearly-savings">Save $18 vs monthly</div>
             </div>
         </div>`;
     document.body.appendChild(el);
@@ -557,13 +555,13 @@ function showPaymentModal(plan, label, contactId) {
     el.id = 'paymentModal';
     el.innerHTML = `
         <div class="alert-overlay"></div>
-        <div class="custom-alert" style="max-width:380px;text-align:center;">
-            <h3 style="margin-bottom:16px;">${label}</h3>
-            <p style="color:#666;margin-bottom:24px;line-height:1.6;">
+        <div class="custom-alert payment-modal">
+            <h3 class="payment-modal-title">${label}</h3>
+            <p class="payment-modal-description">
                 Payment processing is not yet available.<br>
                 Tap below to continue for free while we set it up.
             </p>
-            <button class="login-btn" style="margin:0;" onclick="continueForFree('${contactId}')">Continue for Free</button>
+            <button class="login-btn payment-modal-button" onclick="continueForFree('${contactId}')">Continue for Free</button>
         </div>`;
     document.body.appendChild(el);
 }

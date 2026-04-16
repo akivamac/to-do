@@ -1174,6 +1174,10 @@
             min-width: 60px;
         }
 
+        .notes-alpha-list {
+            list-style-type: lower-alpha;
+        }
+
         /* ── Project Card Styles ──────────────────────────────────── */
         .project-card {
             background: white;

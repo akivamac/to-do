@@ -195,7 +195,7 @@
             document.getElementById('noteEditor').focus();
             try {
                 document.execCommand('insertHTML', false,
-                    '<ol style="list-style-type:lower-alpha"><li>Item</li></ol>');
+                    '<ol class="notes-alpha-list"><li>Item</li></ol>');
             } catch(e) {}
             saveCurrentNote();
         }

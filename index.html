@@ -468,9 +468,9 @@
                     <div class="points-label">Available Points</div>
                 </div>
                 
-                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 8px;">
-                    <div style="font-weight: 600; color: #e65100; margin-bottom: 8px;">💡 How Points Work</div>
-                    <ul style="color: #e65100; font-size: 14px; padding-left: 20px; margin: 0;">
+                <div class="points-info-box">
+                    <div class="points-info-title">💡 How Points Work</div>
+                    <ul class="points-info-list">
                         <li>Complete 5 tasks → Earn 100 points</li>
                         <li>Points expire after 30 days</li>
                         <li>Use points however you want (rewards, treats, etc.)</li>
@@ -484,23 +484,23 @@
             <div id="alarmsTab" class="hidden">
                 <div class="admin-card">
                     <h3>⏰ Alarms</h3>
-                    <div style="margin-bottom: 20px;">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: flex-start;">
-                            <div style="flex: 1; min-width: 150px;">
+                    <div class="alarm-input-wrapper">
+                        <div class="alarm-input-row">
+                            <div class="alarm-time-wrapper">
                                 <div id="alarmTimeDisplay" class="add-task-time-btn"
                                     onclick="showTimePicker(document.getElementById('alarmTimeHidden').value, v=>{document.getElementById('alarmTimeHidden').value=v;document.getElementById('alarmTimeDisplay').textContent=formatTime(v)||'Set alarm time';})">
                                     Set alarm time
                                 </div>
                                 <input type="hidden" id="alarmTimeHidden" />
                             </div>
-                            <div style="flex: 2; min-width: 200px;">
-                                <input type="text" id="alarmLabel" class="login-input" style="margin: 0;" placeholder="Alarm label (optional)" />
+                            <div class="alarm-label-wrapper">
+                                <input type="text" id="alarmLabel" class="login-input" placeholder="Alarm label (optional)" />
                             </div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" id="alarmRecurring" style="width: 20px; height: 20px; cursor: pointer;" />
-                                <label for="alarmRecurring" style="font-size: 14px; color: #666; cursor: pointer;">Daily</label>
+                            <div class="alarm-recurring-wrapper">
+                                <input type="checkbox" id="alarmRecurring" class="alarm-checkbox" />
+                                <label for="alarmRecurring" class="alarm-label">Daily</label>
                             </div>
-                            <button class="login-btn" onclick="addAlarm()" style="margin: 0; padding: 14px 30px;">Add Alarm</button>
+                            <button class="login-btn" onclick="addAlarm()">Add Alarm</button>
                         </div>
                         <div id="alarmsList"></div>
                     </div>
@@ -508,32 +508,32 @@
 
                 <div class="admin-card">
                     <h3>⏱️ Timer</h3>
-                    <div style="text-align: center;">
-                        <div style="font-size: 64px; font-weight: bold; color: #5e8fb5; margin: 20px 0;" id="timerDisplay">00:00:00</div>
-                        
-                        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
-                            <div style="flex: 1; min-width: 100px;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Hours</label>
-                                <input type="number" id="timerHours" min="0" max="23" value="0" class="login-input" style="margin: 0; text-align: center;" />
+                    <div class="timer-container">
+                        <div class="timer-display" id="timerDisplay">00:00:00</div>
+
+                        <div class="timer-input-group">
+                            <div class="timer-input-unit">
+                                <label class="timer-label">Hours</label>
+                                <input type="number" id="timerHours" min="0" max="23" value="0" class="login-input timer-input" />
                             </div>
-                            <div style="flex: 1; min-width: 100px;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Minutes</label>
-                                <input type="number" id="timerMinutes" min="0" max="59" value="0" class="login-input" style="margin: 0; text-align: center;" />
+                            <div class="timer-input-unit">
+                                <label class="timer-label">Minutes</label>
+                                <input type="number" id="timerMinutes" min="0" max="59" value="0" class="login-input timer-input" />
                             </div>
-                            <div style="flex: 1; min-width: 100px;">
-                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Seconds</label>
-                                <input type="number" id="timerSeconds" min="0" max="59" value="0" class="login-input" style="margin: 0; text-align: center;" />
+                            <div class="timer-input-unit">
+                                <label class="timer-label">Seconds</label>
+                                <input type="number" id="timerSeconds" min="0" max="59" value="0" class="login-input timer-input" />
                             </div>
                         </div>
 
-                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <div class="timer-button-group">
                             <button class="login-btn" onclick="startTimer()" id="startTimerBtn">Start Timer</button>
-                            <button class="login-btn" onclick="pauseTimer()" id="pauseTimerBtn" style="background: linear-gradient(135deg, #ffb74d 0%, #ffa726 100%); display: none;">Pause</button>
-                            <button class="login-btn" onclick="resetTimer()" id="resetTimerBtn" style="background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);">Reset</button>
+                            <button class="login-btn pause-btn" onclick="pauseTimer()" id="pauseTimerBtn">Pause</button>
+                            <button class="login-btn reset-btn" onclick="resetTimer()" id="resetTimerBtn">Reset</button>
                         </div>
 
-                        <div style="margin-top: 20px;">
-                            <input type="text" id="timerLabel" class="login-input" placeholder="Timer label (optional)" style="max-width: 300px; margin: 0 auto;" />
+                        <div class="timer-label-wrapper">
+                            <input type="text" id="timerLabel" class="login-input timer-label-input" placeholder="Timer label (optional)" />
                         </div>
                     </div>
                 </div>
@@ -543,81 +543,81 @@
             <div id="settingsTab" class="hidden">
                 <div class="admin-card">
                     <h3>📱 Install App</h3>
-                    <p style="margin-bottom: 15px; color: #666;">Install Peaceful Tasks on your device for quick access</p>
+                    <p class="admin-card-description">Install Peaceful Tasks on your device for quick access</p>
                     <button class="login-btn" onclick="installAppFromButton()" id="settingsInstallBtn">
-                        <div style="font-size: 16px;">📲 Install as App</div>
+                        <div class="button-icon-text">📲 Install as App</div>
                     </button>
-                    <p id="settingsInstallMessage" style="margin-top: 10px; color: #999; font-size: 14px; display: none;">App is already installed or not available on this device</p>
+                    <p id="settingsInstallMessage" class="settings-message">App is already installed or not available on this device</p>
                 </div>
 
                 <div class="admin-card">
                     <h3>👤 Your Profile</h3>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Display Name</label>
-                        <input type="text" id="settingsDisplayName" class="login-input" style="margin: 0;" placeholder="Your display name" />
+                    <div class="settings-form-group">
+                        <label class="settings-label">Display Name</label>
+                        <input type="text" id="settingsDisplayName" class="login-input" placeholder="Your display name" />
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Username</label>
+                    <div class="settings-form-group">
+                        <label class="settings-label">Username</label>
                         <div class="copyable-credential">
                             <span id="settingsUsername">username</span>
                             <button class="copy-btn" onclick="copyCredential('settingsUsername', this)">Copy</button>
                         </div>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Change Password</label>
-                        <input type="password" id="settingsNewPassword" class="login-input" style="margin: 0;" placeholder="New password (leave blank to keep current)" />
+                    <div class="settings-form-group">
+                        <label class="settings-label">Change Password</label>
+                        <input type="password" id="settingsNewPassword" class="login-input" placeholder="New password (leave blank to keep current)" />
                     </div>
                     <button class="login-btn" onclick="saveSettings()">Save Changes</button>
-                    <div id="settingsSaveMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Settings saved!</div>
+                    <div id="settingsSaveMessage" class="success-message">✓ Settings saved!</div>
                 </div>
 
                 <!-- Leave a Review Section -->
                 <div class="admin-card">
                     <h3>⭐ Leave a Review</h3>
-                    <p style="margin-bottom: 15px; color: #666;">Tell us what you think about Peaceful Tasks</p>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #666;">Your Rating</label>
-                        <div style="display: flex; gap: 8px; font-size: 28px;">
-                            <button onclick="selectReviewRating(1)" id="rating1" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
-                            <button onclick="selectReviewRating(2)" id="rating2" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
-                            <button onclick="selectReviewRating(3)" id="rating3" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
-                            <button onclick="selectReviewRating(4)" id="rating4" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
-                            <button onclick="selectReviewRating(5)" id="rating5" style="background: none; border: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s;">★</button>
+                    <p class="admin-card-description">Tell us what you think about Peaceful Tasks</p>
+                    <div class="settings-form-group">
+                        <label class="settings-label">Your Rating</label>
+                        <div class="rating-stars">
+                            <button onclick="selectReviewRating(1)" id="rating1" class="star-btn">★</button>
+                            <button onclick="selectReviewRating(2)" id="rating2" class="star-btn">★</button>
+                            <button onclick="selectReviewRating(3)" id="rating3" class="star-btn">★</button>
+                            <button onclick="selectReviewRating(4)" id="rating4" class="star-btn">★</button>
+                            <button onclick="selectReviewRating(5)" id="rating5" class="star-btn">★</button>
                         </div>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Tell us what you think</label>
-                        <textarea id="reviewText" class="login-input" style="margin: 0; min-height: 100px; padding: 12px;" placeholder="Share your thoughts about Peaceful Tasks..."></textarea>
+                    <div class="settings-form-group">
+                        <label class="settings-label">Tell us what you think</label>
+                        <textarea id="reviewText" class="login-input review-textarea" placeholder="Share your thoughts about Peaceful Tasks..."></textarea>
                     </div>
                     <button class="login-btn" onclick="submitReview()">Submit Review</button>
-                    <div id="reviewMessage" style="margin-top: 10px; color: #66bb6a; display: none;">Thanks for your review!</div>
+                    <div id="reviewMessage" class="success-message">Thanks for your review!</div>
                 </div>
 
                 <!-- Submit a Feature Request Section -->
                 <div class="admin-card">
                     <h3>💡 Submit a Feature Request</h3>
-                    <p style="margin-bottom: 15px; color: #666;">Have an idea to make Peaceful Tasks better?</p>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">What would you like to see?</label>
-                        <textarea id="featureRequestText" class="login-input" style="margin: 0; min-height: 100px; padding: 12px;" placeholder="Describe your feature idea..."></textarea>
+                    <p class="admin-card-description">Have an idea to make Peaceful Tasks better?</p>
+                    <div class="settings-form-group">
+                        <label class="settings-label">What would you like to see?</label>
+                        <textarea id="featureRequestText" class="login-input review-textarea" placeholder="Describe your feature idea..."></textarea>
                     </div>
                     <button class="login-btn" onclick="submitFeatureRequest()">Send Request</button>
-                    <div id="featureRequestMessage" style="margin-top: 10px; color: #66bb6a; display: none;">Request received — thank you!</div>
+                    <div id="featureRequestMessage" class="success-message">Request received — thank you!</div>
                 </div>
 
                 <!-- Invite by Link -->
                 <div class="admin-card">
                     <h3>🔗 Invite Someone</h3>
-                    <p style="margin-bottom:15px;color:#666;font-size:14px;">Generate a one-time invite link to share with anyone you want to join.</p>
+                    <p class="invite-description">Generate a one-time invite link to share with anyone you want to join.</p>
                     <button class="login-btn" onclick="generateInviteLink()">Generate Invite Link</button>
                 </div>
 
                 <!-- Clear Data Section -->
                 <div class="admin-card">
                     <h3>🗑️ Clear Data & Cache</h3>
-                    <p style="margin-bottom: 15px; color: #666; font-size: 14px;">If the app is running slowly or using too much storage, you can clear all cached data and start fresh. You'll need to sign in again.</p>
-                    <button class="login-btn" onclick="clearAllData()" style="background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);">Clear All Data</button>
-                    <div id="clearDataMessage" style="margin-top: 10px; color: #66bb6a; display: none;">✓ Data cleared! Reloading...</div>
+                    <p class="clear-data-description">If the app is running slowly or using too much storage, you can clear all cached data and start fresh. You'll need to sign in again.</p>
+                    <button class="login-btn danger-btn" onclick="clearAllData()">Clear All Data</button>
+                    <div id="clearDataMessage" class="success-message">✓ Data cleared! Reloading...</div>
                 </div>
 
                 <!-- Group Admin Section -->
@@ -627,7 +627,7 @@
 
     <!-- Edit Day Modal -->
     <div id="editDayModal" class="modal hidden" onclick="closeEditDayIfOutside(event)">
-        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 700px;">
+        <div class="modal-content modal-large" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeEditDay()">×</button>
             <div class="edit-day-header">
                 <h2 id="editDayTitle"></h2>
@@ -638,10 +638,10 @@
                 <div class="add-task-inputs">
                     <input type="text" id="editDayTaskInput" placeholder="Add a task..." />
                     <input type="time" id="editDayTaskTime" />
-                    <select id="editDayTaskAssign" class="login-input" style="margin: 0; padding: 14px;">
+                    <select id="editDayTaskAssign" class="login-input task-select">
                         <option value="">Assign to...</option>
                     </select>
-                    <select id="editDayTaskProject" class="login-input" style="margin: 0; padding: 14px;">
+                    <select id="editDayTaskProject" class="login-input task-select">
                         <option value="">No project</option>
                     </select>
                 </div>
@@ -655,7 +655,7 @@
     <!-- Invite User Modal -->
     <!-- Admin Access Modal -->
     <div id="adminAccessModal" class="modal hidden" onclick="closeAdminAccessIfOutside(event)">
-        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px;">
+        <div class="modal-content modal-small" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeAdminAccess()">×</button>
             <h2 id="adminAccessTitle">Admin Access</h2>
             <div id="adminAccessContent"></div>
@@ -664,8 +664,8 @@
 
     <!-- Admin Panel -->
     <div id="adminPanel" class="container hidden">
-        <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
-            <button class="login-btn back-btn" onclick="exitAdminPanel()" style="margin-bottom: 20px;">← Back</button>
+        <div class="admin-panel-wrapper">
+            <button class="login-btn back-btn" onclick="exitAdminPanel()">← Back</button>
             <h1>Feature Requests</h1>
             <div id="featureRequestsList"></div>
         </div>

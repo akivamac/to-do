@@ -191,11 +191,8 @@
             const suggestion = getPeacefulSuggestion(input.value);
             if (suggestion) {
                 box.innerHTML = `💚 Calmer wording: <em>"${escapeHtml(suggestion)}"</em>
-                    <button onclick="acceptSuggestion('${inputId}','${escapeHtml(suggestion).replace(/'/g,"\\'")}')"
-                        style="margin-left:8px;background:#66bb6a;color:white;border:none;border-radius:6px;
-                        padding:2px 10px;cursor:pointer;font-size:12px;">Use this</button>
-                    <button onclick="document.getElementById('${suggestionId}').style.display='none'"
-                        style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+                    <button class="peaceful-accept-btn" onclick="acceptSuggestion('${inputId}','${escapeHtml(suggestion).replace(/'/g,"\\'")}')" >Use this</button>
+                    <button class="peaceful-dismiss-btn" onclick="document.getElementById('${suggestionId}').style.display='none'">×</button>`;
                 box.style.display = 'block';
             } else {
                 box.style.display = 'none';

@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                        <div class="progress-bar-fill" style="--progress-width: ${pct}%"></div>
                     </div>
                     <span class="progress-label">${done}/${total} tasks (${pct}%)</span>
                 `;
