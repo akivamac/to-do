@@ -137,7 +137,7 @@
             const preview = document.getElementById('notePreviewPane');
             if (!preview || typeof marked === 'undefined') return;
             const raw = document.getElementById('noteEditor').innerText || '';
-            preview.innerHTML = marked.parse(raw);
+            preview.innerHTML = sanitizeNoteHtml(marked.parse(raw));
         }
 
         function deleteCurrentNote() {

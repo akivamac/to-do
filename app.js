@@ -238,6 +238,69 @@ const KEY_CURRENT_CONTACT_ID = 'currentContactId';
 const KEY_INSTALL_DISMISSED = 'installDismissed';
 const KEY_MIGRATED = '_pt_migrated';
 
+// ── Session Timeout ───────────────────────────────────────────
+// BUILD STANDARD: Session auto-expires after 30 min inactivity.
+// Auto-saves before logout. 2-minute warning shown before expiry.
+// Any user activity resets the timer. DO NOT remove this.
+let _sessionTimer = null;
+let _sessionWarnTimer = null;
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const SESSION_WARN_MS = 28 * 60 * 1000;    // warn at 28 minutes
+
+function _resetSessionTimer() {
+    if (!sessionCryptoKey && !localStorage.getItem('currentUser')) return;
+    clearTimeout(_sessionTimer);
+    clearTimeout(_sessionWarnTimer);
+    // Dismiss warning if it's showing
+    const warn = document.getElementById('_sessionWarnModal');
+    if (warn) warn.remove();
+
+    _sessionWarnTimer = setTimeout(() => {
+        // Show warning modal
+        const el = document.createElement('div');
+        el.id = '_sessionWarnModal';
+        el.innerHTML = `
+            <div class="alert-overlay"></div>
+            <div class="custom-alert">
+                <h3>⏱️ Still there?</h3>
+                <p style="color:#666;margin-bottom:20px;">You'll be logged out in 2 minutes due to inactivity. Any activity will keep you signed in.</p>
+                <button class="login-btn" onclick="document.getElementById('_sessionWarnModal').remove();_resetSessionTimer();" style="margin:0;">Stay Signed In</button>
+            </div>`;
+        document.body.appendChild(el);
+    }, SESSION_WARN_MS);
+
+    _sessionTimer = setTimeout(async () => {
+        // Auto-save before logout
+        try { await saveAlarms(); } catch(e) {}
+        try { saveUserData(); } catch(e) {}
+        if (bsIsConfigured()) {
+            try { syncData(); } catch(e) {}
+        }
+        // Clear session
+        document.getElementById('_sessionWarnModal')?.remove();
+        sessionCryptoKey = null;
+        showScreen('loginPersonalAccount');
+        history.pushState(null, '', '/to-do/login');
+        const err = document.getElementById('loginAccountError');
+        if (err) err.textContent = 'You were logged out due to inactivity.';
+    }, SESSION_TIMEOUT_MS);
+}
+
+function _startSessionTimeout() {
+    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt => {
+        document.addEventListener(evt, _resetSessionTimer, { passive: true });
+    });
+    _resetSessionTimer();
+}
+
+function _stopSessionTimeout() {
+    clearTimeout(_sessionTimer);
+    clearTimeout(_sessionWarnTimer);
+    ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt => {
+        document.removeEventListener(evt, _resetSessionTimer);
+    });
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadInitialState();
@@ -257,7 +320,7 @@ async function loadInitialState() {
         localStorage.removeItem('hugGroups');
     }
 
-    loadAlarms();
+    await loadAlarms();
 
     // Handle invite link before anything else
     await handleInviteToken().catch(console.error);
@@ -334,6 +397,7 @@ function showScreen(screenId) {
         renderPoints();
         showTab('today');
         showHintsBanner();
+        _startSessionTimeout();
     }
 }
 
@@ -525,6 +589,13 @@ function saveUserData() {
             };
 
             localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+
+            // Save points data encrypted separately
+            if (typeof sessionCryptoKey !== 'undefined' && sessionCryptoKey) {
+                encryptField(JSON.stringify(pointGroups)).then(encrypted => {
+                    localStorage.setItem('_pt_points', encrypted);
+                });
+            }
         }
     } catch (error) {
         console.error('Error saving data:', error);
@@ -561,6 +632,15 @@ function loadUserData() {
                 completedTasksCount = userData.data.completedTasksCount || 0;
                 projects = userData.data.projects || [];
                 notes = userData.data.notes || [];
+
+                // Migrate encrypted points if available
+                const encryptedPoints = localStorage.getItem('_pt_points');
+                if (encryptedPoints && encryptedPoints.startsWith('enc:') && typeof sessionCryptoKey !== 'undefined' && sessionCryptoKey) {
+                    decryptField(encryptedPoints).then(decrypted => {
+                        try { pointGroups = JSON.parse(decrypted); } catch(e) {}
+                    });
+                }
+
                 return;
             }
         }
@@ -585,6 +665,7 @@ function syncData() {
 // Logout — uses custom confirm modal (never browser confirm())
 function logout() {
     showCustomConfirm('Log Out', 'Are you sure you want to log out?', () => {
+        _stopSessionTimeout();
         saveUserData();
         localStorage.removeItem('currentUser');
         localStorage.removeItem('currentAccountType');

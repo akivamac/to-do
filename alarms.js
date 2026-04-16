@@ -23,32 +23,49 @@
 
         let _alarmSoundSignal = null;
 
-        function loadAlarms() {
+        async function loadAlarms() {
             const saved = localStorage.getItem('alarms');
             if (saved) {
-                alarms = JSON.parse(saved);
+                try {
+                    if (saved.startsWith('enc:')) {
+                        const decrypted = await decryptField(saved);
+                        alarms = JSON.parse(decrypted);
+                    } else {
+                        // Legacy plaintext — parse and re-save encrypted
+                        alarms = JSON.parse(saved);
+                        await saveAlarms();
+                    }
+                } catch (e) {
+                    console.warn('Failed to load alarms:', e);
+                    alarms = [];
+                }
             }
-            
+
             // Start checking alarms
             if (!alarmCheckInterval) {
                 alarmCheckInterval = setInterval(checkAlarms, 1000);
             }
         }
 
-        function saveAlarms() {
-            localStorage.setItem('alarms', JSON.stringify(alarms));
+        async function saveAlarms() {
+            if (typeof sessionCryptoKey !== 'undefined' && sessionCryptoKey) {
+                const encrypted = await encryptField(JSON.stringify(alarms));
+                localStorage.setItem('alarms', encrypted);
+            } else {
+                localStorage.setItem('alarms', JSON.stringify(alarms));
+            }
         }
 
-        function addAlarm() {
+        async function addAlarm() {
             const timeInput = document.getElementById('alarmTimeHidden');
             const labelInput = document.getElementById('alarmLabel');
             const recurringInput = document.getElementById('alarmRecurring');
-            
+
             if (!timeInput.value) {
                 showCustomAlert('Please set a time for the alarm');
                 return;
             }
-            
+
             const alarm = {
                 id: Date.now(),
                 time: timeInput.value,
@@ -57,9 +74,9 @@
                 ringing: false,
                 recurring: recurringInput.checked
             };
-            
+
             alarms.push(alarm);
-            saveAlarms();
+            await saveAlarms();
             renderAlarms();
             
             timeInput.value = '';
@@ -105,15 +122,15 @@
             document.body.appendChild(modalDiv);
         }
         
-        function saveEditAlarm(id) {
+        async function saveEditAlarm(id) {
             const alarm = alarms.find(a => a.id === id);
             if (!alarm) return;
-            
+
             alarm.time = document.getElementById('editAlarmTimeHidden').value;
             alarm.label = document.getElementById('editAlarmLabel').value;
             alarm.recurring = document.getElementById('editAlarmRecurring').checked;
-            
-            saveAlarms();
+
+            await saveAlarms();
             renderAlarms();
             closeEditAlarmModal();
         }
@@ -123,23 +140,23 @@
             if (modal) modal.remove();
         }
 
-        function toggleAlarm(id) {
+        async function toggleAlarm(id) {
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
                 alarm.active = !alarm.active;
                 alarm.ringing = false;
-                saveAlarms();
+                await saveAlarms();
                 renderAlarms();
             }
         }
 
-        function deleteAlarm(id) {
+        async function deleteAlarm(id) {
             alarms = alarms.filter(a => a.id !== id);
-            saveAlarms();
+            await saveAlarms();
             renderAlarms();
         }
 
-        function dismissAlarm(id) {
+        async function dismissAlarm(id) {
             id = parseInt(id);
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
@@ -149,7 +166,7 @@
                 if (alarm.recurring) {
                     alarm.reactivateAfterDismiss = true;
                 }
-                saveAlarms();
+                await saveAlarms();
                 renderAlarms();
                 closeCustomAlert();
             } else {
