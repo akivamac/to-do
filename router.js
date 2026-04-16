@@ -90,12 +90,6 @@ function navigateTo(path) {
 }
 
 // Wrap existing navigation functions to also update URL
-const originalShowSignIn = showSignIn;
-showSignIn = function() {
-    originalShowSignIn.call(this);
-    navigateTo('/to-do/login');
-};
-
 const originalShowCreateAccount = showCreateAccount;
 showCreateAccount = function() {
     originalShowCreateAccount.call(this);
