@@ -143,6 +143,15 @@ git push
 - Keep formatting configuration stable
 - Don't manually format - let Prettier handle it
 
+### Security Standards (BUILD STANDARDS — do not remove or weaken)
+
+- **CSP**: A strict Content Security Policy is enforced via meta tag in `index.html`. Never add `unsafe-inline` or `unsafe-eval` to script-src or style-src. Never load scripts from unlisted external domains.
+- **No inline styles**: All styles must be in `styles.css` as named CSS classes. Never add `style="..."` attributes to HTML elements or inside JavaScript template literals. Use existing classes or create new ones in styles.css.
+- **No inline scripts**: All JavaScript must be in external `.js` files. Never add `<script>` blocks with inline JavaScript to `index.html`.
+- **External scripts**: Any new external script must be pinned to a specific version and include an SRI `integrity` hash. Add the domain to the CSP `script-src` directive.
+- **localStorage encryption**: Any sensitive data written to localStorage must be encrypted using `encryptField()` with a plaintext fallback when `sessionCryptoKey` is null.
+- **Sanitization**: All marked.js output must be passed through `sanitizeNoteHtml()` before rendering. All user-controlled data inserted into the DOM must use `escapeHtml()`.
+
 ## Build Process Notes
 
 The project uses a **lightweight build setup**:
