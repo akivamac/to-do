@@ -1236,6 +1236,7 @@
             height: 100%;
             border-radius: 8px;
             transition: width 0.3s;
+            width: var(--progress-width, 0%);
         }
 
         .progress-label {

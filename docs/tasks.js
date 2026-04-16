@@ -216,8 +216,7 @@
                 'border-radius:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;' +
                 'align-items:center;margin-bottom:8px;';
             el.innerHTML = `<span>✏️ Tip: you can also <strong>double-click</strong> a task to edit it</span>
-                <button onclick="this.parentElement.remove();sessionStorage.setItem('_dblClickTip','1')"
-                    style="background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+                <button class="modal-close-btn" onclick="this.parentElement.remove();sessionStorage.setItem('_dblClickTip','1')">×</button>`;
             const taskList = document.getElementById('taskList');
             if (taskList) taskList.before(el);
         }
@@ -305,11 +304,11 @@
                 taskList.before(progressEl);
             }
             progressEl.innerHTML = total === 0 ? '' : `
-                <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;">
+                <div class="progress-labels">
                     <span>${done} of ${total} tasks completed</span><span>${pct}%</span>
                 </div>
-                <div style="background:#e0e0e0;border-radius:8px;height:8px;overflow:hidden;">
-                    <div style="background:linear-gradient(90deg,#66bb6a,#81c784);height:100%;width:${pct}%;border-radius:8px;transition:width 0.4s;"></div>
+                <div class="progress-background">
+                    <div class="progress-fill" style="width:${pct}%;"></div>
                 </div>`;
 
             if (todayTasks.length === 0) {
