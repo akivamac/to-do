@@ -194,12 +194,9 @@
                     <button class="peaceful-accept-btn"
                         data-input-id="${escapeHtml(inputId)}"
                         data-suggestion="${escapeHtml(suggestion)}"
-                        data-box-id="${escapeHtml(suggestionId)}"
-                        style="margin-left:8px;background:#66bb6a;color:white;border:none;border-radius:6px;
-                        padding:2px 10px;cursor:pointer;font-size:12px;">Use this</button>
+                        data-box-id="${escapeHtml(suggestionId)}">Use this</button>
                     <button class="peaceful-dismiss-btn"
-                        data-box-id="${escapeHtml(suggestionId)}"
-                        style="margin-left:4px;background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+                        data-box-id="${escapeHtml(suggestionId)}">×</button>`;
                 box.style.display = 'block';
 
                 // Event delegation for buttons

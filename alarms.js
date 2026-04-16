@@ -88,34 +88,34 @@
         function editAlarm(id) {
             const alarm = alarms.find(a => a.id === id);
             if (!alarm) return;
-            
+
             const modalHTML = `
                 <div class="alert-overlay" onclick="closeEditAlarmModal()"></div>
                 <div class="custom-alert" onclick="event.stopPropagation()">
                     <h3>Edit Alarm</h3>
-                    <div style="text-align: left; margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Time</label>
-                        <div id="editAlarmTimeDisplay" class="add-task-time-btn" style="margin:0 0 15px 0;"
+                    <div class="edit-alarm-form-container">
+                        <label class="edit-alarm-label">Time</label>
+                        <div id="editAlarmTimeDisplay" class="add-task-time-btn edit-alarm-input-margin"
                             onclick="showTimePicker(document.getElementById('editAlarmTimeHidden').value, v=>{document.getElementById('editAlarmTimeHidden').value=v;document.getElementById('editAlarmTimeDisplay').textContent=formatTime(v)||'Set time';})">
                             ${alarm.time ? formatTime(alarm.time) : 'Set time'}
                         </div>
                         <input type="hidden" id="editAlarmTimeHidden" value="${alarm.time}" />
 
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Label</label>
-                        <input type="text" id="editAlarmLabel" value="${escapeHtml(alarm.label)}" class="login-input" style="margin: 0 0 15px 0;" />
-                        
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="editAlarmRecurring" ${alarm.recurring ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;" />
-                            <label for="editAlarmRecurring" style="font-weight: 600; color: #666; cursor: pointer;">Recurring (Daily)</label>
+                        <label class="edit-alarm-label">Label</label>
+                        <input type="text" id="editAlarmLabel" value="${escapeHtml(alarm.label)}" class="login-input edit-alarm-input-margin" />
+
+                        <div class="edit-alarm-checkbox-group">
+                            <input type="checkbox" id="editAlarmRecurring" ${alarm.recurring ? 'checked' : ''} class="edit-alarm-checkbox" />
+                            <label for="editAlarmRecurring" class="edit-alarm-checkbox-label">Recurring (Daily)</label>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button class="login-btn" onclick="saveEditAlarm(${id})" style="margin: 0;">Save</button>
-                        <button class="login-btn back-btn" onclick="closeEditAlarmModal()" style="margin: 0;">Cancel</button>
+                    <div class="edit-alarm-buttons">
+                        <button class="login-btn edit-alarm-button" onclick="saveEditAlarm(${id})">Save</button>
+                        <button class="login-btn back-btn edit-alarm-button" onclick="closeEditAlarmModal()">Cancel</button>
                     </div>
                 </div>
             `;
-            
+
             const modalDiv = document.createElement('div');
             modalDiv.id = 'editAlarmModal';
             modalDiv.innerHTML = modalHTML;
@@ -264,8 +264,8 @@
             
             // Show custom alert popup
             showCustomAlert(
-                `<div style="font-size: 18px; margin-bottom: 10px;">${escapeHtml(alarm.label)}</div>
-                <button class="login-btn" onclick="dismissAlarm(${alarm.id});" style="margin: 10px auto 0;">Dismiss Alarm</button>`,
+                `<div class="alarm-notification-label">${escapeHtml(alarm.label)}</div>
+                <button class="login-btn alarm-dismiss-button" onclick="dismissAlarm(${alarm.id});">Dismiss Alarm</button>`,
                 '⏰ Alarm Ringing!',
                 false
             );
@@ -273,16 +273,16 @@
 
         function renderAlarms() {
             const list = document.getElementById('alarmsList');
-            
+
             if (alarms.length === 0) {
-                list.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No alarms set</div>';
+                list.innerHTML = '<div class="alarms-empty-state">No alarms set</div>';
                 return;
             }
-            
+
             list.innerHTML = '';
-            
+
             alarms.sort((a, b) => a.time.localeCompare(b.time));
-            
+
             alarms.forEach(alarm => {
                 const div = document.createElement('div');
                 const visuallyActive = alarm.active || alarm.reactivateAfterDismiss;
@@ -293,14 +293,14 @@
                         <div class="alarm-time">${formatTime(alarm.time)}</div>
                         <div class="alarm-label">${escapeHtml(alarm.label)}${alarm.recurring ? ' 🔄' : ''}</div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        ${alarm.ringing ? '<button class="login-btn" onclick="dismissAlarm(' + alarm.id + ')" style="padding: 8px 16px; margin: 0; font-size: 14px;">Dismiss</button>' : ''}
-                        <button class="edit-btn" onclick="editAlarm(${alarm.id})" style="padding: 8px 16px; font-size: 14px;">Edit</button>
+                    <div class="alarm-actions">
+                        ${alarm.ringing ? '<button class="login-btn alarm-button-small" onclick="dismissAlarm(' + alarm.id + ')">Dismiss</button>' : ''}
+                        <button class="edit-btn edit-button-small" onclick="editAlarm(${alarm.id})">Edit</button>
                         <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})" role="switch" aria-checked="${visuallyActive ? 'true' : 'false'}" aria-label="Toggle alarm" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter')toggleAlarm(${alarm.id})"></div>
                         <button class="delete-btn" onclick="deleteAlarm(${alarm.id})">Delete</button>
                     </div>
                 `;
-                
+
                 list.appendChild(div);
             });
         }

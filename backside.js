@@ -440,14 +440,14 @@ function showMigrationModal(userData) {
     el.id = 'migrationModal';
     el.innerHTML = `
         <div class="alert-overlay"></div>
-        <div class="custom-alert" style="max-width:400px;text-align:center;">
+        <div class="custom-alert migration-modal">
             <h3>📦 Existing Data Found</h3>
-            <p style="margin-bottom:20px;">We found tasks, notes, and projects saved on this device from before the cloud sync update. Would you like to migrate them to your account?</p>
-            <div style="display:flex;gap:10px;justify-content:center;">
-                <button class="login-btn" onclick="doMigrate()" style="margin:0;">Migrate</button>
-                <button class="login-btn back-btn" onclick="doDiscardLocal()" style="margin:0;">Discard</button>
+            <p class="migration-modal-paragraph">We found tasks, notes, and projects saved on this device from before the cloud sync update. Would you like to migrate them to your account?</p>
+            <div class="migration-modal-buttons">
+                <button class="login-btn migration-modal-button" onclick="doMigrate()">Migrate</button>
+                <button class="login-btn back-btn migration-modal-button" onclick="doDiscardLocal()">Discard</button>
             </div>
-            <div id="migrationStatus" style="margin-top:12px;color:#666;font-size:13px;"></div>
+            <div id="migrationStatus" class="migration-status"></div>
         </div>`;
     document.body.appendChild(el);
     window._pendingMigrateData = userData;
@@ -482,10 +482,9 @@ function showLoadingSpinner() {
         el = document.createElement('div');
         el.id = 'loadingSpinner';
         el.innerHTML = `
-            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.85);
-                        display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;">
-                <div style="font-size:36px;animation:spin 1s linear infinite;">🌸</div>
-                <div style="color:#5e8fb5;margin-top:12px;font-size:15px;">Loading your data…</div>
+            <div class="loading-spinner-overlay">
+                <div class="loading-spinner-icon">🌸</div>
+                <div class="loading-spinner-text">Loading your data…</div>
             </div>`;
         document.body.appendChild(el);
     }

@@ -21,7 +21,7 @@
             if (!list) return;
             document.getElementById('projectTasksView').classList.add('hidden');
             if (projects.length === 0) {
-                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No projects yet. Create one above!</p>';
+                list.innerHTML = '<p class="empty-placeholder">No projects yet. Create one above!</p>';
                 return;
             }
             list.innerHTML = '';
@@ -39,20 +39,19 @@
                 const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
                 const card = document.createElement('div');
-                card.className = 'card';
-                card.style.cssText = 'background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 12px;';
+                card.className = 'project-card';
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 16px; font-weight: 600; color: #333; cursor: pointer; flex: 1;" onclick="showProjectTasks('${p.id}')">${p.name}</span>
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="renameProject('${p.id}')" style="background: #64b5f6; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px;">Rename</button>
-                            <button onclick="deleteProject('${p.id}')" style="background: #e57373; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px;">Delete</button>
+                    <div class="project-header">
+                        <span class="project-name" onclick="showProjectTasks('${p.id}')">${p.name}</span>
+                        <div class="project-actions">
+                            <button onclick="renameProject('${p.id}')" class="project-btn project-rename-btn">Rename</button>
+                            <button onclick="deleteProject('${p.id}')" class="project-btn project-delete-btn">Delete</button>
                         </div>
                     </div>
-                    <div style="background: #eee; border-radius: 8px; height: 12px; margin-top: 10px; overflow: hidden;">
-                        <div style="background: #66bb6a; height: 100%; width: ${pct}%; border-radius: 8px; transition: width 0.3s;"></div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
                     </div>
-                    <span style="font-size: 12px; color: #888;">${done}/${total} tasks (${pct}%)</span>
+                    <span class="progress-label">${done}/${total} tasks (${pct}%)</span>
                 `;
                 list.appendChild(card);
             });
@@ -140,13 +139,13 @@
                 });
             });
             if (allTasks.length === 0) {
-                taskList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No tasks in this project yet.</p>';
+                taskList.innerHTML = '<p class="empty-placeholder">No tasks in this project yet.</p>';
             } else {
                 taskList.innerHTML = allTasks.map(t => `
-                    <div style="padding: 12px; border: 2px solid ${t.completed ? '#c8e6c9' : '#e0e0e0'}; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                    <div class="project-task-item${t.completed ? ' completed' : ''}">
                         <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="toggleProjectTask(${t.id}, '${t.date}')">
-                        <span style="flex: 1; color: ${t.completed ? '#999' : '#333'}; ${t.completed ? 'text-decoration: line-through;' : ''}">${escapeHtml(t.text)}</span>
-                        <span style="font-size: 12px; color: #888;">${escapeHtml(t.date)}</span>
+                        <span class="project-task-text${t.completed ? ' completed' : ''}">${escapeHtml(t.text)}</span>
+                        <span class="project-task-date">${escapeHtml(t.date)}</span>
                     </div>
                 `).join('');
             }

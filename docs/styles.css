@@ -798,6 +798,84 @@
             transition: all 0.3s;
         }
 
+        /* ── Alarm Modal & Form Styles ────────────────────────────── */
+        .edit-alarm-form-container {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .edit-alarm-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .edit-alarm-input-margin {
+            margin: 0 0 15px 0;
+        }
+
+        .edit-alarm-checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .edit-alarm-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .edit-alarm-checkbox-label {
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .edit-alarm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .edit-alarm-button {
+            margin: 0;
+        }
+
+        .alarm-notification-label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .alarm-dismiss-button {
+            margin: 10px auto 0;
+        }
+
+        .alarms-empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .alarm-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .alarm-button-small {
+            padding: 8px 16px;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .edit-button-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
         .alarm-item.active {
             border-color: #66bb6a;
             background: #f1f8f4;
@@ -1058,4 +1136,140 @@
             }
 
             .modal-content { padding: 20px; }
+        }
+
+        /* ── Note styles (CSP phase 2) ──────────────────────────────── */
+        .notes-empty-message {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .notes-card {
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .notes-card-title {
+            font-weight: bold;
+            font-size: 15px;
+            color: #5e8fb5;
+        }
+
+        .notes-card-meta {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        .notes-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        .notes-table-cell {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            min-width: 60px;
+        }
+
+        /* ── Project Card Styles ──────────────────────────────────── */
+        .project-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .project-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: white;
+        }
+
+        .project-rename-btn {
+            background: #64b5f6;
+        }
+
+        .project-delete-btn {
+            background: #e57373;
+        }
+
+        .progress-bar-container {
+            background: #eee;
+            border-radius: 8px;
+            height: 12px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: #66bb6a;
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.3s;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .empty-placeholder {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .project-task-item {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .project-task-item.completed {
+            border-color: #c8e6c9;
+        }
+
+        .project-task-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .project-task-text.completed {
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .project-task-date {
+            font-size: 12px;
+            color: #888;
         }

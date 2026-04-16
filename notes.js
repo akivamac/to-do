@@ -79,15 +79,15 @@
             document.getElementById('noteEditorView').classList.add('hidden');
             const list = document.getElementById('notesList');
             if (notes.length === 0) {
-                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No notes yet. Create one above!</p>';
+                list.innerHTML = '<p class="notes-empty-message">No notes yet. Create one above!</p>';
                 return;
             }
             // Sort newest-updated first
             const sorted = [...notes].sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
             list.innerHTML = sorted.map(n => `
-                <div class="card" style="cursor: pointer; margin-bottom: 12px;" onclick="openNote(${n.id})">
-                    <div style="font-weight: bold; font-size: 15px; color: #5e8fb5;">${escapeHtml(n.title || 'Untitled')}</div>
-                    <div style="font-size: 12px; color: #aaa; margin-top: 4px;">Updated ${new Date(n.updatedAt || n.createdAt).toLocaleDateString()}</div>
+                <div class="card notes-card" onclick="openNote(${n.id})">
+                    <div class="notes-card-title">${escapeHtml(n.title || 'Untitled')}</div>
+                    <div class="notes-card-meta">Updated ${new Date(n.updatedAt || n.createdAt).toLocaleDateString()}</div>
                 </div>
             `).join('');
         }
@@ -222,12 +222,12 @@
         function noteInsertTable() {
             document.getElementById('noteEditor').focus();
             const rows = 3, cols = 3;
-            let html = '<table style="border-collapse:collapse;width:100%;margin:8px 0;">';
+            let html = '<table class="notes-table">';
             for (let r = 0; r < rows; r++) {
                 html += '<tr>';
                 for (let c = 0; c < cols; c++) {
                     const tag = r === 0 ? 'th' : 'td';
-                    html += `<${tag} style="border:1px solid #ccc;padding:6px 10px;min-width:60px;" contenteditable="true">${r===0?'Header ':''}</${tag}>`;
+                    html += `<${tag} class="notes-table-cell" contenteditable="true">${r===0?'Header ':''}</${tag}>`;
                 }
                 html += '</tr>';
             }
