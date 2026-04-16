@@ -165,11 +165,11 @@ function showLegalModal(type) {
     modalDiv.id = 'legalModal';
     modalDiv.innerHTML = `
         <div class="alert-overlay" onclick="document.getElementById('legalModal').remove()"></div>
-        <div class="custom-alert" style="max-width:520px;max-height:75vh;overflow-y:auto;text-align:left;">
-            <h3 style="margin-top:0;color:#5e8fb5;">${title}</h3>
-            <div style="color:#555;line-height:1.7;font-size:14px;">${body}</div>
-            <div style="text-align:center;margin-top:20px;">
-                <button class="login-btn" onclick="document.getElementById('legalModal').remove()" style="margin:0;">Close</button>
+        <div class="custom-alert modal-wide-scroll">
+            <h3 class="modal-title">${title}</h3>
+            <div class="modal-body-text">${body}</div>
+            <div class="modal-footer-centered-top">
+                <button class="login-btn btn-no-margin" onclick="document.getElementById('legalModal').remove()">Close</button>
             </div>
         </div>`;
     document.body.appendChild(modalDiv);
@@ -263,8 +263,8 @@ function _resetSessionTimer() {
             <div class="alert-overlay"></div>
             <div class="custom-alert">
                 <h3>⏱️ Still there?</h3>
-                <p style="color:#666;margin-bottom:20px;">You'll be logged out in 2 minutes due to inactivity. Any activity will keep you signed in.</p>
-                <button class="login-btn" onclick="document.getElementById('_sessionWarnModal').remove();_resetSessionTimer();" style="margin:0;">Stay Signed In</button>
+                <p class="session-warning-text">You'll be logged out in 2 minutes due to inactivity. Any activity will keep you signed in.</p>
+                <button class="login-btn btn-no-margin" onclick="document.getElementById('_sessionWarnModal').remove();_resetSessionTimer();">Stay Signed In</button>
             </div>`;
         document.body.appendChild(el);
     }, SESSION_WARN_MS);
@@ -754,7 +754,7 @@ function updateDateDisplay() {
         if (!dateEl) return;
         const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        dateEl.innerHTML = `<div>${dateStr}</div><div style="font-size:15px;color:#888;margin-top:4px;">${timeStr}</div>`;
+        dateEl.innerHTML = `<div>${dateStr}</div><div class="date-display-time">${timeStr}</div>`;
     };
     tick();
     clearInterval(_dateTimeInterval);
@@ -859,8 +859,8 @@ function showCustomAlert(message, title = '⚠️ Alert', showOkButton = true) {
         <div class="alert-overlay" onclick="closeCustomAlert()"></div>
         <div class="custom-alert">
             <h3>${title}</h3>
-            <div style="color: #666; margin-bottom: 20px; font-size: 16px;">${message}</div>
-            ${showOkButton ? '<button class="login-btn" onclick="closeCustomAlert()" style="margin: 0;">OK</button>' : ''}
+            <div class="modal-message-text">${message}</div>
+            ${showOkButton ? '<button class="login-btn btn-no-margin" onclick="closeCustomAlert()">OK</button>' : ''}
         </div>
     `;
     
@@ -891,9 +891,9 @@ function showCustomConfirm(title, message, onConfirm) {
         <div class="custom-alert">
             <h3>${title}</h3>
             <p>${message}</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button class="login-btn decline-btn" onclick="document.getElementById('customConfirmModal').remove()" style="margin: 0;">Cancel</button>
-                <button class="login-btn" id="customConfirmOkBtn" style="margin: 0;">OK</button>
+            <div class="button-group-centered">
+                <button class="login-btn decline-btn btn-no-margin" onclick="document.getElementById('customConfirmModal').remove()">Cancel</button>
+                <button class="login-btn btn-no-margin" id="customConfirmOkBtn">OK</button>
             </div>
         </div>
     `;
@@ -911,11 +911,11 @@ function showCustomPrompt(title, message, defaultValue, onSubmit) {
         <div class="alert-overlay" onclick="document.getElementById('customPromptModal').remove()"></div>
         <div class="custom-alert">
             <h3>${title}</h3>
-            <p style="margin-bottom: 12px;">${message}</p>
-            <input id="customPromptInput" class="login-input" style="margin-bottom: 16px;" value="${escapeHtml(defaultValue || '')}" />
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button class="login-btn decline-btn" onclick="document.getElementById('customPromptModal').remove()" style="margin: 0;">Cancel</button>
-                <button class="login-btn" id="customPromptOkBtn" style="margin: 0;">OK</button>
+            <p class="input-prompt">${message}</p>
+            <input id="customPromptInput" class="login-input input-bottom-margin" value="${escapeHtml(defaultValue || '')}" />
+            <div class="button-group-centered">
+                <button class="login-btn decline-btn btn-no-margin" onclick="document.getElementById('customPromptModal').remove()">Cancel</button>
+                <button class="login-btn btn-no-margin" id="customPromptOkBtn">OK</button>
             </div>
         </div>
     `;
@@ -957,8 +957,8 @@ function showPastIncompleteTasks() {
     modalDiv.id = 'pastIncompleteModal';
     modalDiv.innerHTML = `
         <div class="alert-overlay" onclick="document.getElementById('pastIncompleteModal').remove()"></div>
-        <div class="custom-alert" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
-            <h3 style="margin-top: 0; color: #5e8fb5;">📋 Unfinished from previous days</h3>
+        <div class="custom-alert modal-modal-scroll">
+            <h3 class="modal-title">📋 Unfinished from previous days</h3>
     `;
 
     // Sort dates in reverse (newest first, but all before today)
@@ -966,25 +966,25 @@ function showPastIncompleteTasks() {
     sortedDates.forEach(dateStr => {
         const date = new Date(dateStr);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-        modalDiv.innerHTML += `<div style="margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 12px;">
-            <div style="font-weight: 600; color: #333; margin-bottom: 8px;">📅 ${dayName}</div>`;
+        modalDiv.innerHTML += `<div class="modal-section-divider">
+            <div class="modal-section-divider-title">📅 ${dayName}</div>`;
 
         pastIncomplete[dateStr].forEach((task, idx) => {
             const taskId = `pastTask_${dateStr}_${idx}`;
             modalDiv.innerHTML += `
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 6px 8px; background: #fafafa; border-radius: 6px;">
+                <div class="list-item-row">
                     <input type="checkbox" id="${taskId}" onchange="completePastTask('${escapeHtml(dateStr)}', ${idx})">
-                    <span style="flex: 1; word-break: break-word; color: #555;">${escapeHtml(task.text)}</span>
-                    <button class="login-btn" style="padding: 4px 8px; font-size: 11px; margin: 0;" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'today')">Today</button>
-                    <button class="login-btn" style="padding: 4px 8px; font-size: 11px; margin: 0;" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'tomorrow')">Tomorrow</button>
+                    <span class="list-item-flex">${escapeHtml(task.text)}</span>
+                    <button class="login-btn btn-small" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'today')">Today</button>
+                    <button class="login-btn btn-small" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'tomorrow')">Tomorrow</button>
                 </div>`;
         });
         modalDiv.innerHTML += `</div>`;
     });
 
     modalDiv.innerHTML += `
-            <div style="margin-top: 16px; text-align: center;">
-                <button class="login-btn" onclick="document.getElementById('pastIncompleteModal').remove()" style="margin: 0;">Close</button>
+            <div class="modal-footer-centered">
+                <button class="login-btn btn-no-margin" onclick="document.getElementById('pastIncompleteModal').remove()">Close</button>
             </div>
         </div>`;
 
@@ -1031,15 +1031,14 @@ function showHintsBanner() {
     el.innerHTML = `
         <div>
             <strong>💡 Quick tips:</strong>
-            <ul style="margin:6px 0 0 16px;padding:0;">
+            <ul class="hints-banner-list">
                 <li>Drag ☰ handles to reorder tasks</li>
                 <li>Double-click any task to edit it</li>
                 <li>Notes auto-save as you type</li>
                 <li>Complete 5 tasks → earn 100 points 🎉</li>
             </ul>
         </div>
-        <button onclick="document.getElementById('hintsBanner').remove();sessionStorage.setItem('_hintsDismissed','1');"
-            style="background:none;border:none;font-size:20px;cursor:pointer;color:#66bb6a;flex-shrink:0;line-height:1;">×</button>`;
+        <button class="hints-banner-close" onclick="document.getElementById('hintsBanner').remove();sessionStorage.setItem('_hintsDismissed','1');">×</button>`;
     const content = document.querySelector('.main-content');
     if (content) content.prepend(el);
 }
@@ -1057,9 +1056,9 @@ async function generateInviteLink() {
         const link  = `https://akivamac.github.io/to-do/?invite=${token}`;
         showCustomAlert(`<strong>Invite Link</strong><br><br>
             <input value="${link}" readonly
-                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:12px;margin-top:8px;"
+                class="input-invite-link"
                 onclick="this.select()" />
-            <br><small style="color:#888;">Share this link with the person you want to invite. It expires after they sign up.</small>`, '🔗 Invite Link');
+            <br><small class="invite-link-small-text">Share this link with the person you want to invite. It expires after they sign up.</small>`, '🔗 Invite Link');
     } catch(e) {
         showCustomAlert('Could not generate invite link: ' + e.message);
     }
@@ -1082,33 +1081,33 @@ function showTimePicker(currentValue, callback) {
     modal.id = 'timePickerModal';
     modal.innerHTML = `
         <div class="alert-overlay" onclick="document.getElementById('timePickerModal').remove()"></div>
-        <div class="custom-alert" style="max-width:300px;text-align:center;">
+        <div class="custom-alert modal-narrow">
             <h3>🕐 Set Time</h3>
-            <div style="display:flex;gap:12px;justify-content:center;align-items:center;margin:20px 0;">
+            <div class="button-group-flex">
                 <div>
-                    <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">Hour</label>
-                    <select id="tpHour" class="login-input" style="margin:0;width:70px;text-align:center;">
+                    <label class="time-picker-label">Hour</label>
+                    <select id="tpHour" class="login-input input-time-picker">
                         ${Array.from({length:12},(_,i)=>i+1).map(n=>`<option ${n===h?'selected':''}>${n}</option>`).join('')}
                     </select>
                 </div>
-                <div style="font-size:24px;font-weight:bold;color:#5e8fb5;padding-top:16px;">:</div>
+                <div class="time-picker-separator">:</div>
                 <div>
-                    <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">Minute</label>
-                    <select id="tpMinute" class="login-input" style="margin:0;width:70px;text-align:center;">
+                    <label class="time-picker-label">Minute</label>
+                    <select id="tpMinute" class="login-input input-time-picker">
                         ${[0,5,10,15,20,25,30,35,40,45,50,55].map(n=>`<option value="${n}" ${n===m?'selected':''}>${String(n).padStart(2,'0')}</option>`).join('')}
                     </select>
                 </div>
                 <div>
-                    <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">AM/PM</label>
-                    <select id="tpAmpm" class="login-input" style="margin:0;width:70px;text-align:center;">
+                    <label class="time-picker-label">AM/PM</label>
+                    <select id="tpAmpm" class="login-input input-time-picker">
                         <option ${ampm==='AM'?'selected':''}>AM</option>
                         <option ${ampm==='PM'?'selected':''}>PM</option>
                     </select>
                 </div>
             </div>
-            <div style="display:flex;gap:10px;justify-content:center;">
-                <button class="login-btn" style="margin:0;" onclick="confirmTimePicker()">Set</button>
-                <button class="login-btn back-btn" style="margin:0;"
+            <div class="button-group-centered">
+                <button class="login-btn btn-no-margin" onclick="confirmTimePicker()">Set</button>
+                <button class="login-btn back-btn btn-no-margin"
                     onclick="document.getElementById('timePickerModal').remove()">Cancel</button>
             </div>
         </div>`;
@@ -1246,14 +1245,14 @@ function renderLists() {
     if (!listsList) return;
 
     if (lists.length === 0) {
-        listsList.innerHTML = '<p style="color: #999; grid-column: 1/-1; text-align: center; padding: 20px;">No lists yet. Create one to get started!</p>';
+        listsList.innerHTML = '<p class="list-empty-state">No lists yet. Create one to get started!</p>';
         return;
     }
 
     listsList.innerHTML = lists.map(list => `
-        <div onclick="openListDetail('${escapeHtml(list.id)}')" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;">
-            <h4 style="color: #5e8fb5; margin: 0 0 8px 0;">${escapeHtml(list.title || 'Untitled')}</h4>
-            <p style="color: #999; margin: 0; font-size: 12px;">Tap to edit</p>
+        <div class="list-card-item" onclick="openListDetail('${escapeHtml(list.id)}')">
+            <h4 class="list-card-title">${escapeHtml(list.title || 'Untitled')}</h4>
+            <p class="list-card-meta">Tap to edit</p>
         </div>
     `).join('');
 }
@@ -1316,9 +1315,9 @@ function renderListItems(list) {
 
     const items = parseListItems(list.body || '');
     itemsList.innerHTML = items.map((item, idx) => `
-        <div style="display: flex; align-items: center; padding: 8px; background: ${item.checked ? '#f5f5f5' : 'white'}; border-radius: 4px; margin-bottom: 8px;">
-            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleListItem('${currentListId}', ${idx})" style="width: 18px; height: 18px; cursor: pointer; margin-right: 10px;" />
-            <span style="flex: 1; ${item.checked ? 'text-decoration: line-through; color: #999;' : 'color: #333;'}">${escapeHtml(item.text)}</span>
+        <div class="list-checkbox-row" style="background: ${item.checked ? '#f5f5f5' : 'white'};">
+            <input type="checkbox" class="list-item-checkbox" ${item.checked ? 'checked' : ''} onchange="toggleListItem('${currentListId}', ${idx})" />
+            <span class="list-checkbox-span" style="${item.checked ? 'text-decoration: line-through; color: #999;' : 'color: #333;'}">${escapeHtml(item.text)}</span>
         </div>
     `).join('');
 }
@@ -1697,7 +1696,7 @@ async function loadReviewsOnLandingPage() {
         if (!reviewsGrid) return;
 
         if (reviews.length === 0) {
-            reviewsGrid.innerHTML = '<div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><p style="color: #999; margin: 0; font-size: 14px;">Be the first to leave a review!</p></div>';
+            reviewsGrid.innerHTML = '<div class="reviews-empty-card"><p class="reviews-empty-text">Be the first to leave a review!</p></div>';
             return;
         }
 
@@ -1706,10 +1705,10 @@ async function loadReviewsOnLandingPage() {
             const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
             const username = review.metadata?.username || review.title.replace('Review from ', '');
             return `
-                <div style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                    <div style="font-size: 18px; margin-bottom: 10px;">${stars}</div>
-                    <p style="color: #333; margin: 0 0 10px 0; line-height: 1.5; font-size: 14px;">${review.body || ''}</p>
-                    <p style="color: #999; margin: 0; font-size: 12px;">— ${username}</p>
+                <div class="review-card">
+                    <div class="review-stars">${stars}</div>
+                    <p class="review-text">${review.body || ''}</p>
+                    <p class="review-author">— ${username}</p>
                 </div>
             `;
         }).join('');
@@ -1758,26 +1757,26 @@ async function openAdminAccess(event) {
         if (!adminPasswordHash) {
             // First-time setup
             contentDiv.innerHTML = `
-                <p style="color: #666; margin-bottom: 15px;">Set your admin password to secure access</p>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Admin Password</label>
-                    <input type="password" id="adminPassword1" class="login-input" style="margin: 0;" placeholder="Enter password" />
+                <p class="admin-form-text">Set your admin password to secure access</p>
+                <div class="form-group">
+                    <label class="form-group-label">Admin Password</label>
+                    <input type="password" id="adminPassword1" class="login-input form-input-no-margin" placeholder="Enter password" />
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Confirm Password</label>
-                    <input type="password" id="adminPassword2" class="login-input" style="margin: 0;" placeholder="Confirm password" />
+                <div class="form-group">
+                    <label class="form-group-label">Confirm Password</label>
+                    <input type="password" id="adminPassword2" class="login-input form-input-no-margin" placeholder="Confirm password" />
                 </div>
-                <button class="login-btn" onclick="setAdminPassword()" style="width: 100%;">Set Password</button>
+                <button class="login-btn btn-full-width" onclick="setAdminPassword()">Set Password</button>
                 <div id="adminAccessError" class="login-error"></div>
             `;
         } else {
             // Password entry
             contentDiv.innerHTML = `
-                <p style="color: #666; margin-bottom: 15px;">Enter your admin password</p>
-                <div style="margin-bottom: 15px;">
-                    <input type="password" id="adminPasswordEntry" class="login-input" style="margin: 0;" placeholder="Admin password" />
+                <p class="admin-form-text">Enter your admin password</p>
+                <div class="form-group">
+                    <input type="password" id="adminPasswordEntry" class="login-input form-input-no-margin" placeholder="Admin password" />
                 </div>
-                <button class="login-btn" onclick="verifyAdminPassword()" style="width: 100%;">Access Panel</button>
+                <button class="login-btn btn-full-width" onclick="verifyAdminPassword()">Access Panel</button>
                 <div id="adminAccessError" class="login-error"></div>
             `;
         }
@@ -1886,14 +1885,14 @@ async function openAdminPanel() {
 
         // Error Reports Section
         if (errors.length > 0) {
-            html += `<div style="margin-bottom: 40px;">
-                <h3 style="color: #e57373; margin-bottom: 20px;">⚠️ Error Reports (${errors.length})</h3>
+            html += `<div class="error-reports-section">
+                <h3 class="error-reports-title">⚠️ Error Reports (${errors.length})</h3>
                 ${errors.map(err => {
                     const errDate = new Date(err.created_at).toLocaleString();
                     return `
-                        <div style="background: #ffebee; border: 1px solid #ef5350; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-                            <p style="color: #c62828; margin: 0 0 10px 0; line-height: 1.5; font-family: monospace; font-size: 13px;">${err.body || ''}</p>
-                            <div style="color: #999; font-size: 12px;">
+                        <div class="error-report-item">
+                            <p class="error-report-body">${err.body || ''}</p>
+                            <div class="error-report-date">
                                 ${errDate}
                             </div>
                         </div>
@@ -1904,23 +1903,23 @@ async function openAdminPanel() {
 
         // Feature Requests Section
         html += `<div>
-            <h3 style="color: #5e8fb5; margin-bottom: 20px;">💡 Feature Requests ${allRequests.length > 0 ? `(${undone.length} new)` : ''}</h3>`;
+            <h3 class="feature-requests-title">💡 Feature Requests ${allRequests.length > 0 ? `(${undone.length} new)` : ''}</h3>`;
 
         if (allRequests.length === 0) {
-            html += '<p style="color: #999; text-align: center; padding: 20px;">No feature requests yet.</p>';
+            html += '<p class="feature-requests-empty">No feature requests yet.</p>';
         } else {
             html += allRequests.map((req, idx) => {
                 const isDone = req.tags?.includes('done');
                 const submittedBy = req.metadata?.username || req.title.replace('Feature Request from ', '');
                 const submittedDate = new Date(req.metadata?.submitted_at || req.created_at).toLocaleDateString();
                 return `
-                    <div style="background: ${isDone ? '#f5f5f5' : 'white'}; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 12px; ${isDone ? 'opacity: 0.6;' : ''}">
-                        <p style="color: ${isDone ? '#999' : '#333'}; margin: 0 0 10px 0; line-height: 1.5;">${req.body || ''}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            <div style="color: #999; font-size: 12px;">
+                    <div class="feature-request-item ${isDone ? 'feature-request-item-done' : ''}">
+                        <p class="feature-request-body ${isDone ? 'feature-request-body-done' : 'feature-request-body-open'}">${req.body || ''}</p>
+                        <div class="button-group-row">
+                            <div class="feature-request-meta">
                                 <strong>${submittedBy}</strong> • ${submittedDate}
                             </div>
-                            ${!isDone ? `<button class="login-btn" onclick="markFeatureRequestDone('${req.id}')" style="padding: 8px 16px; font-size: 13px;">Mark as Done</button>` : '<span style="color: #66bb6a; font-weight: 600;">✓ Done</span>'}
+                            ${!isDone ? `<button class="login-btn btn-small-admin" onclick="markFeatureRequestDone('${req.id}')">Mark as Done</button>` : '<span class="feature-request-done-badge">✓ Done</span>'}
                         </div>
                     </div>
                 `;
