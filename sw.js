@@ -1,6 +1,6 @@
 // ── Cache version — BUMP THIS STRING whenever you deploy breaking changes
 // (e.g. 'peaceful-tasks-v3') so existing users get a fresh cache on next load.
-const CACHE_NAME = 'peaceful-tasks-v2';
+const CACHE_NAME = 'peaceful-tasks-v3';
 const ASSETS = [
     '/to-do/',
     '/to-do/index.html',
@@ -12,6 +12,9 @@ const ASSETS = [
     '/to-do/notes.js',
     '/to-do/backside.js',
     '/to-do/manifest.json',
+    '/to-do/favicon.ico',
+    '/to-do/favicon-32.png',
+    '/to-do/favicon-16.png',
     '/to-do/icon-192.png',
     '/to-do/icon-512.png'
 ];
