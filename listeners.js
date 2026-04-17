@@ -138,6 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             openAdminAccess(e);
         });
+        totalHugs.addEventListener('dblclick', (e) => {
+            openAdminAccess(e);
+        });
         totalHugs.addEventListener('mousedown', startLongPress);
         totalHugs.addEventListener('mouseup', cancelLongPress);
         totalHugs.addEventListener('mouseleave', cancelLongPress);
