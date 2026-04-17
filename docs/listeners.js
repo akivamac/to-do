@@ -141,20 +141,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Points tab — admin long-press / right-click
-    const totalHugs = document.getElementById('totalHugs');
-    if (totalHugs) {
-        totalHugs.addEventListener('contextmenu', (e) => {
+    const totalPoints = document.getElementById('totalPoints');
+    if (totalPoints) {
+        totalPoints.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             openAdminAccess(e);
         });
-        totalHugs.addEventListener('dblclick', (e) => {
+        totalPoints.addEventListener('dblclick', (e) => {
             openAdminAccess(e);
         });
-        totalHugs.addEventListener('mousedown', startLongPress);
-        totalHugs.addEventListener('mouseup', cancelLongPress);
-        totalHugs.addEventListener('mouseleave', cancelLongPress);
-        totalHugs.addEventListener('touchstart', startLongPress, { passive: true });
-        totalHugs.addEventListener('touchend', cancelLongPress);
+        totalPoints.addEventListener('mousedown', startLongPress);
+        totalPoints.addEventListener('mouseup', cancelLongPress);
+        totalPoints.addEventListener('mouseleave', cancelLongPress);
+        totalPoints.addEventListener('touchstart', startLongPress, { passive: true });
+        totalPoints.addEventListener('touchend', cancelLongPress);
     }
 
     // Settings tab — admin access trigger on trash icon
@@ -391,6 +391,23 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'mark-feature-request-done':
                 markFeatureRequestDone(el.dataset.id);
                 break;
+            case 'do-migrate':
+                doMigrate();
+                break;
+            case 'do-discard-local':
+                doDiscardLocal();
+                break;
+            case 'show-payment-modal':
+                showPaymentModal(el.dataset.plan, el.dataset.label, el.dataset.contactId);
+                break;
+            case 'continue-for-free':
+                continueForFree(el.dataset.contactId);
+                break;
+            case 'close-api-error-banner': {
+                const b = document.getElementById('apiErrorBanner');
+                if (b) b.remove();
+                break;
+            }
         }
     });
 

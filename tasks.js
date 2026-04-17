@@ -238,7 +238,7 @@
                 'border-radius:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;' +
                 'align-items:center;margin-bottom:8px;';
             el.innerHTML = `<span>✏️ Tip: double-click or tap ✏️ to edit a task</span>
-                <button data-action="dismiss-dblclick-tip" style="background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+                <button data-action="dismiss-dblclick-tip" class="modal-close">×</button>`;
             const wrap = document.getElementById('todayProgressWrap');
             if (wrap) wrap.after(el);
         }

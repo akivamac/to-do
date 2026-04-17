@@ -1072,16 +1072,16 @@ function showHintsBanner() {
     el.id = 'hintsBanner';
     el.innerHTML = `
         <div class="alert-overlay"></div>
-        <div class="custom-alert" style="max-width:420px;">
+        <div class="custom-alert">
             <h3>💡 Quick tips</h3>
-            <ul style="text-align:left;color:#555;line-height:2;padding-left:20px;margin-bottom:20px;">
+            <ul class="hints-tip-list">
                 <li>Drag ☰ handles to reorder tasks</li>
                 <li>Double-click or tap ✏️ to edit a task</li>
                 <li>Notes auto-save as you type</li>
                 <li>Complete 5 tasks → earn 100 points 🎉</li>
                 <li>Completed tasks move to the bottom automatically</li>
             </ul>
-            <button class="login-btn" data-action="dismiss-hints" style="margin:0;">Got it!</button>
+            <button class="login-btn btn-no-margin" data-action="dismiss-hints">Got it!</button>
         </div>`;
     document.body.appendChild(el);
 }

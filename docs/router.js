@@ -97,13 +97,6 @@ showCreateAccount = function() {
     navigateTo('/to-do/sign-up');
 };
 
-const originalLogout = logout;
-logout = function() {
-    originalLogout.call(this);
-    navigateTo('/to-do/');
-    showLandingPage();
-};
-
 // Initialize router when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initRouter);

@@ -318,10 +318,10 @@
             const hours = parseInt(document.getElementById('timerHours').value) || 0;
             const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
             const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
-            
-            if (!timerRunning) {
+
+            if (!timerRunning && timerSeconds === 0) {
                 timerSeconds = hours * 3600 + minutes * 60 + seconds;
-                
+
                 if (timerSeconds === 0) {
                     showCustomAlert('Please set a time for the timer');
                     return;

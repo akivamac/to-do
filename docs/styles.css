@@ -2816,3 +2816,19 @@
 }
 
 #adminAccessTrigger { cursor: pointer; }
+
+.hints-tip-list {
+    text-align: left;
+    color: #555;
+    line-height: 2;
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+.btn-no-margin {
+    margin: 0;
+}
+
+.settings-toggle-wrap {
+    margin-bottom: 15px;
+}

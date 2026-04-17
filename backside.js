@@ -444,8 +444,8 @@ function showMigrationModal(userData) {
             <h3>📦 Existing Data Found</h3>
             <p class="migration-modal-paragraph">We found tasks, notes, and projects saved on this device from before the cloud sync update. Would you like to migrate them to your account?</p>
             <div class="migration-modal-buttons">
-                <button class="login-btn migration-modal-button" onclick="doMigrate()">Migrate</button>
-                <button class="login-btn back-btn migration-modal-button" onclick="doDiscardLocal()">Discard</button>
+                <button class="login-btn migration-modal-button" data-action="do-migrate">Migrate</button>
+                <button class="login-btn back-btn migration-modal-button" data-action="do-discard-local">Discard</button>
             </div>
             <div id="migrationStatus" class="migration-status"></div>
         </div>`;
@@ -508,7 +508,7 @@ function showApiError(msg) {
         const mainApp = document.getElementById('mainApp');
         if (mainApp) mainApp.prepend(banner);
     }
-    banner.innerHTML = `<span>⚠️ ${msg}</span><button onclick="this.parentElement.remove()" class="api-error-close-btn">×</button>`;
+    banner.innerHTML = `<span>⚠️ ${msg}</span><button class="api-error-close-btn" data-action="close-api-error-banner">×</button>`;
 }
 
 // ── Paywall modal ─────────────────────────────────────────────
@@ -535,11 +535,11 @@ function showPaywallModal(contact) {
                 <div class="paywall-plan-expired-status">Expired</div>
             </div>
             <div class="paywall-plan-monthly"
-                 onclick="showPaymentModal('monthly','$4 / month','${contactId}')">
+                 data-action="show-payment-modal" data-plan="monthly" data-label="$4 / month" data-contact-id="${contactId}">
                 <div class="paywall-plan-monthly-price">$4 / month</div>
             </div>
             <div class="paywall-plan-yearly"
-                 onclick="showPaymentModal('yearly','$30 / year','${contactId}')">
+                 data-action="show-payment-modal" data-plan="yearly" data-label="$30 / year" data-contact-id="${contactId}">
                 <span class="paywall-plan-yearly-badge">Best Value</span>
                 <div class="paywall-plan-yearly-price">$30 / year</div>
                 <div class="paywall-plan-yearly-savings">Save $18 vs monthly</div>
@@ -561,7 +561,7 @@ function showPaymentModal(plan, label, contactId) {
                 Payment processing is not yet available.<br>
                 Tap below to continue for free while we set it up.
             </p>
-            <button class="login-btn payment-modal-button" onclick="continueForFree('${contactId}')">Continue for Free</button>
+            <button class="login-btn payment-modal-button" data-action="continue-for-free" data-contact-id="${contactId}">Continue for Free</button>
         </div>`;
     document.body.appendChild(el);
 }
