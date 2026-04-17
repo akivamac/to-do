@@ -676,6 +676,19 @@ function testModeLogin() {
         localStorage.setItem('currentUser', currentUser);
         localStorage.setItem('currentAccountType', 'personal');
         localStorage.setItem('currentUserDisplayName', 'Demo');
+
+        // Ensure Demo User account exists in localStorage
+        const accounts = getAccounts();
+        if (!accounts[currentUser]) {
+            accounts[currentUser] = {
+                password: 'demo',
+                type: 'personal',
+                data: { tasks: {}, pointGroups: [], completedTasksCount: 0, spentPoints: 0 },
+                createdAt: new Date().toISOString()
+            };
+            localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+        }
+
         loadUserData();
         showScreen('mainApp');
         const event = new Event('currentUserChanged');
