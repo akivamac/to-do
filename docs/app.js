@@ -1735,9 +1735,7 @@ async function loadReviewsOnLandingPage() {
 // ── Admin Panel for Feature Requests ────────────────────────
 
 function startLongPress(event) {
-    if (event.touches) {
-        adminLongPressTimer = setTimeout(() => openAdminAccess(event), 1000);
-    }
+    adminLongPressTimer = setTimeout(() => openAdminAccess(event), 1000);
 }
 
 function cancelLongPress() {
@@ -1749,7 +1747,6 @@ function cancelLongPress() {
 
 async function openAdminAccess(event) {
     event.preventDefault();
-    if (event.button && event.button !== 2) return; // Only right-click on desktop
 
     if (!bsIsConfigured()) {
         showCustomAlert('Admin access requires Backside to be configured. Contact the administrator.');
