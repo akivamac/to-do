@@ -601,6 +601,8 @@
             gap: 12px;
             transition: all 0.3s;
             cursor: move;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .task-item:hover {
@@ -641,6 +643,9 @@
             flex: 1;
             font-size: 16px;
             color: #333;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            min-width: 0;
         }
 
         .task-item.completed .task-text {
@@ -1544,6 +1549,15 @@
             height: 100%;
             border-radius: 8px;
             transition: width 0.4s;
+        }
+
+        #todayProgressWrap {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            padding: 8px 0;
+            margin-bottom: 8px;
         }
 
         .task-project-tag {

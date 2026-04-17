@@ -230,15 +230,17 @@
         // ── Double-click tooltip (once per session) ──────────────────
         function maybeShowDblClickTooltip() {
             if (sessionStorage.getItem('_dblClickTip')) return;
+            const existing = document.getElementById('dblClickTip');
+            if (existing) return;
             const el = document.createElement('div');
             el.id = 'dblClickTip';
             el.style.cssText = 'background:#fff8e1;border-left:3px solid #ffc107;padding:8px 12px;' +
                 'border-radius:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;' +
                 'align-items:center;margin-bottom:8px;';
-            el.innerHTML = `<span>✏️ Tip: you can also <strong>double-click</strong> a task to edit it</span>
-                <button class="modal-close-btn" data-action="dismiss-dblclick-tip">×</button>`;
-            const taskList = document.getElementById('taskList');
-            if (taskList) taskList.before(el);
+            el.innerHTML = `<span>✏️ Tip: double-click or tap ✏️ to edit a task</span>
+                <button data-action="dismiss-dblclick-tip" style="background:none;border:none;cursor:pointer;font-size:16px;color:#888;">×</button>`;
+            const wrap = document.getElementById('todayProgressWrap');
+            if (wrap) wrap.after(el);
         }
 
         function populateAssignDropdowns() {
