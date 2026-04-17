@@ -2739,3 +2739,10 @@
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 12px;
         }
+
+.test-mode-btn {
+    background: linear-gradient(135deg, #ffb74d 0%, #ffa726 100%);
+    font-size: 13px;
+    padding: 10px 20px;
+    margin-top: 6px;
+}

@@ -76,31 +76,31 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('taskTimeDisplay').textContent = formatTime(v) || 'Set time';
         });
     });
-    const addTaskBtn = document.querySelector('.add-task-btn');
+    const addTaskBtn = document.getElementById('addTaskBtn');
     if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
 
     // Projects tab
-    const addProjectBtn = document.querySelector('#projectsTab .login-btn');
+    const addProjectBtn = document.getElementById('addProjectBtn');
     if (addProjectBtn) addProjectBtn.addEventListener('click', addProject);
-    const addTaskToProjectBtn = document.querySelector('#projectTasksView .login-btn');
+    const addTaskToProjectBtn = document.getElementById('addTaskToProjectBtn');
     if (addTaskToProjectBtn) addTaskToProjectBtn.addEventListener('click', addTaskToProject);
-    const closeProjectTasksBtn = document.querySelector('#projectTasksView .back-btn');
+    const closeProjectTasksBtn = document.getElementById('closeProjectTasksBtn');
     if (closeProjectTasksBtn) closeProjectTasksBtn.addEventListener('click', closeProjectTasks);
 
     // Lists tab
-    const createListBtn = document.querySelector('#listsListView .login-btn');
+    const createListBtn = document.getElementById('createListBtn');
     if (createListBtn) createListBtn.addEventListener('click', createList);
-    const addListItemBtn = document.querySelector('#listsDetailView .login-btn:not(.success-btn)');
+    const addListItemBtn = document.getElementById('addListItemBtn');
     if (addListItemBtn) addListItemBtn.addEventListener('click', addListItem);
-    const clearListCheckedBtn = document.querySelector('#listsDetailView .success-btn');
+    const clearListCheckedBtn = document.getElementById('clearListCheckedBtn');
     if (clearListCheckedBtn) clearListCheckedBtn.addEventListener('click', clearListChecked);
-    const closeListDetailBtn = document.querySelector('#listsDetailView .back-btn');
+    const closeListDetailBtn = document.getElementById('closeListDetailBtn');
     if (closeListDetailBtn) closeListDetailBtn.addEventListener('click', closeListDetail);
 
     // Notes tab
-    const newNoteBtn = document.querySelector('.new-note-btn');
+    const newNoteBtn = document.getElementById('newNoteBtn');
     if (newNoteBtn) newNoteBtn.addEventListener('click', createNote);
-    const closeNoteEditorBtn = document.querySelector('#noteEditorView .back-btn');
+    const closeNoteEditorBtn = document.getElementById('closeNoteEditorBtn');
     if (closeNoteEditorBtn) closeNoteEditorBtn.addEventListener('click', closeNoteEditor);
     const noteTitleInput = document.getElementById('noteTitleInput');
     if (noteTitleInput) noteTitleInput.addEventListener('input', saveCurrentNote);
@@ -116,14 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.tb-btn[data-align]').forEach(btn => {
         btn.addEventListener('click', () => noteAlign(btn.dataset.align));
     });
-    const alphaListBtn = document.querySelector('.tb-btn[data-note-action="insertAlphaList"]');
-    if (alphaListBtn) alphaListBtn.addEventListener('click', noteInsertAlphaList);
-    const insertLinkBtn = document.querySelector('.tb-btn[data-note-action="insertLink"]');
-    if (insertLinkBtn) insertLinkBtn.addEventListener('click', noteInsertLink);
-    const insertTableBtn = document.querySelector('.tb-btn[data-note-action="insertTable"]');
-    if (insertTableBtn) insertTableBtn.addEventListener('click', noteInsertTable);
-    const insertHRBtn = document.querySelector('.tb-btn[data-note-action="insertHR"]');
-    if (insertHRBtn) insertHRBtn.addEventListener('click', noteInsertHR);
     const previewToggleBtn = document.getElementById('previewToggleBtn');
     if (previewToggleBtn) previewToggleBtn.addEventListener('click', toggleNotePreview);
     const headingSelector = document.getElementById('headingSelector');
@@ -158,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('alarmTimeDisplay').textContent = formatTime(v) || 'Set alarm time';
         });
     });
-    const addAlarmBtn = document.querySelector('#alarmsTab .admin-card:first-child .login-btn');
+    const addAlarmBtn = document.getElementById('addAlarmBtn');
     if (addAlarmBtn) addAlarmBtn.addEventListener('click', addAlarm);
     const startTimerBtn = document.getElementById('startTimerBtn');
     if (startTimerBtn) startTimerBtn.addEventListener('click', startTimer);
@@ -174,16 +166,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (copyCredentialBtn) copyCredentialBtn.addEventListener('click', function() {
         copyCredential('settingsUsername', this);
     });
-    const saveSettingsBtn = document.querySelector('#settingsTab .admin-card:nth-child(2) .login-btn:last-of-type');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
     document.querySelectorAll('.star-btn[data-rating]').forEach(btn => {
         btn.addEventListener('click', () => selectReviewRating(parseInt(btn.dataset.rating)));
     });
-    const submitReviewBtn = document.querySelector('#settingsTab .admin-card:nth-child(3) .login-btn');
+    const submitReviewBtn = document.getElementById('submitReviewBtn');
     if (submitReviewBtn) submitReviewBtn.addEventListener('click', submitReview);
-    const submitFeatureRequestBtn = document.querySelector('#settingsTab .admin-card:nth-child(4) .login-btn');
+    const submitFeatureRequestBtn = document.getElementById('submitFeatureRequestBtn');
     if (submitFeatureRequestBtn) submitFeatureRequestBtn.addEventListener('click', submitFeatureRequest);
-    const generateInviteLinkBtn = document.querySelector('#settingsTab .admin-card:nth-child(5) .login-btn');
+    const generateInviteLinkBtn = document.getElementById('generateInviteLinkBtn');
     if (generateInviteLinkBtn) generateInviteLinkBtn.addEventListener('click', generateInviteLink);
     const clearAllDataBtn = document.querySelector('.danger-btn');
     if (clearAllDataBtn) clearAllDataBtn.addEventListener('click', clearAllData);
@@ -191,18 +183,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit Day Modal
     const editDayModal = document.getElementById('editDayModal');
     if (editDayModal) editDayModal.addEventListener('click', closeEditDayIfOutside);
+    const closeEditDayBtn = document.getElementById('closeEditDayBtn');
+    if (closeEditDayBtn) closeEditDayBtn.addEventListener('click', closeEditDay);
     const editDayAddTaskBtn = document.querySelector('#editDayModal .add-task-btn');
     if (editDayAddTaskBtn) editDayAddTaskBtn.addEventListener('click', addTaskToEditDay);
 
     // Admin Access Modal
     const adminAccessModal = document.getElementById('adminAccessModal');
     if (adminAccessModal) adminAccessModal.addEventListener('click', closeAdminAccessIfOutside);
-    const closeAdminAccessBtn = document.querySelector('#adminAccessModal .modal-close');
+    const closeAdminAccessBtn = document.getElementById('closeAdminAccessBtn');
     if (closeAdminAccessBtn) closeAdminAccessBtn.addEventListener('click', closeAdminAccess);
 
     // Admin Panel
-    const exitAdminPanelBtn = document.querySelector('#adminPanel .back-btn');
+    const exitAdminPanelBtn = document.getElementById('exitAdminPanelBtn');
     if (exitAdminPanelBtn) exitAdminPanelBtn.addEventListener('click', exitAdminPanel);
+
+    // Note toolbar — action-specific buttons
+    document.querySelectorAll('.tb-btn[data-note-action="insertAlphaList"]').forEach(b => b.addEventListener('click', noteInsertAlphaList));
+    document.querySelectorAll('.tb-btn[data-note-action="insertLink"]').forEach(b => b.addEventListener('click', noteInsertLink));
+    document.querySelectorAll('.tb-btn[data-note-action="insertTable"]').forEach(b => b.addEventListener('click', noteInsertTable));
+    document.querySelectorAll('.tb-btn[data-note-action="insertHR"]').forEach(b => b.addEventListener('click', noteInsertHR));
 
     // ── Single delegated click handler ─────────────────────────────────────────
     document.addEventListener('click', e => {

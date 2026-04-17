@@ -710,7 +710,7 @@ function showTab(tabName) {
     // Update nav
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if (item.getAttribute('onclick') === `showTab('${tabName}')`) {
+        if (item.dataset.tab === tabName) {
             item.classList.add('active');
         }
     });

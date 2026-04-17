@@ -54,8 +54,8 @@
     <!-- Install Banner -->
     <div id="installBanner" class="install-banner">
         <p>📱 Install Peaceful Tasks as an app for quick access!</p>
-        <button onclick="installApp()">Install App</button>
-        <button onclick="dismissInstall()" class="dismiss-install-btn" aria-label="Dismiss install prompt">Maybe Later</button>
+        <button>Install App</button>
+        <button class="dismiss-install-btn" aria-label="Dismiss install prompt">Maybe Later</button>
     </div>
 
     <!-- Hug Toast -->
@@ -68,8 +68,8 @@
     <!-- Update Banner -->
     <div id="updateBanner" class="update-banner">
         🎉 A new version is available!
-        <button onclick="updateApp()" aria-label="Update the app now">Update Now</button>
-        <button onclick="dismissUpdate()" aria-label="Dismiss update notification">Got it!</button>
+        <button aria-label="Update the app now">Update Now</button>
+        <button aria-label="Dismiss update notification">Got it!</button>
     </div>
 
     <!-- Welcome Landing Page -->
@@ -80,8 +80,8 @@
                 <h1 class="hero-title">Welcome to Peaceful Tasks</h1>
                 <p class="hero-subtitle">Where peace meets productivity</p>
                 <div class="hero-button-group">
-                    <button class="login-btn signin-btn" onclick="showSignIn()">Sign In</button>
-                    <button class="login-btn signup-btn" onclick="showCreateAccount()">Sign Up</button>
+                    <button class="login-btn signin-btn">Sign In</button>
+                    <button class="login-btn signup-btn">Sign Up</button>
                 </div>
                 <p class="hero-help-text">Joining someone's family account? Use the invite link they sent you — it will bring you straight to sign up.</p>
                 <div class="coming-soon-box">
@@ -145,7 +145,7 @@
 
                 <div class="device-selector-wrapper">
                     <label class="device-selector-label">Select your device:</label>
-                    <select id="osSelector" class="login-input os-selector-input" onchange="updateInstallInstructions(this.value)">
+                    <select id="osSelector" class="login-input os-selector-input">
                         <option value="">Choose your device...</option>
                         <option value="android">Android</option>
                         <option value="ios">iOS</option>
@@ -165,7 +165,7 @@
                             <li>Tap the menu (three dots) in your browser</li>
                             <li>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
                         </ol>
-                        <button class="login-btn install-btn-action" onclick="triggerInstallPrompt()">Install Peaceful Tasks</button>
+                        <button class="login-btn install-btn-action">Install Peaceful Tasks</button>
                     </div>
                     <!-- iOS Instructions -->
                     <div id="iosInstructions" class="instructions-panel">
@@ -234,11 +234,11 @@
             <!-- Footer -->
             <footer class="landing-footer">
                 <div class="footer-links">
-                    <a href="#" onclick="showLegalModal('terms'); return false;" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link" data-legal="terms">Terms</a>
                     <span class="footer-divider">·</span>
-                    <a href="#" onclick="showLegalModal('privacy'); return false;" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link" data-legal="privacy">Privacy</a>
                     <span class="footer-divider">·</span>
-                    <a href="#" onclick="showLegalModal('security'); return false;" class="footer-link">Security</a>
+                    <a href="#" class="footer-link" data-legal="security">Security</a>
                 </div>
                 <p class="footer-copyright">Peaceful Tasks • Built with 🌸 for calm productivity</p>
             </footer>
@@ -256,7 +256,7 @@
             <div class="password-tip">
                 💡 Tip: use your password manager to generate a long random password — it's more secure than 2FA and you never have to think about it.
             </div>
-            <form onsubmit="event.preventDefault(); createPersonalAccount();" autocomplete="on" class="login-form">
+            <form id="createAccountForm" autocomplete="on" class="login-form">
                 <input type="text" id="personalUsername" name="username" autocomplete="username"
                     class="login-input" placeholder="Choose a username (e.g., alex_smith)" />
                 <input type="password" id="personalPassword" name="new-password" autocomplete="new-password"
@@ -265,7 +265,7 @@
                     class="login-input" placeholder="Confirm password" />
                 <button type="submit" class="login-btn form-submit-btn">Create My Account</button>
             </form>
-            <button class="login-btn back-btn" onclick="showScreen('loginPersonalAccount'); history.pushState(null,'','/to-do/login')">← Back to Sign In</button>
+            <button id="backToSigninBtn" class="login-btn back-btn">← Back to Sign In</button>
             <div id="personalAccountError" class="login-error"></div>
         </div>
     </div>
@@ -275,15 +275,15 @@
         <div class="login-screen">
             <h1>🔓 Sign In</h1>
             <p class="login-description">Enter your username and password to access your account</p>
-            <form onsubmit="event.preventDefault(); loginPersonalAccount();" autocomplete="on" class="login-form">
+            <form id="loginForm" autocomplete="on" class="login-form">
                 <input type="text" id="loginUsername" name="username" autocomplete="username"
                     class="login-input" placeholder="Username" />
                 <input type="password" id="loginPassword" name="password" autocomplete="current-password"
                     class="login-input" placeholder="Password" />
                 <button type="submit" class="login-btn form-submit-btn">Sign In</button>
             </form>
-            <button class="login-btn back-btn" onclick="showLandingPage()">← Back to Home</button>
-            <button class="login-btn" onclick="testModeLogin()" style="background: linear-gradient(135deg, #ffb74d 0%, #ffa726 100%); font-size: 13px; padding: 10px 20px; margin-top: 6px;">🛠️ Skip Login (Test Mode)</button>
+            <button id="backToHomeBtn" class="login-btn back-btn">← Back to Home</button>
+            <button id="testModeBtn" class="login-btn test-mode-btn">🛠️ Skip Login (Test Mode)</button>
             <div id="loginAccountError" class="login-error"></div>
         </div>
     </div>
@@ -292,17 +292,17 @@
     <div id="mainApp" class="container hidden">
         <div class="app-header">
             <div class="header-buttons">
-                <button class="header-btn logout-btn" onclick="logout()" aria-label="Log out of Peaceful Tasks">Logout</button>
+                <button class="header-btn logout-btn" aria-label="Log out of Peaceful Tasks">Logout</button>
             </div>
             <div class="nav">
-                <button class="nav-item active" onclick="showTab('today')">Today</button>
-                <button class="nav-item" onclick="showTab('days')">Days</button>
-                <button class="nav-item" onclick="showTab('projects')">Projects</button>
-                <button class="nav-item" onclick="showTab('lists')">Lists</button>
-                <button class="nav-item" onclick="showTab('notes')">Notes</button>
-                <button class="nav-item" onclick="showTab('points')">Points</button>
-                <button class="nav-item" onclick="showTab('alarms')">Alarms</button>
-                <button class="nav-item" onclick="showTab('settings')">Settings</button>
+                <button class="nav-item active" data-tab="today">Today</button>
+                <button class="nav-item" data-tab="days">Days</button>
+                <button class="nav-item" data-tab="projects">Projects</button>
+                <button class="nav-item" data-tab="lists">Lists</button>
+                <button class="nav-item" data-tab="notes">Notes</button>
+                <button class="nav-item" data-tab="points">Points</button>
+                <button class="nav-item" data-tab="alarms">Alarms</button>
+                <button class="nav-item" data-tab="settings">Settings</button>
             </div>
         </div>
 
@@ -314,13 +314,11 @@
                 <div class="add-task">
                     <div class="add-task-inputs">
                         <div class="task-input-flex">
-                            <input type="text" id="taskInput" placeholder="Add a new task..."
-                                oninput="showPeacefulSuggestion('taskInput','taskSuggestion')" class="task-input-field" />
-                            <button id="voiceMicButton" onclick="startVoiceInput()" class="voice-mic-btn" title="Voice input" aria-label="Voice input">🎤</button>
+                            <input type="text" id="taskInput" placeholder="Add a new task..." class="task-input-field" />
+                            <button id="voiceMicButton" class="voice-mic-btn" title="Voice input" aria-label="Voice input">🎤</button>
                             <div id="voiceListeningIndicator" class="voice-listening-indicator">🔴 Listening...</div>
                         </div>
-                        <div id="taskTimeDisplay" class="add-task-time-btn"
-                            onclick="showTimePicker(document.getElementById('taskTime').value, v=>{document.getElementById('taskTime').value=v;document.getElementById('taskTimeDisplay').textContent=formatTime(v)||'Set time';})">
+                        <div id="taskTimeDisplay" class="add-task-time-btn">
                             Set time
                         </div>
                         <input type="hidden" id="taskTime" />
@@ -332,7 +330,7 @@
                         </select>
                     </div>
                     <div id="taskSuggestion" class="task-suggestion"></div>
-                    <button class="add-task-btn" onclick="addTask()">Add Task</button>
+                    <button class="add-task-btn" id="addTaskBtn">Add Task</button>
                 </div>
 
                 <div id="todayProgressWrap"></div>
@@ -350,19 +348,19 @@
                     <h3>📁 Projects</h3>
                     <div class="flex-row-container">
                         <input type="text" id="newProjectName" class="login-input flex-input-item" placeholder="New project name..." />
-                        <button class="login-btn flex-button-item" onclick="addProject()">Add</button>
+                        <button class="login-btn flex-button-item" id="addProjectBtn">Add</button>
                     </div>
                     <div id="projectsList"></div>
                 </div>
                 <div id="projectTasksView" class="hidden">
                     <div class="admin-card">
                         <div class="back-header">
-                            <button onclick="closeProjectTasks()" class="back-btn">← Back</button>
+                            <button class="back-btn" id="closeProjectTasksBtn">← Back</button>
                             <h3 id="projectTasksTitle" class="back-title"></h3>
                         </div>
                         <div class="admin-input-group">
                             <input type="text" id="projectTaskInput" class="login-input flex-input" placeholder="Add a task to this project..." />
-                            <button class="login-btn" onclick="addTaskToProject()">Add</button>
+                            <button class="login-btn" id="addTaskToProjectBtn">Add</button>
                         </div>
                         <div id="projectTasksList"></div>
                     </div>
@@ -376,7 +374,7 @@
                         <h3>📋 Shared Lists</h3>
                         <div class="flex-row-container">
                             <input type="text" id="newListName" class="login-input flex-input-item" placeholder="New list name (e.g. Groceries)..." />
-                            <button class="login-btn flex-button-item" onclick="createList()">Create</button>
+                            <button class="login-btn flex-button-item" id="createListBtn">Create</button>
                         </div>
                         <div id="listsList" class="lists-grid-container"></div>
                     </div>
@@ -384,15 +382,15 @@
                 <div id="listsDetailView" class="hidden">
                     <div class="admin-card">
                         <div class="back-header">
-                            <button onclick="closeListDetail()" class="back-btn">← Back</button>
+                            <button class="back-btn" id="closeListDetailBtn">← Back</button>
                             <h3 id="listDetailTitle" class="back-title flex-title"></h3>
                         </div>
                         <div class="admin-input-group">
                             <input type="text" id="listItemInput" class="login-input flex-input" placeholder="Add item..." />
-                            <button class="login-btn" onclick="addListItem()">Add</button>
+                            <button class="login-btn" id="addListItemBtn">Add</button>
                         </div>
                         <div id="listItemsList" class="list-items-container"></div>
-                        <button class="login-btn success-btn" onclick="clearListChecked()">Clear Checked</button>
+                        <button class="login-btn success-btn" id="clearListCheckedBtn">Clear Checked</button>
                     </div>
                 </div>
             </div>
@@ -402,27 +400,27 @@
                 <div id="notesListView">
                     <div class="admin-card">
                         <h3>📝 Notes</h3>
-                        <button class="login-btn new-note-btn" onclick="createNote()">+ New Note</button>
+                        <button class="login-btn new-note-btn" id="newNoteBtn">+ New Note</button>
                         <div id="notesList"></div>
                     </div>
                 </div>
                 <div id="noteEditorView" class="hidden">
                     <div class="admin-card">
                         <div class="note-editor-header">
-                            <button onclick="closeNoteEditor()" class="back-btn">← Back</button>
-                            <input type="text" id="noteTitleInput" class="login-input note-title-input" placeholder="Note title..." oninput="saveCurrentNote()" />
-                            <button onclick="downloadCurrentNote()" title="Download as .md" aria-label="Download note as markdown" class="download-note-btn">⬇ .md</button>
-                            <button onclick="deleteCurrentNote()" aria-label="Delete note" class="delete-note-btn">Delete</button>
+                            <button class="back-btn" id="closeNoteEditorBtn">← Back</button>
+                            <input type="text" id="noteTitleInput" class="login-input note-title-input" placeholder="Note title..." />
+                            <button title="Download as .md" aria-label="Download note as markdown" class="download-note-btn">⬇ .md</button>
+                            <button aria-label="Delete note" class="delete-note-btn">Delete</button>
                         </div>
                         <div class="note-toolbar">
                             <!-- Text Style Group -->
-                            <button onclick="noteFormat('bold')" title="Bold (Ctrl+B)" class="tb-btn tb-full-label"><strong>Bold</strong></button>
-                            <button onclick="noteFormat('italic')" title="Italic (Ctrl+I)" class="tb-btn tb-full-label"><em>Italic</em></button>
-                            <button onclick="noteFormat('strikeThrough')" title="Strikethrough" class="tb-btn tb-full-label"><s>Strike</s></button>
+                            <button title="Bold (Ctrl+B)" class="tb-btn tb-full-label" data-command="bold"><strong>Bold</strong></button>
+                            <button title="Italic (Ctrl+I)" class="tb-btn tb-full-label" data-command="italic"><em>Italic</em></button>
+                            <button title="Strikethrough" class="tb-btn tb-full-label" data-command="strikeThrough"><s>Strike</s></button>
                             <span class="tb-divider"></span>
 
                             <!-- Headings Group (Dropdown) -->
-                            <select id="headingSelector" class="tb-dropdown" onchange="noteFormatHeading(this.value); this.value='';" title="Heading styles">
+                            <select id="headingSelector" class="tb-dropdown" title="Heading styles">
                                 <option value="">Paragraph</option>
                                 <option value="h1">Title (H1)</option>
                                 <option value="h2">Heading 1 (H2)</option>
@@ -432,7 +430,7 @@
                             <span class="tb-divider"></span>
 
                             <!-- Font Size Group (Dropdown) -->
-                            <select id="fontSizeSelector" class="tb-dropdown" onchange="noteSetFontSize(this.value); this.value='';" title="Font size">
+                            <select id="fontSizeSelector" class="tb-dropdown" title="Font size">
                                 <option value="">Normal Size</option>
                                 <option value="small">Small</option>
                                 <option value="medium">Normal</option>
@@ -442,28 +440,28 @@
                             <span class="tb-divider"></span>
 
                             <!-- Alignment Group -->
-                            <button onclick="noteAlign('left')" title="Align left" class="tb-btn">⬅ Left</button>
-                            <button onclick="noteAlign('center')" title="Align center" class="tb-btn">⬛ Center</button>
-                            <button onclick="noteAlign('right')" title="Align right" class="tb-btn">➡ Right</button>
+                            <button title="Align left" class="tb-btn" data-align="left">⬅ Left</button>
+                            <button title="Align center" class="tb-btn" data-align="center">⬛ Center</button>
+                            <button title="Align right" class="tb-btn" data-align="right">➡ Right</button>
                             <span class="tb-divider"></span>
 
                             <!-- Lists Group -->
-                            <button onclick="noteFormat('insertUnorderedList')" title="Bullet List" class="tb-btn tb-full-label">• Bullet List</button>
-                            <button onclick="noteFormat('insertOrderedList')" title="Numbered List" class="tb-btn tb-full-label">1. Numbered List</button>
-                            <button onclick="noteInsertAlphaList()" title="Alphabetical List" class="tb-btn tb-full-label">a. Alpha List</button>
+                            <button title="Bullet List" class="tb-btn tb-full-label" data-command="insertUnorderedList">• Bullet List</button>
+                            <button title="Numbered List" class="tb-btn tb-full-label" data-command="insertOrderedList">1. Numbered List</button>
+                            <button title="Alphabetical List" class="tb-btn tb-full-label" data-note-action="insertAlphaList">a. Alpha List</button>
                             <span class="tb-divider"></span>
 
                             <!-- Insert Group -->
-                            <button onclick="noteInsertLink()" title="Insert Link" class="tb-btn tb-full-label">🔗 Link</button>
-                            <button onclick="noteInsertTable()" title="Insert Table" class="tb-btn tb-full-label">⊞ Table</button>
-                            <button onclick="noteInsertHR()" title="Horizontal Divider" class="tb-btn tb-full-label">— Divider</button>
+                            <button title="Insert Link" class="tb-btn tb-full-label" data-note-action="insertLink">🔗 Link</button>
+                            <button title="Insert Table" class="tb-btn tb-full-label" data-note-action="insertTable">⊞ Table</button>
+                            <button title="Horizontal Divider" class="tb-btn tb-full-label" data-note-action="insertHR">— Divider</button>
                             <span class="tb-divider"></span>
 
                             <!-- Preview Toggle -->
-                            <button onclick="toggleNotePreview()" title="Toggle preview" class="tb-btn tb-full-label" id="previewToggleBtn">👁 Preview</button>
+                            <button title="Toggle preview" class="tb-btn tb-full-label" id="previewToggleBtn">👁 Preview</button>
                         </div>
                         <div class="note-editor-container">
-                            <div id="noteEditor" contenteditable="true" oninput="saveCurrentNote()" class="note-editor-pane"></div>
+                            <div id="noteEditor" contenteditable="true" class="note-editor-pane"></div>
                             <div id="notePreviewPane" class="note-preview-pane"></div>
                         </div>
                     </div>
@@ -473,7 +471,7 @@
             <!-- Hugs Tab -->
             <div id="pointsTab" class="hidden">
                 <div class="points-header">
-                    <div class="points-count" id="totalPoints" oncontextmenu="openAdminAccess(event)" onmousedown="startLongPress(event)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(event)" ontouchend="cancelLongPress()">0</div>
+                    <div class="points-count" id="totalPoints">0</div>
                     <div class="points-label">Available Points</div>
                 </div>
                 
@@ -496,8 +494,7 @@
                     <div class="alarm-input-wrapper">
                         <div class="alarm-input-row">
                             <div class="alarm-time-wrapper">
-                                <div id="alarmTimeDisplay" class="add-task-time-btn"
-                                    onclick="showTimePicker(document.getElementById('alarmTimeHidden').value, v=>{document.getElementById('alarmTimeHidden').value=v;document.getElementById('alarmTimeDisplay').textContent=formatTime(v)||'Set alarm time';})">
+                                <div id="alarmTimeDisplay" class="add-task-time-btn">
                                     Set alarm time
                                 </div>
                                 <input type="hidden" id="alarmTimeHidden" />
@@ -509,7 +506,7 @@
                                 <input type="checkbox" id="alarmRecurring" class="alarm-checkbox" />
                                 <label for="alarmRecurring" class="alarm-label">Daily</label>
                             </div>
-                            <button class="login-btn" onclick="addAlarm()">Add Alarm</button>
+                            <button class="login-btn" id="addAlarmBtn">Add Alarm</button>
                         </div>
                         <div id="alarmsList"></div>
                     </div>
@@ -536,9 +533,9 @@
                         </div>
 
                         <div class="timer-button-group">
-                            <button class="login-btn" onclick="startTimer()" id="startTimerBtn">Start Timer</button>
-                            <button class="login-btn pause-btn" onclick="pauseTimer()" id="pauseTimerBtn">Pause</button>
-                            <button class="login-btn reset-btn" onclick="resetTimer()" id="resetTimerBtn">Reset</button>
+                            <button class="login-btn" id="startTimerBtn">Start Timer</button>
+                            <button class="login-btn pause-btn" id="pauseTimerBtn">Pause</button>
+                            <button class="login-btn reset-btn" id="resetTimerBtn">Reset</button>
                         </div>
 
                         <div class="timer-label-wrapper">
@@ -553,7 +550,7 @@
                 <div class="admin-card">
                     <h3>📱 Install App</h3>
                     <p class="admin-card-description">Install Peaceful Tasks on your device for quick access</p>
-                    <button class="login-btn" onclick="installAppFromButton()" id="settingsInstallBtn">
+                    <button class="login-btn" id="settingsInstallBtn">
                         <div class="button-icon-text">📲 Install as App</div>
                     </button>
                     <p id="settingsInstallMessage" class="settings-message">App is already installed or not available on this device</p>
@@ -569,14 +566,14 @@
                         <label class="settings-label">Username</label>
                         <div class="copyable-credential">
                             <span id="settingsUsername">username</span>
-                            <button class="copy-btn" onclick="copyCredential('settingsUsername', this)">Copy</button>
+                            <button class="copy-btn">Copy</button>
                         </div>
                     </div>
                     <div class="settings-form-group">
                         <label class="settings-label">Change Password</label>
                         <input type="password" id="settingsNewPassword" class="login-input" placeholder="New password (leave blank to keep current)" />
                     </div>
-                    <button class="login-btn" onclick="saveSettings()">Save Changes</button>
+                    <button class="login-btn" id="saveSettingsBtn">Save Changes</button>
                     <div id="settingsSaveMessage" class="success-message">✓ Settings saved!</div>
                 </div>
 
@@ -587,18 +584,18 @@
                     <div class="settings-form-group">
                         <label class="settings-label">Your Rating</label>
                         <div class="rating-stars">
-                            <button onclick="selectReviewRating(1)" id="rating1" class="star-btn">★</button>
-                            <button onclick="selectReviewRating(2)" id="rating2" class="star-btn">★</button>
-                            <button onclick="selectReviewRating(3)" id="rating3" class="star-btn">★</button>
-                            <button onclick="selectReviewRating(4)" id="rating4" class="star-btn">★</button>
-                            <button onclick="selectReviewRating(5)" id="rating5" class="star-btn">★</button>
+                            <button id="rating1" class="star-btn" data-rating="1">★</button>
+                            <button id="rating2" class="star-btn" data-rating="2">★</button>
+                            <button id="rating3" class="star-btn" data-rating="3">★</button>
+                            <button id="rating4" class="star-btn" data-rating="4">★</button>
+                            <button id="rating5" class="star-btn" data-rating="5">★</button>
                         </div>
                     </div>
                     <div class="settings-form-group">
                         <label class="settings-label">Tell us what you think</label>
                         <textarea id="reviewText" class="login-input review-textarea" placeholder="Share your thoughts about Peaceful Tasks..."></textarea>
                     </div>
-                    <button class="login-btn" onclick="submitReview()">Submit Review</button>
+                    <button class="login-btn" id="submitReviewBtn">Submit Review</button>
                     <div id="reviewMessage" class="success-message">Thanks for your review!</div>
                 </div>
 
@@ -610,7 +607,7 @@
                         <label class="settings-label">What would you like to see?</label>
                         <textarea id="featureRequestText" class="login-input review-textarea" placeholder="Describe your feature idea..."></textarea>
                     </div>
-                    <button class="login-btn" onclick="submitFeatureRequest()">Send Request</button>
+                    <button class="login-btn" id="submitFeatureRequestBtn">Send Request</button>
                     <div id="featureRequestMessage" class="success-message">Request received — thank you!</div>
                 </div>
 
@@ -618,14 +615,14 @@
                 <div class="admin-card">
                     <h3>🔗 Invite Someone</h3>
                     <p class="invite-description">Generate a one-time invite link to share with anyone you want to join.</p>
-                    <button class="login-btn" onclick="generateInviteLink()">Generate Invite Link</button>
+                    <button class="login-btn" id="generateInviteLinkBtn">Generate Invite Link</button>
                 </div>
 
                 <!-- Clear Data Section -->
                 <div class="admin-card">
                     <h3>🗑️ Clear Data & Cache</h3>
                     <p class="clear-data-description">If the app is running slowly or using too much storage, you can clear all cached data and start fresh. You'll need to sign in again.</p>
-                    <button class="login-btn danger-btn" onclick="clearAllData()">Clear All Data</button>
+                    <button class="login-btn danger-btn">Clear All Data</button>
                     <div id="clearDataMessage" class="success-message">✓ Data cleared! Reloading...</div>
                 </div>
 
@@ -635,9 +632,9 @@
     </div>
 
     <!-- Edit Day Modal -->
-    <div id="editDayModal" class="modal hidden" onclick="closeEditDayIfOutside(event)">
-        <div class="modal-content modal-large" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeEditDay()">×</button>
+    <div id="editDayModal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <button class="modal-close" id="closeEditDayBtn">×</button>
             <div class="edit-day-header">
                 <h2 id="editDayTitle"></h2>
                 <p id="editDaySubtitle"></p>
@@ -654,7 +651,7 @@
                         <option value="">No project</option>
                     </select>
                 </div>
-                <button class="add-task-btn" onclick="addTaskToEditDay()">Add Task</button>
+                <button class="add-task-btn">Add Task</button>
             </div>
 
             <div class="task-list" id="editDayTaskList"></div>
@@ -663,9 +660,9 @@
 
     <!-- Invite User Modal -->
     <!-- Admin Access Modal -->
-    <div id="adminAccessModal" class="modal hidden" onclick="closeAdminAccessIfOutside(event)">
-        <div class="modal-content modal-small" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeAdminAccess()">×</button>
+    <div id="adminAccessModal" class="modal hidden">
+        <div class="modal-content modal-small">
+            <button class="modal-close" id="closeAdminAccessBtn">×</button>
             <h2 id="adminAccessTitle">Admin Access</h2>
             <div id="adminAccessContent"></div>
         </div>
@@ -674,7 +671,7 @@
     <!-- Admin Panel -->
     <div id="adminPanel" class="container hidden">
         <div class="admin-panel-wrapper">
-            <button class="login-btn back-btn" onclick="exitAdminPanel()">← Back</button>
+            <button class="login-btn back-btn" id="exitAdminPanelBtn">← Back</button>
             <h1>Feature Requests</h1>
             <div id="featureRequestsList"></div>
         </div>
