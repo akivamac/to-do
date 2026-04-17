@@ -45,18 +45,19 @@ function initRouter() {
 function handleRouting(path) {
     const isLoggedIn = !!localStorage.getItem('currentUser');
 
-    if (path.includes('/to-do/app') || path === '/to-do/') {
+    if (path === '/to-do/app') {
         if (isLoggedIn) {
-            if (path.includes('/to-do/app')) {
-                loadAndShowApp();
-            } else {
-                // Redirect / to /app if logged in
-                navigateTo('/to-do/app');
-            }
+            loadAndShowApp();
         } else {
-            // Not logged in, show landing page
             showLandingPage();
             navigateTo('/to-do/');
+        }
+    } else if (path === '/to-do/' || path === '/to-do') {
+        if (isLoggedIn) {
+            navigateTo('/to-do/app');
+            loadAndShowApp();
+        } else {
+            showLandingPage();
         }
     } else if (path.includes('/to-do/login')) {
         if (isLoggedIn) {
