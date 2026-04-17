@@ -1934,7 +1934,6 @@
         // Enter Key Support
         function setupEnterKeyListeners() {
             const enterHandlers = {
-                'passcodeInput': checkPasscode,
                 'loginPassword': loginPersonalAccount,
                 'personalConfirmPassword': createPersonalAccount,
                 'groupAdminConfirm': createGroupAdmin,
