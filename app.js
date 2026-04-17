@@ -676,6 +676,7 @@ function testModeLogin() {
         localStorage.setItem('currentUser', currentUser);
         localStorage.setItem('currentAccountType', 'personal');
         localStorage.setItem('currentUserDisplayName', 'Demo');
+        loadUserData();
         showScreen('mainApp');
         const event = new Event('currentUserChanged');
         document.dispatchEvent(event);
