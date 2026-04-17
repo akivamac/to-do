@@ -131,6 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const noteEditor = document.getElementById('noteEditor');
     if (noteEditor) noteEditor.addEventListener('input', saveCurrentNote);
 
+    // Settings — completed tasks to bottom toggle
+    const completedToggle = document.getElementById('completedToBottomToggle');
+    if (completedToggle) {
+        completedToggle.addEventListener('change', (e) => {
+            localStorage.setItem('_pt_completed_bottom', e.target.checked);
+            renderTodayTasks();
+        });
+    }
+
     // Points tab — admin long-press / right-click
     const totalHugs = document.getElementById('totalHugs');
     if (totalHugs) {
@@ -368,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'verify-admin-password':
                 verifyAdminPassword();
+                break;
+            case 'dismiss-hints':
+                document.getElementById('hintsBanner')?.remove();
                 break;
             case 'mark-feature-request-done':
                 markFeatureRequestDone(el.dataset.id);

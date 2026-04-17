@@ -46,6 +46,12 @@ function installAppFromButton() {
     installApp();
 }
 
+// ── Settings Functions ────────────────────────────────
+function getCompletedTasksToBottom() {
+    const setting = localStorage.getItem('_pt_completed_bottom');
+    return setting === null ? true : setting === 'true';
+}
+
 // ── Landing Page Functions ────────────────────────────────
 function showLandingPage() {
     document.getElementById('landingPage').classList.remove('hidden');
@@ -829,6 +835,10 @@ function loadSettings() {
         if (settingsInstallBtn) settingsInstallBtn.style.display = 'block';
         if (settingsInstallMsg) settingsInstallMsg.style.display = 'none';
     }
+
+    // Load completed tasks to bottom toggle
+    const toggle = document.getElementById('completedToBottomToggle');
+    if (toggle) toggle.checked = getCompletedTasksToBottom();
 }
 
 function saveSettings() {
@@ -1038,26 +1048,24 @@ function reschedulePastTask(dateStr, idx, target) {
 
 // ── Hints Banner (once per session) ─────────────────────────
 function showHintsBanner() {
-    if (sessionStorage.getItem('_hintsDismissed')) return;
-    if (document.getElementById('hintsBanner')) return;
+    if (localStorage.getItem('_pt_hints_seen')) return;
+    localStorage.setItem('_pt_hints_seen', '1');
     const el = document.createElement('div');
     el.id = 'hintsBanner';
-    el.style.cssText = 'background:#e8f5e9;border-left:4px solid #66bb6a;padding:12px 16px;' +
-        'margin-bottom:12px;border-radius:8px;font-size:13px;color:#2e7d32;display:flex;' +
-        'justify-content:space-between;align-items:flex-start;gap:10px;';
     el.innerHTML = `
-        <div>
-            <strong>💡 Quick tips:</strong>
-            <ul class="hints-banner-list">
+        <div class="alert-overlay"></div>
+        <div class="custom-alert" style="max-width:420px;">
+            <h3>💡 Quick tips</h3>
+            <ul style="text-align:left;color:#555;line-height:2;padding-left:20px;margin-bottom:20px;">
                 <li>Drag ☰ handles to reorder tasks</li>
-                <li>Double-click any task to edit it</li>
+                <li>Double-click or tap ✏️ to edit a task</li>
                 <li>Notes auto-save as you type</li>
                 <li>Complete 5 tasks → earn 100 points 🎉</li>
+                <li>Completed tasks move to the bottom automatically</li>
             </ul>
-        </div>
-        <button class="hints-banner-close" data-action="dismiss-hints-banner">×</button>`;
-    const content = document.querySelector('.main-content');
-    if (content) content.prepend(el);
+            <button class="login-btn" data-action="dismiss-hints" style="margin:0;">Got it!</button>
+        </div>`;
+    document.body.appendChild(el);
 }
 
 // ── Invite by Link (admin in Settings) ──────────────────────

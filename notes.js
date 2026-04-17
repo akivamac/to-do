@@ -94,10 +94,8 @@
 
         function createNote() {
             const now = new Date().toISOString();
-            const note = { id: Date.now(), title: '', content: '', createdAt: now, updatedAt: now };
+            const note = { id: Date.now(), title: '', content: '', createdAt: now, updatedAt: now, isNew: true };
             notes.push(note);
-            saveUserData();
-            syncData();
             openNote(note.id);
         }
 
@@ -112,7 +110,17 @@
         }
 
         function closeNoteEditor() {
-            if (currentNoteId) showNoteSavedToast();
+            if (currentNoteId) {
+                const note = notes.find(n => n.id === currentNoteId);
+                const title = document.getElementById('noteTitleInput')?.value.trim();
+                const content = document.getElementById('noteEditor')?.innerHTML.trim();
+                if (note && !title && (!content || content === '<br>' || content === '<p><br></p>')) {
+                    notes = notes.filter(n => n.id !== currentNoteId);
+                    saveUserData();
+                } else {
+                    showNoteSavedToast();
+                }
+            }
             currentNoteId = null;
             renderNotes();
         }
@@ -121,11 +129,14 @@
             if (!currentNoteId) return;
             const note = notes.find(n => n.id === currentNoteId);
             if (!note) return;
-            note.title     = document.getElementById('noteTitleInput').value;
-            note.content   = document.getElementById('noteEditor').innerHTML;
+            const title = document.getElementById('noteTitleInput').value.trim();
+            const content = document.getElementById('noteEditor').innerHTML.trim();
+            if (!title && (!content || content === '<br>' || content === '<p><br></p>')) return;
+            note.title     = title;
+            note.content   = content;
             note.updatedAt = new Date().toISOString();
+            delete note.isNew;
             saveUserData();
-            // Update live preview if it exists
             updateNotePreview();
             clearTimeout(noteSyncTimer);
             noteSyncTimer = setTimeout(() => {
