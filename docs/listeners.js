@@ -132,14 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (noteEditor) noteEditor.addEventListener('input', saveCurrentNote);
 
     // Points tab — admin long-press / right-click
-    const totalPoints = document.getElementById('totalPoints');
-    if (totalPoints) {
-        totalPoints.addEventListener('contextmenu', openAdminAccess);
-        totalPoints.addEventListener('mousedown', startLongPress);
-        totalPoints.addEventListener('mouseup', cancelLongPress);
-        totalPoints.addEventListener('mouseleave', cancelLongPress);
-        totalPoints.addEventListener('touchstart', startLongPress, { passive: true });
-        totalPoints.addEventListener('touchend', cancelLongPress);
+    const totalHugs = document.getElementById('totalHugs');
+    if (totalHugs) {
+        totalHugs.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            openAdminAccess(e);
+        });
+        totalHugs.addEventListener('mousedown', startLongPress);
+        totalHugs.addEventListener('mouseup', cancelLongPress);
+        totalHugs.addEventListener('mouseleave', cancelLongPress);
+        totalHugs.addEventListener('touchstart', startLongPress, { passive: true });
+        totalHugs.addEventListener('touchend', cancelLongPress);
     }
 
     // Alarms tab
