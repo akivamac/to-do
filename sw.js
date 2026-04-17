@@ -13,8 +13,8 @@ const ASSETS = [
     '/to-do/backside.js',
     '/to-do/manifest.json',
     '/to-do/favicon.ico',
-    '/to-do/favicon-32.png',
-    '/to-do/favicon-16.png',
+    '/to-do/icon-32.png',
+    '/to-do/icon-16.png',
     '/to-do/icon-192.png',
     '/to-do/icon-512.png'
 ];
