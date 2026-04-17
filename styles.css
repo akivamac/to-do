@@ -2321,6 +2321,10 @@
             line-height: 1.6;
         }
 
+        #noteEditor {
+            color: #000000;
+        }
+
         /* ── Alarm inputs ──────────────────────────────────────────── */
         .alarm-input-wrapper {
             margin-bottom: 20px;

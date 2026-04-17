@@ -378,6 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'verify-admin-password':
                 verifyAdminPassword();
                 break;
+            case 'note-underline':
+                noteFormat('underline');
+                break;
             case 'dismiss-hints':
                 document.getElementById('hintsBanner')?.remove();
                 break;
