@@ -440,7 +440,8 @@
 
         async function toggleTask(taskId) {
             const today = formatDate(new Date());
-            const task = tasks[today].find(t => t.id === taskId);
+            if (!tasks[today]) return;
+            const task = tasks[today].find(t => t.id === Number(taskId));
             if (!task) return;
             const wasCompleted = task.completed;
             task.completed = !task.completed;
