@@ -164,12 +164,12 @@ function showLegalModal(type) {
     const modalDiv = document.createElement('div');
     modalDiv.id = 'legalModal';
     modalDiv.innerHTML = `
-        <div class="alert-overlay" onclick="document.getElementById('legalModal').remove()"></div>
+        <div class="alert-overlay" data-action="close-legal-modal"></div>
         <div class="custom-alert modal-wide-scroll">
             <h3 class="modal-title">${title}</h3>
             <div class="modal-body-text">${body}</div>
             <div class="modal-footer-centered-top">
-                <button class="login-btn btn-no-margin" onclick="document.getElementById('legalModal').remove()">Close</button>
+                <button class="login-btn btn-no-margin" data-action="close-legal-modal">Close</button>
             </div>
         </div>`;
     document.body.appendChild(modalDiv);
@@ -264,7 +264,7 @@ function _resetSessionTimer() {
             <div class="custom-alert">
                 <h3>⏱️ Still there?</h3>
                 <p class="session-warning-text">You'll be logged out in 2 minutes due to inactivity. Any activity will keep you signed in.</p>
-                <button class="login-btn btn-no-margin" onclick="document.getElementById('_sessionWarnModal').remove();_resetSessionTimer();">Stay Signed In</button>
+                <button class="login-btn btn-no-margin" data-action="stay-signed-in">Stay Signed In</button>
             </div>`;
         document.body.appendChild(el);
     }, SESSION_WARN_MS);
@@ -873,11 +873,11 @@ function saveSettings() {
 // Custom Alert
 function showCustomAlert(message, title = '⚠️ Alert', showOkButton = true) {
     const modalHTML = `
-        <div class="alert-overlay" onclick="closeCustomAlert()"></div>
+        <div class="alert-overlay" data-action="close-custom-alert"></div>
         <div class="custom-alert">
             <h3>${title}</h3>
             <div class="modal-message-text">${message}</div>
-            ${showOkButton ? '<button class="login-btn btn-no-margin" onclick="closeCustomAlert()">OK</button>' : ''}
+            ${showOkButton ? '<button class="login-btn btn-no-margin" data-action="close-custom-alert">OK</button>' : ''}
         </div>
     `;
     
@@ -904,12 +904,12 @@ function showCustomConfirm(title, message, onConfirm) {
     const modalDiv = document.createElement('div');
     modalDiv.id = 'customConfirmModal';
     modalDiv.innerHTML = `
-        <div class="alert-overlay" onclick="document.getElementById('customConfirmModal').remove()"></div>
+        <div class="alert-overlay" data-action="close-custom-confirm"></div>
         <div class="custom-alert">
             <h3>${title}</h3>
             <p>${message}</p>
             <div class="button-group-centered">
-                <button class="login-btn decline-btn btn-no-margin" onclick="document.getElementById('customConfirmModal').remove()">Cancel</button>
+                <button class="login-btn decline-btn btn-no-margin" data-action="close-custom-confirm">Cancel</button>
                 <button class="login-btn btn-no-margin" id="customConfirmOkBtn">OK</button>
             </div>
         </div>
@@ -925,13 +925,13 @@ function showCustomPrompt(title, message, defaultValue, onSubmit) {
     const modalDiv = document.createElement('div');
     modalDiv.id = 'customPromptModal';
     modalDiv.innerHTML = `
-        <div class="alert-overlay" onclick="document.getElementById('customPromptModal').remove()"></div>
+        <div class="alert-overlay" data-action="close-custom-prompt"></div>
         <div class="custom-alert">
             <h3>${title}</h3>
             <p class="input-prompt">${message}</p>
             <input id="customPromptInput" class="login-input input-bottom-margin" value="${escapeHtml(defaultValue || '')}" />
             <div class="button-group-centered">
-                <button class="login-btn decline-btn btn-no-margin" onclick="document.getElementById('customPromptModal').remove()">Cancel</button>
+                <button class="login-btn decline-btn btn-no-margin" data-action="close-custom-prompt">Cancel</button>
                 <button class="login-btn btn-no-margin" id="customPromptOkBtn">OK</button>
             </div>
         </div>
@@ -973,7 +973,7 @@ function showPastIncompleteTasks() {
     const modalDiv = document.createElement('div');
     modalDiv.id = 'pastIncompleteModal';
     modalDiv.innerHTML = `
-        <div class="alert-overlay" onclick="document.getElementById('pastIncompleteModal').remove()"></div>
+        <div class="alert-overlay" data-action="close-past-incomplete"></div>
         <div class="custom-alert modal-modal-scroll">
             <h3 class="modal-title">📋 Unfinished from previous days</h3>
     `;
@@ -990,10 +990,10 @@ function showPastIncompleteTasks() {
             const taskId = `pastTask_${dateStr}_${idx}`;
             modalDiv.innerHTML += `
                 <div class="list-item-row">
-                    <input type="checkbox" id="${taskId}" onchange="completePastTask('${escapeHtml(dateStr)}', ${idx})">
+                    <input type="checkbox" id="${taskId}" data-action="complete-past-task" data-date="${escapeHtml(dateStr)}" data-idx="${idx}">
                     <span class="list-item-flex">${escapeHtml(task.text)}</span>
-                    <button class="login-btn btn-small" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'today')">Today</button>
-                    <button class="login-btn btn-small" onclick="reschedulePastTask('${escapeHtml(dateStr)}', ${idx}, 'tomorrow')">Tomorrow</button>
+                    <button class="login-btn btn-small" data-action="reschedule-past-task" data-date="${escapeHtml(dateStr)}" data-idx="${idx}" data-target="today">Today</button>
+                    <button class="login-btn btn-small" data-action="reschedule-past-task" data-date="${escapeHtml(dateStr)}" data-idx="${idx}" data-target="tomorrow">Tomorrow</button>
                 </div>`;
         });
         modalDiv.innerHTML += `</div>`;
@@ -1001,7 +1001,7 @@ function showPastIncompleteTasks() {
 
     modalDiv.innerHTML += `
             <div class="modal-footer-centered">
-                <button class="login-btn btn-no-margin" onclick="document.getElementById('pastIncompleteModal').remove()">Close</button>
+                <button class="login-btn btn-no-margin" data-action="close-past-incomplete">Close</button>
             </div>
         </div>`;
 
@@ -1055,7 +1055,7 @@ function showHintsBanner() {
                 <li>Complete 5 tasks → earn 100 points 🎉</li>
             </ul>
         </div>
-        <button class="hints-banner-close" onclick="document.getElementById('hintsBanner').remove();sessionStorage.setItem('_hintsDismissed','1');">×</button>`;
+        <button class="hints-banner-close" data-action="dismiss-hints-banner">×</button>`;
     const content = document.querySelector('.main-content');
     if (content) content.prepend(el);
 }
@@ -1073,8 +1073,7 @@ async function generateInviteLink() {
         const link  = `https://akivamac.github.io/to-do/?invite=${token}`;
         showCustomAlert(`<strong>Invite Link</strong><br><br>
             <input value="${link}" readonly
-                class="input-invite-link"
-                onclick="this.select()" />
+                class="input-invite-link auto-select-on-click" />
             <br><small class="invite-link-small-text">Share this link with the person you want to invite. It expires after they sign up.</small>`, '🔗 Invite Link');
     } catch(e) {
         showCustomAlert('Could not generate invite link: ' + e.message);
@@ -1097,7 +1096,7 @@ function showTimePicker(currentValue, callback) {
     const modal = document.createElement('div');
     modal.id = 'timePickerModal';
     modal.innerHTML = `
-        <div class="alert-overlay" onclick="document.getElementById('timePickerModal').remove()"></div>
+        <div class="alert-overlay" data-action="close-time-picker"></div>
         <div class="custom-alert modal-narrow">
             <h3>🕐 Set Time</h3>
             <div class="button-group-flex">
@@ -1123,9 +1122,8 @@ function showTimePicker(currentValue, callback) {
                 </div>
             </div>
             <div class="button-group-centered">
-                <button class="login-btn btn-no-margin" onclick="confirmTimePicker()">Set</button>
-                <button class="login-btn back-btn btn-no-margin"
-                    onclick="document.getElementById('timePickerModal').remove()">Cancel</button>
+                <button class="login-btn btn-no-margin" data-action="confirm-time-picker">Set</button>
+                <button class="login-btn back-btn btn-no-margin" data-action="close-time-picker">Cancel</button>
             </div>
         </div>`;
     document.body.appendChild(modal);
@@ -1267,7 +1265,7 @@ function renderLists() {
     }
 
     listsList.innerHTML = lists.map(list => `
-        <div class="list-card-item" onclick="openListDetail('${escapeHtml(list.id)}')">
+        <div class="list-card-item" data-action="open-list-detail" data-id="${escapeHtml(list.id)}">
             <h4 class="list-card-title">${escapeHtml(list.title || 'Untitled')}</h4>
             <p class="list-card-meta">Tap to edit</p>
         </div>
@@ -1332,9 +1330,9 @@ function renderListItems(list) {
 
     const items = parseListItems(list.body || '');
     itemsList.innerHTML = items.map((item, idx) => `
-        <div class="list-checkbox-row" style="background: ${item.checked ? '#f5f5f5' : 'white'};">
-            <input type="checkbox" class="list-item-checkbox" ${item.checked ? 'checked' : ''} onchange="toggleListItem('${currentListId}', ${idx})" />
-            <span class="list-checkbox-span" style="${item.checked ? 'text-decoration: line-through; color: #999;' : 'color: #333;'}">${escapeHtml(item.text)}</span>
+        <div class="list-checkbox-row${item.checked ? ' list-row-checked' : ''}">
+            <input type="checkbox" class="list-item-checkbox" ${item.checked ? 'checked' : ''} data-action="toggle-list-item" data-id="${currentListId}" data-idx="${idx}" />
+            <span class="list-checkbox-span${item.checked ? ' list-item-checked' : ''}">${escapeHtml(item.text)}</span>
         </div>
     `).join('');
 }
@@ -1783,7 +1781,7 @@ async function openAdminAccess(event) {
                     <label class="form-group-label">Confirm Password</label>
                     <input type="password" id="adminPassword2" class="login-input form-input-no-margin" placeholder="Confirm password" />
                 </div>
-                <button class="login-btn btn-full-width" onclick="setAdminPassword()">Set Password</button>
+                <button class="login-btn btn-full-width" data-action="set-admin-password">Set Password</button>
                 <div id="adminAccessError" class="login-error"></div>
             `;
         } else {
@@ -1793,7 +1791,7 @@ async function openAdminAccess(event) {
                 <div class="form-group">
                     <input type="password" id="adminPasswordEntry" class="login-input form-input-no-margin" placeholder="Admin password" />
                 </div>
-                <button class="login-btn btn-full-width" onclick="verifyAdminPassword()">Access Panel</button>
+                <button class="login-btn btn-full-width" data-action="verify-admin-password">Access Panel</button>
                 <div id="adminAccessError" class="login-error"></div>
             `;
         }
@@ -1936,7 +1934,7 @@ async function openAdminPanel() {
                             <div class="feature-request-meta">
                                 <strong>${submittedBy}</strong> • ${submittedDate}
                             </div>
-                            ${!isDone ? `<button class="login-btn btn-small-admin" onclick="markFeatureRequestDone('${req.id}')">Mark as Done</button>` : '<span class="feature-request-done-badge">✓ Done</span>'}
+                            ${!isDone ? `<button class="login-btn btn-small-admin" data-action="mark-feature-request-done" data-id="${req.id}">Mark as Done</button>` : '<span class="feature-request-done-badge">✓ Done</span>'}
                         </div>
                     </div>
                 `;

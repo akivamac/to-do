@@ -4,15 +4,22 @@
             box-sizing: border-box;
         }
 
+        /* ── BUILD STANDARD: No unintended viewport scroll ──────────────
+           The app must fit within the viewport on all devices with zero
+           unintended overflow. DO NOT add overflow:auto/scroll to html or
+           body. Only .main-content and explicitly scrollable containers
+           may scroll internally. ──────────────────────────────────────── */
+
         html {
             height: 100%;
+            overflow: hidden;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e0f2f7 0%, #fce4ec 100%);
-            min-height: 100%;
-            overflow: auto;
+            height: 100%;
+            overflow: hidden;
             padding: 0;
         }
 
@@ -21,6 +28,21 @@
             margin: 0 auto;
             background: white;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* Landing page is not a .container — must scroll independently */
+        #landingPage {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* ── Alarms tab: prevent unnecessary scroll ─────────────────── */
+        #alarmsTab {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         #mainApp {
@@ -338,7 +360,7 @@
             position: relative;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
-        
+
         /* Custom alert/confirm styling */
         .custom-alert {
             position: fixed;
@@ -354,19 +376,19 @@
             width: 90%;
             text-align: center;
         }
-        
+
         .custom-alert h3 {
             color: #5e8fb5;
             margin-bottom: 15px;
             font-size: 20px;
         }
-        
+
         .custom-alert p {
             color: #666;
             margin-bottom: 20px;
             font-size: 16px;
         }
-        
+
         .alert-overlay {
             position: fixed;
             top: 0;
@@ -1075,6 +1097,556 @@
             to   { transform: rotate(360deg); }
         }
 
+
+        /* ── Modal content styles (CSP Phase 2 - app.js) ─────────── */
+        .modal-wide-scroll {
+            max-width: 520px;
+            max-height: 75vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .modal-modal-scroll {
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-narrow {
+            max-width: 300px;
+            text-align: center;
+        }
+
+        .modal-title {
+            margin-top: 0;
+            color: #5e8fb5;
+        }
+
+        .modal-body-text {
+            color: #555;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .modal-message-text {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .button-group-centered {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .button-group-flex {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .button-group-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-no-margin {
+            margin: 0;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 11px;
+            margin: 0;
+        }
+
+        .btn-small-admin {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-full-width {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .form-input-no-margin {
+            margin: 0;
+        }
+
+        .input-bottom-margin {
+            margin-bottom: 16px;
+        }
+
+        .input-prompt {
+            margin-bottom: 12px;
+        }
+
+        .input-time-picker {
+            margin: 0;
+            width: 70px;
+            text-align: center;
+        }
+
+        .input-invite-link {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .list-item-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            padding: 6px 8px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .list-item-flex {
+            flex: 1;
+            word-break: break-word;
+            color: #555;
+        }
+
+        .list-item-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .list-card-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .list-card-title {
+            color: #5e8fb5;
+            margin: 0 0 8px 0;
+        }
+
+        .list-card-meta {
+            color: #999;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .list-checkbox-row {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: white;
+        }
+
+        .list-checkbox-row.list-row-checked {
+            background: #f5f5f5;
+        }
+
+        .list-checkbox-span {
+            flex: 1;
+            color: #333;
+        }
+
+        .list-checkbox-span.list-item-checked {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .time-picker-label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .time-picker-separator {
+            font-size: 24px;
+            font-weight: bold;
+            color: #5e8fb5;
+            padding-top: 16px;
+        }
+
+        .modal-section-divider {
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+
+        .modal-section-divider-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .modal-footer-centered {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .modal-footer-centered-top {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .alert-inactive-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .list-empty-state {
+            color: #999;
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .invite-link-small-text {
+            color: #888;
+        }
+
+        .hints-banner-list {
+            margin: 6px 0 0 16px;
+            padding: 0;
+        }
+
+        .hints-banner-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #66bb6a;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .date-display-time {
+            font-size: 15px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .confirm-message {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .session-warning-text {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .legal-modal-body {
+            color: #555;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .reviews-empty-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .reviews-empty-text {
+            color: #999;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .review-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .review-stars {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .review-text {
+            color: #333;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .review-author {
+            color: #999;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        .admin-password-form {
+            margin-bottom: 15px;
+        }
+
+        .admin-form-text {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .error-reports-section {
+            margin-bottom: 40px;
+        }
+
+        .error-reports-title {
+            color: #e57373;
+            margin-bottom: 20px;
+        }
+
+        .error-report-item {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .error-report-body {
+            color: #c62828;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .error-report-date {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .feature-requests-title {
+            color: #5e8fb5;
+            margin-bottom: 20px;
+        }
+
+        .feature-requests-empty {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-request-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .feature-request-item-done {
+            background: #f5f5f5;
+            opacity: 0.6;
+        }
+
+        .feature-request-body {
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+        }
+
+        .feature-request-body-done {
+            color: #999;
+        }
+
+        .feature-request-body-open {
+            color: #333;
+        }
+
+        .feature-request-meta {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .feature-request-done-badge {
+            color: #66bb6a;
+            font-weight: 600;
+        }
+        /* ── Inline style migrations (CSP Phase 2) ──────────────── */
+        .peaceful-accept-btn {
+            margin-left: 8px;
+            background: #66bb6a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 2px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .peaceful-dismiss-btn {
+            margin-left: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #888;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #888;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .progress-background {
+            background: #e0e0e0;
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #66bb6a, #81c784);
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.4s;
+        }
+
+        .task-project-tag {
+            font-size: 11px;
+            background: #e3f2fd;
+            color: #5e8fb5;
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-left: 4px;
+        }
+
+        .task-rollover-tag {
+            font-size: 11px;
+            color: #bbb;
+            margin-left: 4px;
+        }
+
+        .task-content-flex {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .task-text-faded {
+            color: #aaa;
+        }
+
+        .edit-modal-max-width {
+            max-width: 440px;
+        }
+
+        .edit-form-wrapper {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .edit-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .edit-input-margin {
+            margin: 0 0 4px 0;
+        }
+
+        .edit-suggestion-box {
+            display: none;
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .edit-suggestion-box.show {
+            display: block;
+        }
+
+        .time-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .time-input-display {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .time-clear-button {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .edit-select-margin-large {
+            margin: 0 0 15px 0;
+        }
+
+        .edit-select-margin-zero {
+            margin: 0;
+        }
+
+        .modal-button-wrapper {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-button-margin {
+            margin: 0;
+        }
+
         /* ── Loading Spinner Overlay ──────────────────────────────── */
         .loading-spinner-overlay {
             position: fixed;
@@ -1240,156 +1812,710 @@
             margin: 0;
         }
 
-        /* ── Inline style migrations (CSP Phase 2) ──────────────── */
-        .peaceful-accept-btn {
-            margin-left: 8px;
-            background: #66bb6a;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 2px 10px;
-            cursor: pointer;
-            font-size: 12px;
+        /* ──────────────────────────────────────────────────────────
+           CSP PHASE 2: Semantic CSS Classes for Landing Page
+           ────────────────────────────────────────────────────────── */
+
+        /* ── Landing page wrapper ────────────────────────────────── */
+        .landing-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .peaceful-dismiss-btn {
-            margin-left: 4px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: #888;
+        /* ── Hero Section ──────────────────────────────────────────── */
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%);
+            border-radius: 12px;
+            margin-bottom: 40px;
         }
 
-        .modal-close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: #888;
+        .hero-title {
+            font-size: 42px;
+            color: #333;
+            margin: 0 0 10px 0;
+            font-weight: 700;
         }
 
-        .progress-labels {
+        .hero-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin: 0 0 20px 0;
+        }
+
+        .hero-button-group {
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 4px;
-        }
-
-        .progress-background {
-            background: #e0e0e0;
-            border-radius: 8px;
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: linear-gradient(90deg, #66bb6a, #81c784);
-            height: 100%;
-            border-radius: 8px;
-            transition: width 0.4s;
-        }
-
-        .task-project-tag {
-            font-size: 11px;
-            background: #e3f2fd;
-            color: #5e8fb5;
-            border-radius: 4px;
-            padding: 2px 6px;
-            margin-left: 4px;
-        }
-
-        .task-rollover-tag {
-            font-size: 11px;
-            color: #bbb;
-            margin-left: 4px;
-        }
-
-        .task-content-flex {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 15px;
+            justify-content: center;
             flex-wrap: wrap;
         }
 
-        .task-text-faded {
-            color: #aaa;
+        .signin-btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
         }
 
-        .edit-modal-max-width {
-            max-width: 440px;
+        .signup-btn {
+            padding: 15px 40px;
+            font-size: 16px;
         }
 
-        .edit-form-wrapper {
-            text-align: left;
+        .hero-help-text {
+            font-size: 13px;
+            color: #888;
+            margin: 16px 0 0 0;
+        }
+
+        .coming-soon-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .coming-soon-title {
+            color: #856404;
+            margin: 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .coming-soon-text {
+            color: #856404;
+            margin: 8px 0 0 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ── Calm Callout ──────────────────────────────────────────── */
+        .calm-callout {
+            background: #f0f5f7;
+            padding: 30px 20px;
+            border-radius: 12px;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .calm-callout-text {
+            color: #5a7c8a;
+            font-size: 15px;
+            line-height: 1.7;
+            margin: 0;
+            font-style: italic;
+        }
+
+        /* ── Features Section ──────────────────────────────────────── */
+        .features-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            color: #5e8fb5;
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        .feature-description {
+            color: #666;
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ── Get App Section ───────────────────────────────────────── */
+        .get-app-section {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .get-app-description {
+            color: #666;
+            margin: 0 0 24px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .device-selector-wrapper {
             margin-bottom: 20px;
         }
 
-        .edit-label {
+        .device-selector-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .install-instructions-panel {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            display: none;
+        }
+
+        .instructions-panel {
+            display: none;
+        }
+
+        .instructions-title {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .instructions-text {
+            color: #666;
+            margin: 12px 0;
+        }
+
+        .instructions-list {
+            color: #666;
+            padding-left: 20px;
+            margin: 12px 0;
+        }
+
+        .instructions-note {
+            color: #999;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+
+        .instructions-link {
+            color: #5e8fb5;
+        }
+
+        .install-btn-action {
+            margin-top: 12px;
+            padding: 12px 24px;
+        }
+
+        .download-link {
+            display: inline-block;
+            background: #64b5f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 4px;
+        }
+
+        /* ── Reviews Section ───────────────────────────────────────── */
+        .reviews-section {
+            margin-bottom: 60px;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .empty-review-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .empty-review-text {
+            color: #999;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* ── Footer ────────────────────────────────────────────────── */
+        .landing-footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-links {
+            margin-bottom: 16px;
+        }
+
+        .footer-link {
+            color: #5e8fb5;
+            text-decoration: none;
+            margin: 0 8px;
+            font-size: 13px;
+        }
+
+        .footer-divider {
+            color: #ddd;
+        }
+
+        .footer-copyright {
+            color: #999;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        /* ── Dismiss button ────────────────────────────────────────── */
+        .dismiss-install-btn {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        /* ── Login/Account forms ───────────────────────────────────── */
+        .login-description {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-submit-btn {
+            width: calc(100% - 20px);
+        }
+
+        .password-tip {
+            background: #fff8e1;
+            border-left: 3px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 0 auto 16px;
+            max-width: 400px;
+            text-align: left;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .invite-hint {
+            display: none;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin: 0 auto 16px;
+            max-width: 400px;
+            font-size: 14px;
+        }
+
+        /* ── Task input ────────────────────────────────────────────── */
+        .task-input-flex {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .task-input-field {
+            flex: 1;
+        }
+
+        .voice-mic-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 8px;
+            display: none;
+        }
+
+        .voice-listening-indicator {
+            display: none;
+            font-size: 12px;
+            color: #666;
+            animation: pulse 1.5s infinite;
+        }
+
+        .task-select {
+            margin: 0;
+            padding: 14px;
+        }
+
+        .task-suggestion {
+            display: none;
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+
+        /* ── Admin input groups ────────────────────────────────────── */
+        .admin-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .flex-input {
+            flex: 1;
+            margin: 0;
+        }
+
+        /* ── Back header ───────────────────────────────────────────── */
+        .back-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .back-title {
+            margin: 0;
+            color: #5e8fb5;
+        }
+
+        .flex-title {
+            flex: 1;
+        }
+
+        /* ── Lists Grid ────────────────────────────────────────────── */
+        .lists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .list-items-container {
+            margin-bottom: 15px;
+        }
+
+        .success-btn {
+            background: #66bb6a;
+        }
+
+        .new-note-btn {
+            margin-bottom: 20px;
+            padding: 12px 24px;
+        }
+
+        /* ── Note editor header ────────────────────────────────────── */
+        .note-editor-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .note-title-input {
+            margin: 0;
+            flex: 1;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .download-note-btn {
+            background: #e3f2fd;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .delete-note-btn {
+            background: #ffebee;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #e53935;
+        }
+
+        /* ── Note editor container ─────────────────────────────────── */
+        .note-editor-container {
+            display: flex;
+            gap: 12px;
+            min-height: 300px;
+        }
+
+        .note-editor-pane {
+            flex: 1;
+            min-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 15px;
+            line-height: 1.6;
+            outline: none;
+            background: #fafafa;
+            overflow-y: auto;
+            word-break: break-word;
+        }
+
+        .note-preview-pane {
+            display: none;
+            flex: 1;
+            min-height: 300px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 16px;
+            overflow-y: auto;
+            background: white;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ── Alarm inputs ──────────────────────────────────────────── */
+        .alarm-input-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .alarm-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .alarm-time-wrapper {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .alarm-label-wrapper {
+            flex: 2;
+            min-width: 200px;
+        }
+
+        .alarm-recurring-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .alarm-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .alarm-label {
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        /* ── Timer ─────────────────────────────────────────────────── */
+        .timer-container {
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 64px;
+            font-weight: bold;
+            color: #5e8fb5;
+            margin: 20px 0;
+        }
+
+        .timer-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .timer-input-unit {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .timer-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .timer-input {
+            margin: 0;
+            text-align: center;
+        }
+
+        .timer-button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pause-btn {
+            background: linear-gradient(135deg, #ffb74d 0%, #ffa726 100%);
+            display: none;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #e57373 0%, #ef5350 100%);
+        }
+
+        .timer-label-wrapper {
+            margin-top: 20px;
+        }
+
+        .timer-label-input {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        /* ── Points info box ───────────────────────────────────────── */
+        .points-info-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .points-info-title {
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 8px;
+        }
+
+        .points-info-list {
+            color: #e65100;
+            font-size: 14px;
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        /* ── Settings form ─────────────────────────────────────────── */
+        .admin-card-description {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .settings-form-group {
+            margin-bottom: 15px;
+        }
+
+        .settings-label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
             color: #666;
         }
 
-        .edit-input-margin {
-            margin: 0 0 4px 0;
+        .review-textarea {
+            margin: 0;
+            min-height: 100px;
+            padding: 12px;
         }
 
-        .edit-suggestion-box {
+        .button-icon-text {
+            font-size: 16px;
+        }
+
+        .settings-message {
+            margin-top: 10px;
+            color: #999;
+            font-size: 14px;
             display: none;
-            background: #e8f5e9;
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 12px;
-            color: #2e7d32;
-            margin-bottom: 10px;
         }
 
-        .edit-suggestion-box.show {
-            display: block;
+        .success-message {
+            margin-top: 10px;
+            color: #66bb6a;
+            display: none;
         }
 
-        .time-input-wrapper {
+        .rating-stars {
             display: flex;
             gap: 8px;
-            align-items: center;
+            font-size: 28px;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .invite-description {
             margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
         }
 
-        .time-input-display {
-            margin: 0;
-            flex: 1;
-            cursor: pointer;
+        .clear-data-description {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
         }
 
-        .time-clear-button {
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 13px;
+        .danger-btn {
+            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
         }
 
-        .edit-select-margin-large {
-            margin: 0 0 15px 0;
+        /* ── Modals ────────────────────────────────────────────────── */
+        .modal-large {
+            max-width: 700px;
         }
 
-        .edit-select-margin-zero {
-            margin: 0;
+        .modal-small {
+            max-width: 400px;
         }
 
-        .modal-button-wrapper {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .modal-button-margin {
-            margin: 0;
+        /* ── Admin Panel ───────────────────────────────────────────── */
+        .admin-panel-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         /* ── Phone responsive ────────────────────────────────────── */

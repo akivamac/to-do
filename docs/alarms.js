@@ -3,10 +3,25 @@
         let timerInterval = null;
         let timerSeconds = 0;
         let timerRunning = false;
-        let stopwatchInterval = null;
-        let stopwatchSeconds = 0;
-        let stopwatchRunning = false;
         let alarmCheckInterval = null;
+
+        // Unlock AudioContext on first user interaction (required on Android/iOS)
+        let _audioCtxUnlocked = false;
+        function _unlockAudio() {
+            if (_audioCtxUnlocked) return;
+            _audioCtxUnlocked = true;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            ctx.resume();
+        }
+        document.addEventListener('touchstart', _unlockAudio, { once: true });
+        document.addEventListener('click', _unlockAudio, { once: true });
+
+        let _alarmSoundSignal = null;
 
         async function loadAlarms() {
             const saved = localStorage.getItem('alarms');
@@ -63,7 +78,7 @@
             alarms.push(alarm);
             await saveAlarms();
             renderAlarms();
-
+            
             timeInput.value = '';
             document.getElementById('alarmTimeDisplay').textContent = 'Set alarm time';
             labelInput.value = '';
@@ -75,13 +90,12 @@
             if (!alarm) return;
 
             const modalHTML = `
-                <div class="alert-overlay" onclick="closeEditAlarmModal()"></div>
-                <div class="custom-alert" onclick="event.stopPropagation()">
+                <div class="alert-overlay" data-action="close-edit-alarm-modal"></div>
+                <div class="custom-alert">
                     <h3>Edit Alarm</h3>
                     <div class="edit-alarm-form-container">
                         <label class="edit-alarm-label">Time</label>
-                        <div id="editAlarmTimeDisplay" class="add-task-time-btn edit-alarm-input-margin"
-                            onclick="showTimePicker(document.getElementById('editAlarmTimeHidden').value, v=>{document.getElementById('editAlarmTimeHidden').value=v;document.getElementById('editAlarmTimeDisplay').textContent=formatTime(v)||'Set time';})">
+                        <div id="editAlarmTimeDisplay" class="add-task-time-btn edit-alarm-input-margin">
                             ${alarm.time ? formatTime(alarm.time) : 'Set time'}
                         </div>
                         <input type="hidden" id="editAlarmTimeHidden" value="${alarm.time}" />
@@ -95,8 +109,8 @@
                         </div>
                     </div>
                     <div class="edit-alarm-buttons">
-                        <button class="login-btn edit-alarm-button" onclick="saveEditAlarm(${id})">Save</button>
-                        <button class="login-btn back-btn edit-alarm-button" onclick="closeEditAlarmModal()">Cancel</button>
+                        <button class="login-btn edit-alarm-button" data-action="save-edit-alarm" data-id="${id}">Save</button>
+                        <button class="login-btn back-btn edit-alarm-button" data-action="close-edit-alarm-modal">Cancel</button>
                     </div>
                 </div>
             `;
@@ -145,6 +159,7 @@
             id = parseInt(id);
             const alarm = alarms.find(a => a.id === id);
             if (alarm) {
+                if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); _alarmSoundSignal = null; }
                 alarm.ringing = false;
                 alarm.active = false;
                 if (alarm.recurring) {
@@ -164,7 +179,7 @@
             const currentMinute = now.getHours() * 60 + now.getMinutes();
 
             alarms.forEach(alarm => {
-                const alarmMinute = parseInt(alarm.time.split(':')[0]) * 60 + parseInt(alarm.time.split(':')[1]);
+                const alarmMinute = timeToMinutes(alarm.time);
 
                 // Check if alarm should ring
                 if (alarm.active && alarm.time === currentTime && !alarm.ringing) {
@@ -175,7 +190,7 @@
                     playAlarmSound();
                     showAlarmNotification(alarm);
                 }
-                
+
                 // Reset ringing status if time has passed and alarm is recurring
                 if (alarm.ringing && alarm.recurring && currentMinute !== alarmMinute) {
                     alarm.ringing = false;
@@ -192,55 +207,30 @@
             });
         }
 
-        function playAlarmSound() {
-            // Create beep sound
+        function playAlarmSound(stopSignal) {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-            
-            // Repeat 3 times
-            setTimeout(() => {
-                const osc2 = audioContext.createOscillator();
-                const gain2 = audioContext.createGain();
-                osc2.connect(gain2);
-                gain2.connect(audioContext.destination);
-                osc2.frequency.value = 800;
-                gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                osc2.start(audioContext.currentTime);
-                osc2.stop(audioContext.currentTime + 0.5);
-            }, 600);
-            
-            setTimeout(() => {
-                const osc3 = audioContext.createOscillator();
-                const gain3 = audioContext.createGain();
-                osc3.connect(gain3);
-                gain3.connect(audioContext.destination);
-                osc3.frequency.value = 800;
-                gain3.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gain3.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                osc3.start(audioContext.currentTime);
-                osc3.stop(audioContext.currentTime + 0.5);
-            }, 1200);
+            audioContext.resume().then(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            });
+            if (stopSignal && !stopSignal.stopped) {
+                stopSignal._timer = setTimeout(() => playAlarmSound(stopSignal), 700);
+            }
         }
 
         function showAlarmNotification(alarm) {
-            // Play sound multiple times
-            playAlarmSound();
-            setTimeout(playAlarmSound, 1000);
-            setTimeout(playAlarmSound, 2000);
+            // Play sound with looping signal
+            if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); }
+            _alarmSoundSignal = { stopped: false };
+            playAlarmSound(_alarmSoundSignal);
             
             // Browser notification - works even when in other apps
             if ('Notification' in window && Notification.permission === 'granted') {
@@ -274,7 +264,7 @@
             // Show custom alert popup
             showCustomAlert(
                 `<div class="alarm-notification-label">${escapeHtml(alarm.label)}</div>
-                <button class="login-btn alarm-dismiss-button" onclick="dismissAlarm(${alarm.id});">Dismiss Alarm</button>`,
+                <button class="login-btn alarm-dismiss-button" data-action="dismiss-alarm" data-id="${alarm.id}">Dismiss Alarm</button>`,
                 '⏰ Alarm Ringing!',
                 false
             );
@@ -299,14 +289,14 @@
 
                 div.innerHTML = `
                     <div class="alarm-info">
-                        <div class="alarm-time">${escapeHtml(alarm.time)}</div>
+                        <div class="alarm-time">${formatTime(alarm.time)}</div>
                         <div class="alarm-label">${escapeHtml(alarm.label)}${alarm.recurring ? ' 🔄' : ''}</div>
                     </div>
                     <div class="alarm-actions">
-                        ${alarm.ringing ? '<button class="login-btn alarm-button-small" onclick="dismissAlarm(' + alarm.id + ')">Dismiss</button>' : ''}
-                        <button class="edit-btn edit-button-small" onclick="editAlarm(${alarm.id})">Edit</button>
-                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})" role="switch" aria-checked="${visuallyActive ? 'true' : 'false'}" aria-label="Toggle alarm" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter')toggleAlarm(${alarm.id})"></div>
-                        <button class="delete-btn" onclick="deleteAlarm(${alarm.id})">Delete</button>
+                        ${alarm.ringing ? `<button class="login-btn alarm-button-small" data-action="dismiss-alarm" data-id="${alarm.id}">Dismiss</button>` : ''}
+                        <button class="edit-btn edit-button-small" data-action="edit-alarm" data-id="${alarm.id}">Edit</button>
+                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" data-action="toggle-alarm" data-id="${alarm.id}" role="switch" aria-checked="${visuallyActive ? 'true' : 'false'}" aria-label="Toggle alarm" tabindex="0"></div>
+                        <button class="delete-btn" data-action="delete-alarm" data-id="${alarm.id}">Delete</button>
                     </div>
                 `;
 
@@ -339,10 +329,10 @@
                     updateTimerDisplay();
                 } else {
                     pauseTimer();
-                    playAlarmSound();
-                    setTimeout(playAlarmSound, 1000);
-                    setTimeout(playAlarmSound, 2000);
-                    
+                    if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); }
+                    _alarmSoundSignal = { stopped: false };
+                    playAlarmSound(_alarmSoundSignal);
+
                     const label = document.getElementById('timerLabel').value || 'Timer';
                     
                     // Browser notification - works even in other apps
@@ -392,40 +382,6 @@
             const seconds = timerSeconds % 60;
             
             document.getElementById('timerDisplay').textContent = 
-                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        // Stopwatch functions
-        function startStopwatch() {
-            stopwatchRunning = true;
-            document.getElementById('startStopwatchBtn').style.display = 'none';
-            document.getElementById('pauseStopwatchBtn').style.display = 'inline-block';
-            
-            stopwatchInterval = setInterval(() => {
-                stopwatchSeconds++;
-                updateStopwatchDisplay();
-            }, 1000);
-        }
-
-        function pauseStopwatch() {
-            stopwatchRunning = false;
-            clearInterval(stopwatchInterval);
-            document.getElementById('startStopwatchBtn').style.display = 'inline-block';
-            document.getElementById('pauseStopwatchBtn').style.display = 'none';
-        }
-
-        function resetStopwatch() {
-            pauseStopwatch();
-            stopwatchSeconds = 0;
-            updateStopwatchDisplay();
-        }
-
-        function updateStopwatchDisplay() {
-            const hours = Math.floor(stopwatchSeconds / 3600);
-            const minutes = Math.floor((stopwatchSeconds % 3600) / 60);
-            const seconds = stopwatchSeconds % 60;
-            
-            document.getElementById('stopwatchDisplay').textContent = 
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 

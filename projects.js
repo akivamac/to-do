@@ -42,10 +42,10 @@
                 card.className = 'project-card';
                 card.innerHTML = `
                     <div class="project-header">
-                        <span class="project-name" onclick="showProjectTasks('${p.id}')">${p.name}</span>
+                        <span class="project-name" data-action="show-project-tasks" data-id="${p.id}">${p.name}</span>
                         <div class="project-actions">
-                            <button onclick="renameProject('${p.id}')" class="project-btn project-rename-btn">Rename</button>
-                            <button onclick="deleteProject('${p.id}')" class="project-btn project-delete-btn">Delete</button>
+                            <button data-action="rename-project" data-id="${p.id}" class="project-btn project-rename-btn">Rename</button>
+                            <button data-action="delete-project" data-id="${p.id}" class="project-btn project-delete-btn">Delete</button>
                         </div>
                     </div>
                     <div class="progress-bar-container">
@@ -143,7 +143,7 @@
             } else {
                 taskList.innerHTML = allTasks.map(t => `
                     <div class="project-task-item${t.completed ? ' completed' : ''}">
-                        <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="toggleProjectTask(${t.id}, '${t.date}')">
+                        <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} data-action="toggle-project-task" data-id="${t.id}" data-date="${t.date}">
                         <span class="project-task-text${t.completed ? ' completed' : ''}">${escapeHtml(t.text)}</span>
                         <span class="project-task-date">${escapeHtml(t.date)}</span>
                     </div>

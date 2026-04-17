@@ -90,13 +90,12 @@
             if (!alarm) return;
 
             const modalHTML = `
-                <div class="alert-overlay" onclick="closeEditAlarmModal()"></div>
-                <div class="custom-alert" onclick="event.stopPropagation()">
+                <div class="alert-overlay" data-action="close-edit-alarm-modal"></div>
+                <div class="custom-alert">
                     <h3>Edit Alarm</h3>
                     <div class="edit-alarm-form-container">
                         <label class="edit-alarm-label">Time</label>
-                        <div id="editAlarmTimeDisplay" class="add-task-time-btn edit-alarm-input-margin"
-                            onclick="showTimePicker(document.getElementById('editAlarmTimeHidden').value, v=>{document.getElementById('editAlarmTimeHidden').value=v;document.getElementById('editAlarmTimeDisplay').textContent=formatTime(v)||'Set time';})">
+                        <div id="editAlarmTimeDisplay" class="add-task-time-btn edit-alarm-input-margin">
                             ${alarm.time ? formatTime(alarm.time) : 'Set time'}
                         </div>
                         <input type="hidden" id="editAlarmTimeHidden" value="${alarm.time}" />
@@ -110,8 +109,8 @@
                         </div>
                     </div>
                     <div class="edit-alarm-buttons">
-                        <button class="login-btn edit-alarm-button" onclick="saveEditAlarm(${id})">Save</button>
-                        <button class="login-btn back-btn edit-alarm-button" onclick="closeEditAlarmModal()">Cancel</button>
+                        <button class="login-btn edit-alarm-button" data-action="save-edit-alarm" data-id="${id}">Save</button>
+                        <button class="login-btn back-btn edit-alarm-button" data-action="close-edit-alarm-modal">Cancel</button>
                     </div>
                 </div>
             `;
@@ -265,7 +264,7 @@
             // Show custom alert popup
             showCustomAlert(
                 `<div class="alarm-notification-label">${escapeHtml(alarm.label)}</div>
-                <button class="login-btn alarm-dismiss-button" onclick="dismissAlarm(${alarm.id});">Dismiss Alarm</button>`,
+                <button class="login-btn alarm-dismiss-button" data-action="dismiss-alarm" data-id="${alarm.id}">Dismiss Alarm</button>`,
                 '⏰ Alarm Ringing!',
                 false
             );
@@ -294,10 +293,10 @@
                         <div class="alarm-label">${escapeHtml(alarm.label)}${alarm.recurring ? ' 🔄' : ''}</div>
                     </div>
                     <div class="alarm-actions">
-                        ${alarm.ringing ? '<button class="login-btn alarm-button-small" onclick="dismissAlarm(' + alarm.id + ')">Dismiss</button>' : ''}
-                        <button class="edit-btn edit-button-small" onclick="editAlarm(${alarm.id})">Edit</button>
-                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" onclick="toggleAlarm(${alarm.id})" role="switch" aria-checked="${visuallyActive ? 'true' : 'false'}" aria-label="Toggle alarm" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter')toggleAlarm(${alarm.id})"></div>
-                        <button class="delete-btn" onclick="deleteAlarm(${alarm.id})">Delete</button>
+                        ${alarm.ringing ? `<button class="login-btn alarm-button-small" data-action="dismiss-alarm" data-id="${alarm.id}">Dismiss</button>` : ''}
+                        <button class="edit-btn edit-button-small" data-action="edit-alarm" data-id="${alarm.id}">Edit</button>
+                        <div class="alarm-toggle ${visuallyActive ? 'active' : ''}" data-action="toggle-alarm" data-id="${alarm.id}" role="switch" aria-checked="${visuallyActive ? 'true' : 'false'}" aria-label="Toggle alarm" tabindex="0"></div>
+                        <button class="delete-btn" data-action="delete-alarm" data-id="${alarm.id}">Delete</button>
                     </div>
                 `;
 

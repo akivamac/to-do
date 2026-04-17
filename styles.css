@@ -1263,10 +1263,21 @@
             padding: 8px;
             border-radius: 4px;
             margin-bottom: 8px;
+            background: white;
+        }
+
+        .list-checkbox-row.list-row-checked {
+            background: #f5f5f5;
         }
 
         .list-checkbox-span {
             flex: 1;
+            color: #333;
+        }
+
+        .list-checkbox-span.list-item-checked {
+            text-decoration: line-through;
+            color: #999;
         }
 
         .time-picker-label {

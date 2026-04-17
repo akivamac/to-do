@@ -317,6 +317,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (cp) cp.remove();
                 break;
             }
+            case 'close-past-incomplete': {
+                const pi = document.getElementById('pastIncompleteModal');
+                if (pi) pi.remove();
+                break;
+            }
+
+            // Lists
+            case 'open-list-detail':
+                openListDetail(el.dataset.id);
+                break;
             case 'dismiss-hints-banner': {
                 const hb = document.getElementById('hintsBanner');
                 if (hb) hb.remove();
@@ -367,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'complete-past-task':
                 completePastTask(el.dataset.date, parseInt(el.dataset.idx));
+                break;
+            case 'toggle-list-item':
+                toggleListItem(el.dataset.id, parseInt(el.dataset.idx));
                 break;
         }
     });

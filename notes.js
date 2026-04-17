@@ -85,7 +85,7 @@
             // Sort newest-updated first
             const sorted = [...notes].sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
             list.innerHTML = sorted.map(n => `
-                <div class="card notes-card" onclick="openNote(${n.id})">
+                <div class="card notes-card" data-action="open-note" data-id="${n.id}">
                     <div class="notes-card-title">${escapeHtml(n.title || 'Untitled')}</div>
                     <div class="notes-card-meta">Updated ${new Date(n.updatedAt || n.createdAt).toLocaleDateString()}</div>
                 </div>
