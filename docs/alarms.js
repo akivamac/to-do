@@ -231,7 +231,16 @@
             if (_alarmSoundSignal) { _alarmSoundSignal.stopped = true; clearTimeout(_alarmSoundSignal._timer); }
             _alarmSoundSignal = { stopped: false };
             playAlarmSound(_alarmSoundSignal);
-            
+
+            // Stop alarm sound after 60 seconds even if not dismissed
+            setTimeout(() => {
+                if (_alarmSoundSignal) {
+                    _alarmSoundSignal.stopped = true;
+                    clearTimeout(_alarmSoundSignal._timer);
+                    _alarmSoundSignal = null;
+                }
+            }, 60000);
+
             // Browser notification - works even when in other apps
             if ('Notification' in window && Notification.permission === 'granted') {
                 const notification = new Notification('⏰ Alarm Ringing!', {
@@ -374,6 +383,7 @@
             document.getElementById('timerHours').value = 0;
             document.getElementById('timerMinutes').value = 0;
             document.getElementById('timerSeconds').value = 0;
+            document.getElementById('timerLabel').value = '';
         }
 
         function updateTimerDisplay() {
