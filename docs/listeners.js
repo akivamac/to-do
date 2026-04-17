@@ -151,7 +151,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Settings tab — admin access trigger on trash icon
     const adminTrigger = document.getElementById('adminAccessTrigger');
     if (adminTrigger) {
-        adminTrigger.addEventListener('click', (e) => openAdminAccess(e));
+        adminTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openAdminAccess(e);
+        });
     }
 
     // Alarms tab
