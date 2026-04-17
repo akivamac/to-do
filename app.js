@@ -1746,57 +1746,49 @@ function cancelLongPress() {
 }
 
 async function openAdminAccess(event) {
-    event.preventDefault();
+    const storedHash = localStorage.getItem('_pt_admin_hash');
+    const modal = document.getElementById('adminAccessModal');
+    const contentDiv = document.getElementById('adminAccessContent');
 
-    if (!bsIsConfigured()) {
-        showCustomAlert('Admin access requires Backside to be configured. Contact the administrator.');
-        return;
-    }
-
-    const contactId = localStorage.getItem('currentContactId');
-    if (!contactId) return;
-
-    try {
-        const contacts = await bsFetchContacts();
-        const contact = contacts.find(c => c.id === contactId);
-
-        if (!contact) return;
-
-        const adminPasswordHash = contact.metadata?.admin_password_hash;
-        const modal = document.getElementById('adminAccessModal');
-        const contentDiv = document.getElementById('adminAccessContent');
-
-        if (!adminPasswordHash) {
-            // First-time setup
-            contentDiv.innerHTML = `
-                <p class="admin-form-text">Set your admin password to secure access</p>
-                <div class="form-group">
-                    <label class="form-group-label">Admin Password</label>
-                    <input type="password" id="adminPassword1" class="login-input form-input-no-margin" placeholder="Enter password" />
-                </div>
-                <div class="form-group">
-                    <label class="form-group-label">Confirm Password</label>
-                    <input type="password" id="adminPassword2" class="login-input form-input-no-margin" placeholder="Confirm password" />
-                </div>
-                <button class="login-btn btn-full-width" data-action="set-admin-password">Set Password</button>
-                <div id="adminAccessError" class="login-error"></div>
-            `;
-        } else {
-            // Password entry
-            contentDiv.innerHTML = `
-                <p class="admin-form-text">Enter your admin password</p>
-                <div class="form-group">
-                    <input type="password" id="adminPasswordEntry" class="login-input form-input-no-margin" placeholder="Admin password" />
-                </div>
-                <button class="login-btn btn-full-width" data-action="verify-admin-password">Access Panel</button>
-                <div id="adminAccessError" class="login-error"></div>
-            `;
-        }
-
+    if (!storedHash) {
+        contentDiv.innerHTML = `
+            <p>Set your admin password</p>
+            <input type="password" id="adminPassword1" class="login-input" style="margin-bottom:10px;" placeholder="Enter password" />
+            <input type="password" id="adminPassword2" class="login-input" style="margin-bottom:10px;" placeholder="Confirm password" />
+            <button class="login-btn" id="adminSetBtn">Set Password</button>
+            <div id="adminAccessError" class="login-error"></div>
+        `;
         modal.classList.remove('hidden');
-    } catch (e) {
-        console.error('Error opening admin access:', e);
-        showCustomAlert('Error accessing admin panel');
+        document.getElementById('adminSetBtn').addEventListener('click', async () => {
+            const p1 = document.getElementById('adminPassword1').value;
+            const p2 = document.getElementById('adminPassword2').value;
+            if (!p1 || p1 !== p2) {
+                document.getElementById('adminAccessError').textContent = 'Passwords do not match';
+                return;
+            }
+            const hash = await sha256hex(p1);
+            localStorage.setItem('_pt_admin_hash', hash);
+            closeAdminAccess();
+            openAdminPanel();
+        });
+    } else {
+        contentDiv.innerHTML = `
+            <p>Enter your admin password</p>
+            <input type="password" id="adminPasswordEntry" class="login-input" style="margin-bottom:10px;" placeholder="Admin password" />
+            <button class="login-btn" id="adminVerifyBtn">Access Panel</button>
+            <div id="adminAccessError" class="login-error"></div>
+        `;
+        modal.classList.remove('hidden');
+        document.getElementById('adminVerifyBtn').addEventListener('click', async () => {
+            const pwd = document.getElementById('adminPasswordEntry').value;
+            const hash = await sha256hex(pwd);
+            if (hash !== storedHash) {
+                document.getElementById('adminAccessError').textContent = 'Incorrect password';
+                return;
+            }
+            closeAdminAccess();
+            openAdminPanel();
+        });
     }
 }
 
