@@ -49,11 +49,12 @@
                         </div>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar-fill" style="--progress-width: ${pct}%"></div>
+                        <div class="progress-bar-fill"></div>
                     </div>
                     <span class="progress-label">${done}/${total} tasks (${pct}%)</span>
                 `;
                 list.appendChild(card);
+                card.querySelector('.progress-bar-fill').style.setProperty('--progress-width', pct + '%');
             });
         }
 

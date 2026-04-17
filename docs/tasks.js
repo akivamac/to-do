@@ -328,8 +328,12 @@
                     <span>${done} of ${total} tasks completed</span><span>${pct}%</span>
                 </div>
                 <div class="progress-background">
-                    <div class="progress-fill" style="width:${pct}%;"></div>
+                    <div class="progress-fill" id="todayProgressFill"></div>
                 </div>`;
+            if (total > 0) {
+                const fill = document.getElementById('todayProgressFill');
+                if (fill) fill.style.width = pct + '%';
+            }
 
             if (todayTasks.length === 0) {
                 taskList.innerHTML = '<div class="empty-state">No tasks for today. Add one above! 📝</div>';
