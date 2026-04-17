@@ -148,6 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
         totalHugs.addEventListener('touchend', cancelLongPress);
     }
 
+    // Settings tab — admin access trigger on trash icon
+    const adminTrigger = document.getElementById('adminAccessTrigger');
+    if (adminTrigger) {
+        adminTrigger.addEventListener('click', (e) => openAdminAccess(e));
+    }
+
     // Alarms tab
     const alarmTimeDisplay = document.getElementById('alarmTimeDisplay');
     if (alarmTimeDisplay) alarmTimeDisplay.addEventListener('click', () => {

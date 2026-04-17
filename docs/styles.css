@@ -2757,3 +2757,5 @@
     padding: 10px 20px;
     margin-top: 6px;
 }
+
+#adminAccessTrigger { cursor: pointer; }
