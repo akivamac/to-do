@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch (action) {
             case 'toggle-task':
-                toggleTask(parseInt(el.dataset.index));
+                toggleTask(parseInt(el.dataset.taskId));
                 break;
             case 'toggle-edit-day-task':
                 toggleEditDayTask(parseInt(el.dataset.index));

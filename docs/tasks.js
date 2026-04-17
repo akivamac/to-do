@@ -355,6 +355,7 @@
                 taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
                 taskDiv.draggable = true;
                 taskDiv.dataset.index = index;
+                taskDiv.dataset.taskId = task.id;
 
                 taskDiv.addEventListener('dragstart', handleDragStart);
                 taskDiv.addEventListener('dragover', handleDragOver);
@@ -382,7 +383,7 @@
 
                 taskDiv.innerHTML = `
                     <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-action="toggle-task" data-index="${index}">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-action="toggle-task" data-task-id="${task.id}">
                     <div class="task-content-flex">
                         <span class="task-text ${task.rolledFrom ? 'task-text-faded' : ''}">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
@@ -437,9 +438,10 @@
             if (projectInput) projectInput.value = '';
         }
 
-        async function toggleTask(index) {
+        async function toggleTask(taskId) {
             const today = formatDate(new Date());
-            const task = tasks[today][index];
+            const task = tasks[today].find(t => t.id === taskId);
+            if (!task) return;
             const wasCompleted = task.completed;
             task.completed = !task.completed;
 
