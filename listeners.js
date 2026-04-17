@@ -378,6 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'verify-admin-password':
                 verifyAdminPassword();
                 break;
+            case 'dismiss-points-info':
+                document.getElementById('pointsInfoBox').style.display = 'none';
+                localStorage.setItem('_pt_points_info_dismissed', '1');
+                break;
             case 'note-underline':
                 noteFormat('underline');
                 break;

@@ -759,6 +759,10 @@ function showTab(tabName) {
     } else if (tabName === 'points') {
         document.getElementById('pointsTab').classList.remove('hidden');
         renderPoints();
+        const pointsBox = document.getElementById('pointsInfoBox');
+        if (pointsBox) {
+            pointsBox.style.display = localStorage.getItem('_pt_points_info_dismissed') ? 'none' : 'block';
+        }
     } else if (tabName === 'alarms') {
         document.getElementById('alarmsTab').classList.remove('hidden');
         renderAlarms();

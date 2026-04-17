@@ -476,7 +476,8 @@
                     <div class="points-label">Available Points</div>
                 </div>
                 
-                <div class="points-info-box">
+                <div id="pointsInfoBox" class="points-info-box">
+                    <button data-action="dismiss-points-info" class="points-info-dismiss">×</button>
                     <div class="points-info-title">💡 How Points Work</div>
                     <ul class="points-info-list">
                         <li>Complete 5 tasks → Earn 100 points</li>
@@ -609,7 +610,7 @@
                 <!-- Submit a Feature Request Section -->
                 <div class="admin-card">
                     <h3>💡 Submit a Feature Request</h3>
-                    <p class="admin-card-description">Have an idea to make Peaceful Tasks better?</p>
+                    <p class="feature-request-desc">Have an idea to make Peaceful Tasks better? Submit a feature request. We try to check and fix everything daily (except weekends), but that isn't a promise.</p>
                     <div class="settings-form-group">
                         <label class="settings-label">What would you like to see?</label>
                         <textarea id="featureRequestText" class="login-input review-textarea" placeholder="Describe your feature idea..."></textarea>
