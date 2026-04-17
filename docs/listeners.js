@@ -323,6 +323,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('_hintsDismissed', '1');
                 break;
             }
+            case 'dismiss-dblclick-tip': {
+                const tip = document.getElementById('dblClickTip');
+                if (tip) tip.remove();
+                sessionStorage.setItem('_dblClickTip', '1');
+                break;
+            }
             case 'close-time-picker': {
                 const tp = document.getElementById('timePickerModal');
                 if (tp) tp.remove();

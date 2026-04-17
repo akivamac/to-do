@@ -236,7 +236,7 @@
                 'border-radius:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;' +
                 'align-items:center;margin-bottom:8px;';
             el.innerHTML = `<span>✏️ Tip: you can also <strong>double-click</strong> a task to edit it</span>
-                <button class="modal-close-btn" onclick="this.parentElement.remove();sessionStorage.setItem('_dblClickTip','1')">×</button>`;
+                <button class="modal-close-btn" data-action="dismiss-dblclick-tip">×</button>`;
             const taskList = document.getElementById('taskList');
             if (taskList) taskList.before(el);
         }
@@ -369,14 +369,14 @@
 
                 taskDiv.innerHTML = `
                     <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-action="toggle-task" data-index="${index}">
                     <div class="task-content-flex">
                         <span class="task-text ${task.rolledFrom ? 'task-text-faded' : ''}">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTag}${rolloverTag}
                     </div>
-                    <button class="task-edit-btn" onclick="editTask(${index}, false)" title="Edit task" aria-label="Edit task">✏️</button>
-                    <button class="task-delete" onclick="deleteTask(${index})" aria-label="Delete task">Delete</button>
+                    <button class="task-edit-btn" data-action="edit-task" data-index="${index}" data-is-edit-day="false" title="Edit task" aria-label="Edit task">✏️</button>
+                    <button class="task-delete" data-action="delete-task" data-index="${index}" aria-label="Delete task">Delete</button>
                 `;
 
                 taskList.appendChild(taskDiv);
@@ -478,22 +478,20 @@
             const modalDiv = document.createElement('div');
             modalDiv.id = 'editTaskModal';
             modalDiv.innerHTML = `
-                <div class="alert-overlay" onclick="closeEditTaskModal()"></div>
-                <div class="custom-alert edit-modal-max-width" onclick="event.stopPropagation()">
+                <div class="alert-overlay" data-action="close-edit-task-modal"></div>
+                <div class="custom-alert edit-modal-max-width">
                     <h3>Edit Task</h3>
                     <div class="edit-form-wrapper">
                         <label class="edit-label">Task</label>
-                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input edit-input-margin"
-                            oninput="showPeacefulSuggestion('editTaskText','editTaskSuggestion')" />
+                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input edit-input-margin" />
                         <div id="editTaskSuggestion" class="edit-suggestion-box"></div>
 
                         <label class="edit-label">Time</label>
                         <div class="time-input-wrapper">
                             <input type="text" id="editTaskTimeDisplay" readonly class="login-input time-input-display"
-                                placeholder="No time" value="${task.time ? formatTime(task.time) : ''}"
-                                onclick="showTimePicker(document.getElementById('editTaskTimeHidden').value, v=>{document.getElementById('editTaskTimeHidden').value=v;document.getElementById('editTaskTimeDisplay').value=formatTime(v);})" />
+                                placeholder="No time" value="${task.time ? formatTime(task.time) : ''}" />
                             <input type="hidden" id="editTaskTimeHidden" value="${task.time||''}" />
-                            <button type="button" class="time-clear-button" onclick="document.getElementById('editTaskTimeHidden').value='';document.getElementById('editTaskTimeDisplay').value='';">Clear</button>
+                            <button type="button" class="time-clear-button" data-action="clear-edit-task-time">Clear</button>
                         </div>
 
                         <label class="edit-label">Project</label>
@@ -507,8 +505,8 @@
                         </select>
                     </div>
                     <div class="modal-button-wrapper">
-                        <button class="login-btn modal-button-margin" onclick="saveEditTask(${index}, ${isEditDay})">Save</button>
-                        <button class="login-btn back-btn modal-button-margin" onclick="closeEditTaskModal()">Cancel</button>
+                        <button class="login-btn modal-button-margin" data-action="save-edit-task" data-index="${index}" data-is-edit-day="${isEditDay}">Save</button>
+                        <button class="login-btn back-btn modal-button-margin" data-action="close-edit-task-modal">Cancel</button>
                     </div>
                 </div>`;
             document.body.appendChild(modalDiv);
@@ -713,14 +711,14 @@
                 }
                 taskDiv.innerHTML = `
                     <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-action="toggle-edit-day-task" data-index="${index}">
                     <div class="task-content-flex">
                         <span class="task-text">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTagED}
                     </div>
-                    <button class="task-edit-btn" onclick="editTask(${index}, true)" title="Edit task" aria-label="Edit task">✏️</button>
-                    <button class="task-delete" onclick="deleteEditDayTask(${index})" aria-label="Delete task">Delete</button>
+                    <button class="task-edit-btn" data-action="edit-task" data-index="${index}" data-is-edit-day="true" title="Edit task" aria-label="Edit task">✏️</button>
+                    <button class="task-delete" data-action="delete-edit-day-task" data-index="${index}" aria-label="Delete task">Delete</button>
                 `;
                 
                 taskList.appendChild(taskDiv);

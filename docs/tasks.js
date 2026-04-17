@@ -191,20 +191,40 @@
             const suggestion = getPeacefulSuggestion(input.value);
             if (suggestion) {
                 box.innerHTML = `💚 Calmer wording: <em>"${escapeHtml(suggestion)}"</em>
-                    <button class="peaceful-accept-btn" onclick="acceptSuggestion('${inputId}','${escapeHtml(suggestion).replace(/'/g,"\\'")}')" >Use this</button>
-                    <button class="peaceful-dismiss-btn" onclick="document.getElementById('${suggestionId}').style.display='none'">×</button>`;
+                    <button class="peaceful-accept-btn"
+                        data-input-id="${escapeHtml(inputId)}"
+                        data-suggestion="${escapeHtml(suggestion)}"
+                        data-box-id="${escapeHtml(suggestionId)}">Use this</button>
+                    <button class="peaceful-dismiss-btn"
+                        data-box-id="${escapeHtml(suggestionId)}">×</button>`;
                 box.style.display = 'block';
+
+                // Event delegation for buttons
+                const acceptBtn = box.querySelector('.peaceful-accept-btn');
+                const dismissBtn = box.querySelector('.peaceful-dismiss-btn');
+
+                if (acceptBtn) {
+                    acceptBtn.onclick = () => {
+                        const iId = acceptBtn.dataset.inputId;
+                        const suggestion = acceptBtn.dataset.suggestion;
+                        const bId = acceptBtn.dataset.boxId;
+                        const inp = document.getElementById(iId);
+                        if (inp) inp.value = suggestion;
+                        const b = document.getElementById(bId);
+                        if (b) b.style.display = 'none';
+                    };
+                }
+
+                if (dismissBtn) {
+                    dismissBtn.onclick = () => {
+                        const bId = dismissBtn.dataset.boxId;
+                        const b = document.getElementById(bId);
+                        if (b) b.style.display = 'none';
+                    };
+                }
             } else {
                 box.style.display = 'none';
             }
-        }
-
-        function acceptSuggestion(inputId, value) {
-            const input = document.getElementById(inputId);
-            if (input) input.value = value;
-            const suggestionId = inputId.replace('Input','Suggestion').replace('Text','Suggestion');
-            const box = document.getElementById(suggestionId);
-            if (box) box.style.display = 'none';
         }
 
         // ── Double-click tooltip (once per session) ──────────────────
@@ -216,13 +236,13 @@
                 'border-radius:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;' +
                 'align-items:center;margin-bottom:8px;';
             el.innerHTML = `<span>✏️ Tip: you can also <strong>double-click</strong> a task to edit it</span>
-                <button class="modal-close-btn" onclick="this.parentElement.remove();sessionStorage.setItem('_dblClickTip','1')">×</button>`;
+                <button class="modal-close-btn" data-action="dismiss-dblclick-tip">×</button>`;
             const taskList = document.getElementById('taskList');
             if (taskList) taskList.before(el);
         }
 
         function populateAssignDropdowns() {
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const actualUsername = currentUser.includes('::') ? currentUser.split('::')[0] : currentUser;
             const currentAccount = accounts[actualUsername];
             
@@ -348,15 +368,15 @@
                 }
 
                 taskDiv.innerHTML = `
-                    <span class="drag-handle">☰</span>
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
+                    <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-action="toggle-task" data-index="${index}">
                     <div class="task-content-flex">
                         <span class="task-text ${task.rolledFrom ? 'task-text-faded' : ''}">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTag}${rolloverTag}
                     </div>
-                    <button class="task-edit-btn" onclick="editTask(${index}, false)" title="Edit task">✏️</button>
-                    <button class="task-delete" onclick="deleteTask(${index})">Delete</button>
+                    <button class="task-edit-btn" data-action="edit-task" data-index="${index}" data-is-edit-day="false" title="Edit task" aria-label="Edit task">✏️</button>
+                    <button class="task-delete" data-action="delete-task" data-index="${index}" aria-label="Delete task">Delete</button>
                 `;
 
                 taskList.appendChild(taskDiv);
@@ -393,7 +413,9 @@
             syncData();
 
             if (bsIsConfigured()) {
-                bsSyncTask(task, today).catch(e => showApiError('Could not sync task: ' + e.message));
+                bsSyncTask(task, today)
+                    .then(() => showApiError('✓ Task synced to Backside'))
+                    .catch(e => showApiError('✗ Could not sync task: ' + e.message));
             }
 
             input.value = '';
@@ -436,7 +458,7 @@
             const dateStr = isEditDay ? currentEditDay : formatDate(new Date());
             const task = tasks[dateStr][index];
 
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const currentAccount = accounts[(currentUser || '').split('::')[0]];
             let memberOptions = '<option value="">No one</option>';
             if (currentAccount?.type === 'group') {
@@ -456,22 +478,20 @@
             const modalDiv = document.createElement('div');
             modalDiv.id = 'editTaskModal';
             modalDiv.innerHTML = `
-                <div class="alert-overlay" onclick="closeEditTaskModal()"></div>
-                <div class="custom-alert edit-modal-max-width" onclick="event.stopPropagation()">
+                <div class="alert-overlay" data-action="close-edit-task-modal"></div>
+                <div class="custom-alert edit-modal-max-width">
                     <h3>Edit Task</h3>
                     <div class="edit-form-wrapper">
                         <label class="edit-label">Task</label>
-                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input edit-input-margin"
-                            oninput="showPeacefulSuggestion('editTaskText','editTaskSuggestion')" />
+                        <input type="text" id="editTaskText" value="${escapeHtml(task.text)}" class="login-input edit-input-margin" />
                         <div id="editTaskSuggestion" class="edit-suggestion-box"></div>
 
                         <label class="edit-label">Time</label>
                         <div class="time-input-wrapper">
                             <input type="text" id="editTaskTimeDisplay" readonly class="login-input time-input-display"
-                                placeholder="No time" value="${task.time ? formatTime(task.time) : ''}"
-                                onclick="showTimePicker(document.getElementById('editTaskTimeHidden').value, v=>{document.getElementById('editTaskTimeHidden').value=v;document.getElementById('editTaskTimeDisplay').value=formatTime(v);})" />
+                                placeholder="No time" value="${task.time ? formatTime(task.time) : ''}" />
                             <input type="hidden" id="editTaskTimeHidden" value="${task.time||''}" />
-                            <button type="button" class="time-clear-button" onclick="document.getElementById('editTaskTimeHidden').value='';document.getElementById('editTaskTimeDisplay').value='';">Clear</button>
+                            <button type="button" class="time-clear-button" data-action="clear-edit-task-time">Clear</button>
                         </div>
 
                         <label class="edit-label">Project</label>
@@ -485,8 +505,8 @@
                         </select>
                     </div>
                     <div class="modal-button-wrapper">
-                        <button class="login-btn modal-button-margin" onclick="saveEditTask(${index}, ${isEditDay})">Save</button>
-                        <button class="login-btn back-btn modal-button-margin" onclick="closeEditTaskModal()">Cancel</button>
+                        <button class="login-btn modal-button-margin" data-action="save-edit-task" data-index="${index}" data-is-edit-day="${isEditDay}">Save</button>
+                        <button class="login-btn back-btn modal-button-margin" data-action="close-edit-task-modal">Cancel</button>
                     </div>
                 </div>`;
             document.body.appendChild(modalDiv);
@@ -691,14 +711,14 @@
                 }
                 taskDiv.innerHTML = `
                     <span class="drag-handle" aria-label="Drag to reorder" tabindex="0">☰</span>
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleEditDayTask(${index})">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-action="toggle-edit-day-task" data-index="${index}">
                     <div class="task-content-flex">
                         <span class="task-text">${escapeHtml(task.text)}</span>
                         ${task.time ? `<span class="task-time">${formatTime(task.time)}</span>` : ''}
                         ${assignedTag}${projectTagED}
                     </div>
-                    <button class="task-edit-btn" onclick="editTask(${index}, true)" title="Edit task" aria-label="Edit task">✏️</button>
-                    <button class="task-delete" onclick="deleteEditDayTask(${index})" aria-label="Delete task">Delete</button>
+                    <button class="task-edit-btn" data-action="edit-task" data-index="${index}" data-is-edit-day="true" title="Edit task" aria-label="Edit task">✏️</button>
+                    <button class="task-delete" data-action="delete-edit-day-task" data-index="${index}" aria-label="Delete task">Delete</button>
                 `;
                 
                 taskList.appendChild(taskDiv);
@@ -812,7 +832,7 @@
             const now = new Date();
             pointGroups = pointGroups.filter(g => new Date(g.expiresAt) > now);
             
-            const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+            const accounts = getAccounts();
             const spentPoints = accounts[currentUser]?.data?.spentPoints || 0;
             
             const totalEarned = pointGroups.reduce((sum, g) => sum + g.count, 0);
