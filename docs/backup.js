@@ -22,20 +22,14 @@ function restoreFromCode() {
         showCustomAlert('Please paste a backup code first.');
         return;
     }
-    showCustomConfirm(
-        'Restore Backup',
-        'This will overwrite all current data and reload. Continue?',
-        () => {
-            try {
-                const data = JSON.parse(decodeURIComponent(escape(atob(code))));
-                localStorage.clear();
-                for (const [key, value] of Object.entries(data)) {
-                    localStorage.setItem(key, value);
-                }
-                location.reload();
-            } catch(e) {
-                showCustomAlert('Invalid backup code. Please check and try again.');
-            }
+    try {
+        const data = JSON.parse(decodeURIComponent(escape(atob(code))));
+        localStorage.clear();
+        for (const [key, value] of Object.entries(data)) {
+            localStorage.setItem(key, value);
         }
-    );
+        location.reload();
+    } catch(e) {
+        showCustomAlert('Restore failed: ' + e.message);
+    }
 }
