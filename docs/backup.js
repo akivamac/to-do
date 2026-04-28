@@ -28,11 +28,8 @@ function restoreFromCode() {
         for (const [key, value] of Object.entries(data)) {
             localStorage.setItem(key, value);
         }
-        currentUser = localStorage.getItem('currentUser');
-        loadUserData();
-        showScreen('mainApp');
-        renderTasks();
         showCustomAlert('✓ Data restored!');
+        setTimeout(() => location.reload(), 1500);
     } catch(e) {
         showCustomAlert('Restore failed: ' + e.message);
     }
