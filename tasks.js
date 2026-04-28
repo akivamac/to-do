@@ -251,8 +251,8 @@
             let options = '<option value="">No one</option>';
             
             if (currentAccount) {
-                if (currentAccount.members) {
-                    currentAccount.members.forEach(member => {
+                if (currentAccount.data && currentAccount.data.members) {
+                    currentAccount.data.members.forEach(member => {
                         options += `<option value="${member}">${member}</option>`;
                     });
                 }
