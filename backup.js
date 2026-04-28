@@ -28,7 +28,8 @@ function restoreFromCode() {
         for (const [key, value] of Object.entries(data)) {
             localStorage.setItem(key, value);
         }
-        location.reload();
+        showCustomAlert('✓ Data restored! Reloading...');
+        setTimeout(() => location.reload(), 1500);
     } catch(e) {
         showCustomAlert('Restore failed: ' + e.message);
     }
