@@ -10,7 +10,7 @@
 // unreadable. This is a known limitation.
 // ============================================================
 
-const BACKSIDE_API_KEY = 'bsk_live_L24wiwC0BXINOMZFhsf2fZE3FnlTbacCHyAnOpz5xKk';
+const BACKSIDE_API_KEY = '';
 const BACKSIDE_BASE    = 'https://api.backside.app/api/v1';
 
 // In-memory session crypto key — derived from password at login,
@@ -85,16 +85,30 @@ async function decryptField(val) {
 async function bsRequest(method, path, body) {
     const opts = {
         method,
-        headers: { 'Content-Type': 'application/json', 'x-api-key': BACKSIDE_API_KEY }
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + BACKSIDE_API_KEY
+        }
     };
     if (body !== undefined) opts.body = JSON.stringify(body);
-    const res = await fetch(BACKSIDE_BASE + path, opts);
-    if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        throw new Error(`Backside ${method} ${path} → ${res.status}: ${txt}`);
+
+    try {
+        const res = await fetch(BACKSIDE_BASE + path, opts);
+        if (!res.ok) {
+            const txt = await res.text().catch(() => '');
+            throw new Error(`Backside ${method} ${path} → ${res.status}: ${txt}`);
+        }
+        const txt = await res.text();
+        return txt ? JSON.parse(txt) : {};
+    } catch (err) {
+        console.error('Backside request failed:', {
+            method,
+            path,
+            error: err.message,
+            apiKeyPrefix: BACKSIDE_API_KEY.substring(0, 20) + '...'
+        });
+        throw err;
     }
-    const txt = await res.text();
-    return txt ? JSON.parse(txt) : {};
 }
 
 function bsList(res) {
@@ -400,16 +414,14 @@ async function loadAndShowApp() {
 }
 
 function countCompleted() {
-    let n = 0;
-    Object.values(tasks).forEach(day => day.forEach(t => { if (t.hasBeenCompleted) n++; }));
-    return n;
+    return Object.values(tasks).flatMap(day => day).filter(t => t.hasBeenCompleted).length;
 }
 
 // ── Migration modal ───────────────────────────────────────────
 
 function checkMigrationNeeded() {
     if (localStorage.getItem('_pt_migrated')) return;
-    const accounts = JSON.parse(localStorage.getItem('todoAccounts') || '{}');
+    const accounts = getAccounts();
     const username = localStorage.getItem('currentUser');
     if (!username) return;
     const userData = accounts[username]?.data;
