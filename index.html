@@ -629,6 +629,17 @@
                     <button class="login-btn" id="generateInviteLinkBtn">Generate Invite Link</button>
                 </div>
 
+<!-- Backup & Restore Section -->
+                <div class="admin-card">
+                    <h3>💾 Backup & Restore</h3>
+                    <p class="admin-card-description">Generate a code to save all your data, or paste one to restore.</p>
+                    <button class="login-btn" data-action="generate-backup">Generate Backup Code</button>
+                    <div id="backupGenerateMsg" class="success-message hidden">✓ Code copied to clipboard!</div>
+                    <textarea id="backupCodeOutput" class="login-input backup-code-area hidden" readonly></textarea>
+                    <div class="backup-restore-divider"></div>
+                    <textarea id="restoreCodeInput" class="login-input backup-code-area" placeholder="Paste backup code here to restore..."></textarea>
+                    <button class="login-btn danger-btn" data-action="restore-backup">Restore from Code</button>
+                </div>
                 <!-- Clear Data Section -->
                 <div class="admin-card">
                     <h3><span id="adminAccessTrigger">🗑️</span> Clear Data & Cache</h3>
@@ -726,7 +737,8 @@
     <script src="notes.js"></script>
     <!-- backside.js loaded last so it can reference functions defined in the files above -->
     <script src="backside.js"></script>
-    <script src="router.js"></script>
+    <script src="backup.js"></script>    
+<script src="router.js"></script>
     <script src="listeners.js"></script>
 </body>
 </html>

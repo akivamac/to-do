@@ -388,6 +388,12 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'dismiss-hints':
                 document.getElementById('hintsBanner')?.remove();
                 break;
+            case 'generate-backup':
+                generateBackupCode();
+                break;
+            case 'restore-backup':
+                restoreFromCode();
+                break;            
             case 'mark-feature-request-done':
                 markFeatureRequestDone(el.dataset.id);
                 break;
