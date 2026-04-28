@@ -943,10 +943,10 @@ function showCustomConfirm(title, message, onConfirm) {
         </div>
     `;
     document.body.appendChild(modalDiv);
-    document.getElementById('customConfirmOkBtn').onclick = () => {
+    document.getElementById('customConfirmOkBtn').addEventListener('click', () => {
         modalDiv.remove();
         onConfirm();
-    };
+    });
 }
 
 function showCustomPrompt(title, message, defaultValue, onSubmit) {
