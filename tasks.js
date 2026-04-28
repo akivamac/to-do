@@ -250,7 +250,7 @@
             
             let options = '<option value="">No one</option>';
             
-            if (currentAccount && currentAccount.type === 'group') {
+            if (currentAccount) {
                 if (currentAccount.members) {
                     currentAccount.members.forEach(member => {
                         options += `<option value="${member}">${member}</option>`;

@@ -2989,3 +2989,13 @@
 .settings-toggle-wrap {
     margin-bottom: 15px;
 }
+
+        .member-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }

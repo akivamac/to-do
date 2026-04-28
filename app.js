@@ -827,7 +827,7 @@ function loadSettings() {
         document.getElementById('settingsDisplayName').value = currentAccount.displayName || '';
     }
     
-    document.getElementById('settingsNewPassword').value = '';
+    document.getElementById('settingsNewPassword').value = '';  renderMembersList();
 
     // Check if install button should be shown
     const settingsInstallBtn = document.getElementById('settingsInstallBtn');
@@ -893,7 +893,7 @@ function saveSettings() {
     const message = document.getElementById('settingsSaveMessage');
     message.style.display = 'block';
     setTimeout(() => { message.style.display = 'none'; }, 3000);
-    document.getElementById('settingsNewPassword').value = '';
+    document.getElementById('settingsNewPassword').value = '';  renderMembersList();
 }
 
 
@@ -2023,4 +2023,35 @@ function setupEnterKeyListeners() {
             });
         }
     });
+}
+
+function addFamilyMember() {
+    const name = document.getElementById('newMemberName').value.trim();
+    if (!name) return;
+    const accounts = getAccounts();
+    if (!accounts[currentUser].data.members) accounts[currentUser].data.members = [];
+    if (accounts[currentUser].data.members.includes(name)) {
+        showCustomAlert('That name is already added.');
+        return;
+    }
+    accounts[currentUser].data.members.push(name);
+    localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+    document.getElementById('newMemberName').value = '';
+    renderMembersList();
+}
+
+function removeFamilyMember(name) {
+    const accounts = getAccounts();
+    accounts[currentUser].data.members = (accounts[currentUser].data.members || []).filter(m => m !== name);
+    localStorage.setItem('todoAccounts', JSON.stringify(accounts));
+    renderMembersList();
+}
+
+function renderMembersList() {
+    const accounts = getAccounts();
+    const members = accounts[currentUser]?.data?.members || [];
+    const el = document.getElementById('membersList');
+    if (!el) return;
+    el.innerHTML = members.length === 0 ? '<p style="color:#999;font-size:13px;">No members yet.</p>' :
+        members.map(m => `<div class="member-row"><span>${escapeHtml(m)}</span><button class="btn-small danger-btn" data-action="remove-family-member" data-name="${escapeHtml(m)}">Remove</button></div>`).join('');
 }
