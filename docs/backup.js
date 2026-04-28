@@ -1,7 +1,4 @@
-showCustomConfirm(
-        'Restore Backup',
-        'This will overwrite all current data and reload. Continue?',
-        () => {// backup.js — Backup & Restore all localStorage data
+// backup.js — Backup & Restore all localStorage data
 
 function generateBackupCode() {
     const data = {};
