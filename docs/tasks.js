@@ -662,7 +662,7 @@
         // Edit Day Modal
         function openEditDay(dateStr) {
             currentEditDay = dateStr;
-            const date = new Date(dateStr);
+            const parts = dateStr.split("-"); const date = new Date(parts[0], parts[1]-1, parts[2]);
             
             document.getElementById('editDayTitle').textContent = 
                 date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
